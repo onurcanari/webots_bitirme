@@ -17,5 +17,10 @@ public:
         return false;
     }
 
+    std::ostream &operator<<(std::ostream &strm)
+    {
+        return strm << "(x: " << x << " y: " << y << " z: " << z << ")";
+    }
+
     ~Location();
 };

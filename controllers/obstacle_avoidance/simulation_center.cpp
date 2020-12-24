@@ -47,9 +47,8 @@ public:
                     if (isClose)
                     {
                         mine->is_found = true;
-                        std::cout << "Buldum\n";
-                        std::cout << "x:" << robot->location->x;
-                        std::cout << " x:" << mine->location->x << std::endl;
+                        std::cout << robot->robot_name;
+                        std::cout << " found " << mine->mine_name << " at " << mine->location->x << std::endl;
                     }
                 }
             }
