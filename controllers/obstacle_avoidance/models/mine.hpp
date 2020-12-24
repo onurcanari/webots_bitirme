@@ -8,6 +8,7 @@ private:
     Field *translation_field;
 
 public:
+    bool is_found = false;
     Location *location;
     std::string mine_name;
     GroundMine(Supervisor *supervisor, std::string name);
