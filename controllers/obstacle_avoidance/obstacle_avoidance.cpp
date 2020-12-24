@@ -1,10 +1,12 @@
-#include <webots/Supervisor.hpp>
 #include <stdlib.h>
 #include <stdio.h>
+
+#include <webots/Supervisor.hpp>
 #include <webots/DistanceSensor.hpp>
 #include <webots/Motor.hpp>
 #include <webots/Robot.hpp>
 #include "models/objects.cpp"
+
 #include "simulation_center.cpp"
 
 #define MINE_COUNT 2
