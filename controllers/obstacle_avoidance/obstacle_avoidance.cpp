@@ -8,8 +8,8 @@
 #include "models/objects.cpp"
 
 #define TIME_STEP 64
-#define MINE_COUNT 2
-#define ROBOT_COUNT 1
+#define MINE_COUNT 6
+#define ROBOT_COUNT 4
 
 using namespace webots;
 
@@ -42,14 +42,14 @@ int main()
     for (int i = 0; i < ROBOT_COUNT; i++)
     {
       robots[i]->Update();
-      for (int i = 0; i < MINE_COUNT; i++)
+      for (int k = 0; k < MINE_COUNT; k++)
       {
-        bool isClose = robots[i]->location->IsClose(mines[i]->location);
+        bool isClose = robots[i]->location->IsClose(mines[k]->location);
         if (isClose)
         {
           std::cout << "Buldum\n";
           std::cout << "x:" << robots[i]->location->x;
-          std::cout << " x:" << mines[i]->location->x << std::endl;
+          std::cout << " x:" << mines[k]->location->x << std::endl;
         }
       }
     }
