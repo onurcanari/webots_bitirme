@@ -9,8 +9,8 @@
 
 #include "simulation_center.cpp"
 
-#define MINE_COUNT 2
-#define ROBOT_COUNT 1
+#define MINE_COUNT 6
+#define ROBOT_COUNT 4
 
 using namespace webots;
 
