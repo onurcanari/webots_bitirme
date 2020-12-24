@@ -4,7 +4,7 @@
 #include <webots/Supervisor.hpp>
 #include <stdlib.h>
 #include <stdio.h>
-
+#include <time.h> /* time */
 #include "models/objects.cpp"
 
 #define TIME_STEP 64
@@ -19,6 +19,7 @@ int main()
   GroundMine *mines[MINE_COUNT];
 
   Supervisor *supervisor = new Supervisor();
+  srand(time(NULL));
 
   char buffer[20];
 
@@ -27,15 +28,13 @@ int main()
     sprintf(buffer, "robot%d", i);
     robots[i] = new GroundRobot(supervisor, std::string(buffer));
   }
- 
+
   for (int i = 0; i < MINE_COUNT; i++)
   {
     sprintf(buffer, "mine%d", i);
     mines[i] = new GroundMine(supervisor, std::string(buffer));
     mines[i]->Update();
   }
-
-  int avoidObstacleCounter = 0;
 
   //  #######    While Loop    #######
   while (supervisor->step(TIME_STEP) != -1)

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h> /* srand, rand */
 #include <webots/Supervisor.hpp>
 using namespace webots;
 
@@ -26,6 +27,58 @@ public:
     void Update()
     {
         location = new Location(translation_field->getSFVec3f());
+        GoRandom();
+    }
+    void GoRandom()
+    {
+        double leftSpeed = 5.0;
+        double rightSpeed = 5.0;
+
+        if (avoid_obstacle_counter > 0)
+        {
+            avoid_obstacle_counter--;
+            if (device_direction)
+            {
+                leftSpeed = -1.0;
+                rightSpeed = 1.0;
+            }
+            else
+            {
+                leftSpeed = 1.0;
+                rightSpeed = -1.0;
+            }
+        }
+        else
+        {
+            for (int i = 0; i < 2; i++)
+            {
+                if (distance_sensors[i]->getValue() < 950.0)
+                {
+                    avoid_obstacle_counter = rand() % 100 + 1;
+                    direction_counter = rand() % 200 + 10;
+                    turn = true;
+                    return;
+                }
+            }
+
+            if (direction_counter > 0)
+            {
+                direction_counter--;
+            }
+            else
+            {
+                device_direction = (rand() % 10 + 1) > 5;
+                avoid_obstacle_counter = rand() % 100 + 1;
+                direction_counter = rand() % 200 + 10;
+            }
+        }
+        wheels[0]->setVelocity(leftSpeed);
+        wheels[1]->setVelocity(rightSpeed);
+        wheels[2]->setVelocity(leftSpeed);
+        wheels[3]->setVelocity(rightSpeed);
+    }
+    void ObstacleAvoidence()
+    {
         double leftSpeed = 5.0;
         double rightSpeed = 5.0;
 
