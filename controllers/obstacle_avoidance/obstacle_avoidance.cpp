@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
-
+#include <time.h>
 #include <webots/Supervisor.hpp>
 #include <webots/DistanceSensor.hpp>
 #include <webots/Motor.hpp>
@@ -9,13 +9,14 @@
 
 #include "simulation_center.cpp"
 
-#define MINE_COUNT 2
-#define ROBOT_COUNT 1
+#define MINE_COUNT 6
+#define ROBOT_COUNT 4
 
 using namespace webots;
 
 int main()
 {
+  srand (time(NULL));
   SimulationCenter *simulation_center = new SimulationCenter(ROBOT_COUNT, MINE_COUNT);
 
   while (simulation_center->MakeStep())

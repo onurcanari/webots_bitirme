@@ -27,13 +27,13 @@ public:
     void Update()
     {
         location = new Location(translation_field->getSFVec3f());
+
         GoRandom();
     }
     void GoRandom()
     {
         double leftSpeed = 5.0;
         double rightSpeed = 5.0;
-
         if (avoid_obstacle_counter > 0)
         {
             avoid_obstacle_counter--;
@@ -70,6 +70,8 @@ public:
                 device_direction = (rand() % 10 + 1) > 5;
                 avoid_obstacle_counter = rand() % 100 + 1;
                 direction_counter = rand() % 200 + 10;
+                std::cout << robot_name << " : " << avoid_obstacle_counter;
+                std::cout << "\n";
             }
         }
         wheels[0]->setVelocity(leftSpeed);
