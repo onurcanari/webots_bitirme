@@ -77,6 +77,7 @@ public:
         wheels[2]->setVelocity(leftSpeed);
         wheels[3]->setVelocity(rightSpeed);
     }
+
     void ObstacleAvoidence()
     {
         double leftSpeed = 5.0;
@@ -143,20 +144,23 @@ public:
         }
     }
 
-    std::string GetName(){
+    std::string GetName()
+    {
         return getName();
     }
 };
 
 GroundRobot::GroundRobot()
 {
-
+    // uzaklık sensörlerini kaydet ve başlat
     char dsNames[2][10] = {"ds_right", "ds_left"};
     for (int i = 0; i < 2; i++)
     {
         distance_sensors[i] = getDistanceSensor(dsNames[i]);
         distance_sensors[i]->enable(TIME_STEP);
     }
+    
+    // motorları ekle, pozsiyonlarını ayarlar ve başlat
     char wheels_names[4][8] = {"wheel1", "wheel2", "wheel3", "wheel4"};
     for (int i = 0; i < 4; i++)
     {
@@ -166,4 +170,5 @@ GroundRobot::GroundRobot()
     }
 }
 GroundRobot::~GroundRobot()
-{}
+{
+}

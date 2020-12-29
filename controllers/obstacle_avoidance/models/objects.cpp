@@ -6,6 +6,8 @@
 
 GroundRobot::GroundRobot(Supervisor *supervisor, std::string name)
 {
+    // GroundRobot constructerı
+    // isiminden node ve translation definii alıp tutar. buralardan konumuna ulaşırız.
     robot_name = name;
     node = supervisor->getFromDef(robot_name);
     if (node == NULL)
@@ -20,6 +22,8 @@ GroundRobot::~GroundRobot()
 
 GroundMine::GroundMine(Supervisor *supervisor, std::string name)
 {
+    // GroundMine constructerı
+    // isiminden node ve translation definii alıp tutar. buralardan konumuna ulaşırız.
     mine_name = name;
     node = supervisor->getFromDef(mine_name);
     translation_field = node->getField("translation");

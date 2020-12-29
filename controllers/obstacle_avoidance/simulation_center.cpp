@@ -25,7 +25,7 @@ public:
     {
         ground_mines.push_back(ground_mine);
     }
-
+    // her robotoun konumunu günceller
     void UpdateRobots()
     {
         for (auto robot : ground_robots)
@@ -33,7 +33,7 @@ public:
             robot->Update();
         }
     }
-
+    // her robotun konumu ile diğer mayınların konumunu karşılaştırır.
     void CalculateDistances()
     {
         for (auto robot : ground_robots)
@@ -43,6 +43,7 @@ public:
                 if (!mine->is_found)
                 {
                     bool isClose = robot->GetLocation().IsClose(mine->location);
+                    // eğer mayın bulduysa mayını bulundu olarak işaretle ve log yazdır.
                     if (isClose)
                     {
                         foundMineCount++;
@@ -71,6 +72,7 @@ public:
 
 SimulationCenter::SimulationCenter(int robot_count, int mine_count)
 {
+    // verilen mayın ve robot sayısı kadar groundrobot objesi oluşturur. ve hepsini dinamik listeye ekler.
     this->mine_count = mine_count;
     char buffer[20];
     for (int i = 0; i < robot_count; i++)

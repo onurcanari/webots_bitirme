@@ -7,10 +7,12 @@ using namespace std::chrono;
 
 int main(int argc, char **argv)
 {
+  // epoch zamanını miliseconds olarak alır.
   milliseconds ms = duration_cast<milliseconds>(
       system_clock::now().time_since_epoch());
 
   GroundRobot *robot = new GroundRobot();
+  // random fonksiyionu için robot adının hashlenmiş hali ile(integer) msnin değerini toplarız ve benzersiz bir seed oluşturmuş oluruz.
   srand(std::hash<std::string>{}(robot->GetName()) + ms.count());
   robot->Run();
   delete robot;

@@ -13,13 +13,11 @@ public:
     std::string mine_name;
     GroundMine(Supervisor *supervisor, std::string name);
 
+    // konumunu günceller
     void Update()
     {
         const double *vect = translation_field->getSFVec3f();
         location = new Location(vect);
-        std::cout << location->x << std::endl;
-        std::cout << location->y << std::endl;
-        std::cout << location->z << std::endl;
     }
 
     ~GroundMine();

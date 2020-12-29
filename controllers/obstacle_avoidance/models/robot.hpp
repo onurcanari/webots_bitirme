@@ -15,10 +15,13 @@ public:
     std::string robot_name;
     GroundRobot(Supervisor *supervisor, std::string name);
 
+    // konumunu günceller
     void Update()
     {
         location = new Location(translation_field->getSFVec3f());
     }
+
+    // lokasyonun değerini döndür. pointer olarak dönmez.
     Location GetLocation()
     {
         return *location;
