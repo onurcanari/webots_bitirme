@@ -1,12 +1,16 @@
 #include <vector>
+#include <webots/Supervisor.hpp>
 
-class SimulationCenter
+class SimulationCenter : Supervisor
 {
 private:
     Supervisor *supervisor;
     const int TIME_STEP = 64;
+    int mine_count = 0;
 
 public:
+    int foundMineCount = 0;
+
     std::vector<GroundRobot *> ground_robots;
     std::vector<GroundMine *> ground_mines;
     SimulationCenter(int robot_count, int mine_count);
@@ -30,11 +34,6 @@ public:
         }
     }
 
-    bool MakeStep()
-    {
-        return supervisor->step(TIME_STEP) != -1;
-    }
-
     void CalculateDistances()
     {
         for (auto robot : ground_robots)
@@ -43,39 +42,51 @@ public:
             {
                 if (!mine->is_found)
                 {
-                    bool isClose = robot->location->IsClose(mine->location);
+                    bool isClose = robot->GetLocation().IsClose(mine->location);
                     if (isClose)
                     {
+                        foundMineCount++;
                         mine->is_found = true;
                         std::cout << robot->robot_name;
-                        std::cout << " found " << mine->mine_name << " at " << mine->location->x << std::endl;
+                        std::cout << " found " << mine->mine_name << " at " << mine->location << std::endl;
                     }
                 }
             }
         }
     }
+
+    void Run()
+    {
+        while (step(TIME_STEP) != -1)
+        {
+            if (foundMineCount == mine_count)
+                break;
+
+            UpdateRobots();
+            CalculateDistances();
+        }
+        simulationQuit(0);
+    }
 };
 
 SimulationCenter::SimulationCenter(int robot_count, int mine_count)
 {
-    supervisor = new Supervisor();
+    this->mine_count = mine_count;
     char buffer[20];
     for (int i = 0; i < robot_count; i++)
     {
         sprintf(buffer, "robot%d", i);
-        auto robot = new GroundRobot(supervisor, std::string(buffer));
+        auto robot = new GroundRobot(this, std::string(buffer));
         AddRobot(robot);
     }
 
     for (int i = 0; i < mine_count; i++)
     {
         sprintf(buffer, "mine%d", i);
-        auto mine = new GroundMine(supervisor, std::string(buffer));
+        auto mine = new GroundMine(this, std::string(buffer));
         AddMine(mine);
     }
 }
-
 SimulationCenter::~SimulationCenter()
 {
-    delete supervisor;
 }

@@ -8,20 +8,14 @@ GroundRobot::GroundRobot(Supervisor *supervisor, std::string name)
 {
     robot_name = name;
     node = supervisor->getFromDef(robot_name);
+    if (node == NULL)
+    {
+        std::cout << name << "'s node is NULL";
+    }
     translation_field = node->getField("translation");
-    char dsNames[2][10] = {"ds_right", "ds_left"};
-    for (int i = 0; i < 2; i++)
-    {
-        distance_sensors[i] = supervisor->getDistanceSensor(dsNames[i]);
-        distance_sensors[i]->enable(64); //time step = 64
-    }
-    char wheels_names[4][8] = {"wheel1", "wheel2", "wheel3", "wheel4"};
-    for (int i = 0; i < 4; i++)
-    {
-        wheels[i] = supervisor->getMotor(wheels_names[i]);
-        wheels[i]->setPosition(INFINITY);
-        wheels[i]->setVelocity(0.0);
-    }
+}
+GroundRobot::~GroundRobot()
+{
 }
 
 GroundMine::GroundMine(Supervisor *supervisor, std::string name)
@@ -32,8 +26,16 @@ GroundMine::GroundMine(Supervisor *supervisor, std::string name)
     Update();
 }
 
-Location::Location(const double *locations){
+GroundMine::~GroundMine()
+{
+}
+
+Location::Location(const double *locations)
+{
     x = locations[0];
     y = locations[1];
     z = locations[2];
+}
+Location::~Location()
+{
 }

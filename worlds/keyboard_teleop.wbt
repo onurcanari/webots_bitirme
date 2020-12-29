@@ -3,8 +3,8 @@ WorldInfo {
   coordinateSystem "NUE"
 }
 Viewpoint {
-  orientation -0.009695471130196726 -0.8318853018286388 -0.5548629041853833 3.0949107426915603
-  position -0.11633881380182776 9.074246731644552 -4.0716779781180525
+  orientation 0.49435841335295966 0.8506104201079726 0.17908565646327684 5.1924074354251415
+  position -3.479106257853099 2.6525768994786523 2.5838605875948186
 }
 TexturedBackground {
 }
@@ -38,8 +38,8 @@ DEF robot0 Robot {
         }
       ]
       endPoint Solid {
-        translation 0.060000000000000026 1.3121546516658775e-17 0.04999999999999999
-        rotation -0.6734663975322595 0.6729303116158999 0.3059539297074784 2.5473266870534728
+        translation 0.060000000000000026 1.551795293698202e-17 0.04999999999999999
+        rotation -0.6734663975322595 0.6729303116158996 0.3059539297074792 2.5473266870534728
         children [
           DEF Wheel Shape {
             appearance PBRAppearance {
@@ -68,8 +68,8 @@ DEF robot0 Robot {
         }
       ]
       endPoint Solid {
-        translation -0.06 -1.2111342895721061e-17 0.05000000000000001
-        rotation -0.019727557843683154 0.019711854512435713 0.9996110574884638 1.5703890180963886
+        translation -0.06 -1.1773175858557495e-17 0.05000000000000001
+        rotation -0.01972755784368315 0.019711854512435713 0.9996110574884638 1.5703890180963889
         children [
           USE Wheel
         ]
@@ -89,8 +89,8 @@ DEF robot0 Robot {
         }
       ]
       endPoint Solid {
-        translation 0.060000000000000026 -1.3122813088351676e-17 -0.04999999999999999
-        rotation -0.6734427229831669 0.672906655911982 0.3060580521573826 2.5471361468196396
+        translation 0.060000000000000026 -1.5518050222062496e-17 -0.04999999999999999
+        rotation -0.673442722983167 0.6729066559119821 0.3060580521573825 2.5471361468196396
         children [
           USE Wheel
         ]
@@ -110,8 +110,8 @@ DEF robot0 Robot {
         }
       ]
       endPoint Solid {
-        translation -0.06 -1.26435160237067e-08 -0.049999999505492075
-        rotation -0.019556477579739426 0.019540910430076757 0.9996177754543166 1.5703822975397637
+        translation -0.06 -1.2643516024197596e-08 -0.049999999505492075
+        rotation -0.019556477579739426 0.019540910430076695 0.9996177754543166 1.5703822975397637
         children [
           USE Wheel
         ]
@@ -196,11 +196,10 @@ DEF robot0 Robot {
   boundingObject USE Body
   physics Physics {
   }
-  controller "obstacle_avoidance"
+  controller "robot_controller"
   controllerArgs [
-    "--name=ros_test"
+    "robot0"
   ]
-  supervisor TRUE
 }
 DEF robot1 Robot {
   translation 1.13005 0.0397206 -1.62501
@@ -225,8 +224,8 @@ DEF robot1 Robot {
         }
       ]
       endPoint Solid {
-        translation 0.060000000000000026 1.3121546516658775e-17 0.04999999999999999
-        rotation -0.6734663975322595 0.6729303116158999 0.3059539297074784 2.5473266870534728
+        translation 0.060000000000000026 1.551795293698202e-17 0.04999999999999999
+        rotation -0.6734663975322595 0.6729303116158996 0.3059539297074792 2.5473266870534728
         children [
           DEF Wheel Shape {
             appearance PBRAppearance {
@@ -255,8 +254,8 @@ DEF robot1 Robot {
         }
       ]
       endPoint Solid {
-        translation -0.06 -1.2111342895721061e-17 0.05000000000000001
-        rotation -0.019727557843683154 0.019711854512435713 0.9996110574884638 1.5703890180963886
+        translation -0.06 -1.1773175858557495e-17 0.05000000000000001
+        rotation -0.01972755784368315 0.019711854512435713 0.9996110574884638 1.5703890180963889
         children [
           USE Wheel
         ]
@@ -276,8 +275,8 @@ DEF robot1 Robot {
         }
       ]
       endPoint Solid {
-        translation 0.060000000000000026 -1.3122813088351676e-17 -0.04999999999999999
-        rotation -0.6734427229831669 0.672906655911982 0.3060580521573826 2.5471361468196396
+        translation 0.060000000000000026 -1.5518050222062496e-17 -0.04999999999999999
+        rotation -0.673442722983167 0.6729066559119821 0.3060580521573825 2.5471361468196396
         children [
           USE Wheel
         ]
@@ -297,8 +296,8 @@ DEF robot1 Robot {
         }
       ]
       endPoint Solid {
-        translation -0.06 -1.26435160237067e-08 -0.049999999505492075
-        rotation -0.019556477579739426 0.019540910430076757 0.9996177754543166 1.5703822975397637
+        translation -0.06 -1.2643516024197596e-08 -0.049999999505492075
+        rotation -0.019556477579739426 0.019540910430076695 0.9996177754543166 1.5703822975397637
         children [
           USE Wheel
         ]
@@ -383,11 +382,10 @@ DEF robot1 Robot {
   boundingObject USE Body
   physics Physics {
   }
-  controller "obstacle_avoidance"
+  controller "robot_controller"
   controllerArgs [
-    "--name=ros_test"
+    "robot1"
   ]
-  supervisor TRUE
 }
 DEF robot2 Robot {
   translation 0.120051 0.0397206 -1.62501
@@ -412,8 +410,8 @@ DEF robot2 Robot {
         }
       ]
       endPoint Solid {
-        translation 0.060000000000000026 1.3121546516658775e-17 0.04999999999999999
-        rotation -0.6734663975322595 0.6729303116158999 0.3059539297074784 2.5473266870534728
+        translation 0.060000000000000026 1.551795293698202e-17 0.04999999999999999
+        rotation -0.6734663975322595 0.6729303116158996 0.3059539297074792 2.5473266870534728
         children [
           DEF Wheel Shape {
             appearance PBRAppearance {
@@ -442,8 +440,8 @@ DEF robot2 Robot {
         }
       ]
       endPoint Solid {
-        translation -0.06 -1.2111342895721061e-17 0.05000000000000001
-        rotation -0.019727557843683154 0.019711854512435713 0.9996110574884638 1.5703890180963886
+        translation -0.06 -1.1773175858557495e-17 0.05000000000000001
+        rotation -0.01972755784368315 0.019711854512435713 0.9996110574884638 1.5703890180963889
         children [
           USE Wheel
         ]
@@ -463,8 +461,8 @@ DEF robot2 Robot {
         }
       ]
       endPoint Solid {
-        translation 0.060000000000000026 -1.3122813088351676e-17 -0.04999999999999999
-        rotation -0.6734427229831669 0.672906655911982 0.3060580521573826 2.5471361468196396
+        translation 0.060000000000000026 -1.5518050222062496e-17 -0.04999999999999999
+        rotation -0.673442722983167 0.6729066559119821 0.3060580521573825 2.5471361468196396
         children [
           USE Wheel
         ]
@@ -484,8 +482,8 @@ DEF robot2 Robot {
         }
       ]
       endPoint Solid {
-        translation -0.06 -1.26435160237067e-08 -0.049999999505492075
-        rotation -0.019556477579739426 0.019540910430076757 0.9996177754543166 1.5703822975397637
+        translation -0.06 -1.2643516024197596e-08 -0.049999999505492075
+        rotation -0.019556477579739426 0.019540910430076695 0.9996177754543166 1.5703822975397637
         children [
           USE Wheel
         ]
@@ -570,11 +568,10 @@ DEF robot2 Robot {
   boundingObject USE Body
   physics Physics {
   }
-  controller "obstacle_avoidance"
+  controller "robot_controller"
   controllerArgs [
-    "--name=ros_test"
+    "robot2"
   ]
-  supervisor TRUE
 }
 DEF robot3 Robot {
   translation 0.64005 0.0397206 -1.62501
@@ -599,8 +596,8 @@ DEF robot3 Robot {
         }
       ]
       endPoint Solid {
-        translation 0.060000000000000026 1.3121546516658775e-17 0.04999999999999999
-        rotation -0.6734663975322595 0.6729303116158999 0.3059539297074784 2.5473266870534728
+        translation 0.060000000000000026 1.551795293698202e-17 0.04999999999999999
+        rotation -0.6734663975322595 0.6729303116158996 0.3059539297074792 2.5473266870534728
         children [
           DEF Wheel Shape {
             appearance PBRAppearance {
@@ -629,8 +626,8 @@ DEF robot3 Robot {
         }
       ]
       endPoint Solid {
-        translation -0.06 -1.2111342895721061e-17 0.05000000000000001
-        rotation -0.019727557843683154 0.019711854512435713 0.9996110574884638 1.5703890180963886
+        translation -0.06 -1.1773175858557495e-17 0.05000000000000001
+        rotation -0.01972755784368315 0.019711854512435713 0.9996110574884638 1.5703890180963889
         children [
           USE Wheel
         ]
@@ -650,8 +647,8 @@ DEF robot3 Robot {
         }
       ]
       endPoint Solid {
-        translation 0.060000000000000026 -1.3122813088351676e-17 -0.04999999999999999
-        rotation -0.6734427229831669 0.672906655911982 0.3060580521573826 2.5471361468196396
+        translation 0.060000000000000026 -1.5518050222062496e-17 -0.04999999999999999
+        rotation -0.673442722983167 0.6729066559119821 0.3060580521573825 2.5471361468196396
         children [
           USE Wheel
         ]
@@ -671,8 +668,8 @@ DEF robot3 Robot {
         }
       ]
       endPoint Solid {
-        translation -0.06 -1.26435160237067e-08 -0.049999999505492075
-        rotation -0.019556477579739426 0.019540910430076757 0.9996177754543166 1.5703822975397637
+        translation -0.06 -1.2643516024197596e-08 -0.049999999505492075
+        rotation -0.019556477579739426 0.019540910430076695 0.9996177754543166 1.5703822975397637
         children [
           USE Wheel
         ]
@@ -757,11 +754,10 @@ DEF robot3 Robot {
   boundingObject USE Body
   physics Physics {
   }
-  controller "obstacle_avoidance"
+  controller "robot_controller"
   controllerArgs [
-    "--name=ros_test"
+    "robot3"
   ]
-  supervisor TRUE
 }
 DEF mine0 Robot {
   children [
@@ -776,8 +772,6 @@ DEF mine0 Robot {
     }
   ]
   name "mine0_name"
-  controller "obstacle_avoidance"
-  supervisor TRUE
 }
 DEF mine1 Robot {
   translation 1.61 0 0.91
@@ -793,8 +787,6 @@ DEF mine1 Robot {
     }
   ]
   name "mine1_name"
-  controller "obstacle_avoidance"
-  supervisor TRUE
 }
 DEF mine2 Robot {
   translation -1.24 0 0.63
@@ -810,8 +802,6 @@ DEF mine2 Robot {
     }
   ]
   name "mine2_name"
-  controller "obstacle_avoidance"
-  supervisor TRUE
 }
 DEF mine3 Robot {
   translation -1.4 0 -1.35
@@ -827,8 +817,6 @@ DEF mine3 Robot {
     }
   ]
   name "mine3_name"
-  controller "obstacle_avoidance"
-  supervisor TRUE
 }
 DEF mine4 Robot {
   translation 0.88 0 -0.35
@@ -844,8 +832,6 @@ DEF mine4 Robot {
     }
   ]
   name "mine4_name"
-  controller "obstacle_avoidance"
-  supervisor TRUE
 }
 DEF mine5 Robot {
   translation -0.37 0 1.36
@@ -861,6 +847,21 @@ DEF mine5 Robot {
     }
   ]
   name "mine5_name"
+}
+DEF admin Robot {
+  translation 0 1.96 0
+  children [
+    Shape {
+      appearance PBRAppearance {
+      }
+      geometry Sphere {
+        radius 0.1
+      }
+    }
+  ]
   controller "obstacle_avoidance"
+  controllerArgs [
+    ""
+  ]
   supervisor TRUE
 }
