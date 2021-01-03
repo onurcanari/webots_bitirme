@@ -52,6 +52,7 @@ public:
                         std::cout << " found " << mine->mine_name << " at " << mine->location << std::endl;
                     }
                 }
+                
             }
         }
     }
@@ -62,7 +63,6 @@ public:
         {
             if (foundMineCount == mine_count)
                 break;
-
             UpdateRobots();
             CalculateDistances();
         }
