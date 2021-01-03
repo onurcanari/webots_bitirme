@@ -24,3 +24,13 @@ public:
 
     ~Location();
 };
+
+Location::Location(const double *locations)
+{
+    x = locations[0];
+    y = locations[1];
+    z = locations[2];
+}
+Location::~Location()
+{
+}

@@ -1,5 +1,8 @@
 #include <vector>
 #include <webots/Supervisor.hpp>
+#include "models/location.hpp"
+#include "models/mine.hpp"
+#include "models/robot.hpp"
 
 class SimulationCenter : Supervisor
 {
@@ -52,7 +55,6 @@ public:
                         std::cout << " found " << mine->mine_name << " at " << mine->location << std::endl;
                     }
                 }
-                
             }
         }
     }
@@ -88,6 +90,7 @@ SimulationCenter::SimulationCenter(int robot_count, int mine_count)
         auto mine = new GroundMine(this, std::string(buffer));
         AddMine(mine);
     }
+    
 }
 SimulationCenter::~SimulationCenter()
 {

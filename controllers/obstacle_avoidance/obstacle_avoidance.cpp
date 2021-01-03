@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
-#include "models/objects.cpp"
 
 #include "simulation_center.cpp"
 

@@ -29,3 +29,19 @@ public:
 
     ~GroundRobot();
 };
+
+GroundRobot::GroundRobot(Supervisor *supervisor, std::string name)
+{
+    // GroundRobot constructerı
+    // isiminden node ve translation definii alıp tutar. buralardan konumuna ulaşırız.
+    robot_name = name;
+    node = supervisor->getFromDef(robot_name);
+    if (node == NULL)
+    {
+        std::cout << name << "'s node is NULL";
+    }
+    translation_field = node->getField("translation");
+}
+GroundRobot::~GroundRobot()
+{
+}
