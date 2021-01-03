@@ -17,6 +17,8 @@ class GroundRobot : Robot
 {
 private:
     const int TIME_STEP = 64;
+    Receiver *command_receiver;
+    
     Motor *wheels[4];
     DistanceSensor *distance_sensors[2];
     int avoid_obstacle_counter = 0;
@@ -140,7 +142,7 @@ public:
     {
         while (step(TIME_STEP) != -1)
         {
-            GoRandom();
+            // GoRandom();
         }
     }
 
@@ -159,7 +161,7 @@ GroundRobot::GroundRobot()
         distance_sensors[i] = getDistanceSensor(dsNames[i]);
         distance_sensors[i]->enable(TIME_STEP);
     }
-    
+
     // motorları ekle, pozsiyonlarını ayarlar ve başlat
     char wheels_names[4][8] = {"wheel1", "wheel2", "wheel3", "wheel4"};
     for (int i = 0; i < 4; i++)
