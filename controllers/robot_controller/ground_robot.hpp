@@ -29,7 +29,7 @@ private:
     double right_speed = 5.0;
 
 public:
-    GroundRobot();
+    GroundRobot(std::string robotID);
 
     void GoRandom()
     {
@@ -142,7 +142,7 @@ public:
     {
         while (step(TIME_STEP) != -1)
         {
-            // GoRandom();
+         GoRandom();
         }
     }
 
@@ -152,7 +152,7 @@ public:
     }
 };
 
-GroundRobot::GroundRobot()
+GroundRobot::GroundRobot(std::string robotID)
 {
     // uzaklık sensörlerini kaydet ve başlat
     char dsNames[2][10] = {"ds_right", "ds_left"};
@@ -170,6 +170,9 @@ GroundRobot::GroundRobot()
         wheels[i]->setPosition(INFINITY);
         wheels[i]->setVelocity(0.0);
     }
+    command_receiver = getReceiver("receiver");
+    command_receiver->setChannel(stoi(robotID));
+
 }
 GroundRobot::~GroundRobot()
 {
