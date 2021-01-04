@@ -11,7 +11,7 @@ int main(int argc, char **argv)
   milliseconds ms = duration_cast<milliseconds>(
       system_clock::now().time_since_epoch());
 
-  GroundRobot *robot = new GroundRobot();
+  GroundRobot *robot = new GroundRobot(argv[1]);
   // random fonksiyionu için robot adının hashlenmiş hali ile(integer) msnin değerini toplarız ve benzersiz bir seed oluşturmuş oluruz.
   srand(std::hash<std::string>{}(robot->GetName()) + ms.count());
   robot->Run();
