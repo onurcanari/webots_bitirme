@@ -18,7 +18,6 @@ class GroundRobot : Robot
 private:
     const int TIME_STEP = 64;
     Receiver *command_receiver;
-    
     Motor *wheels[4];
     DistanceSensor *distance_sensors[2];
     int avoid_obstacle_counter = 0;

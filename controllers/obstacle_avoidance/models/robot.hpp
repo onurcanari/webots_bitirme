@@ -10,10 +10,11 @@ private:
     Node *node;
     Field *translation_field;
     Location *location;
+    LocationLimit *location_limit;
 
 public:
     std::string robot_name;
-    GroundRobot(Supervisor *supervisor, std::string name);
+    GroundRobot(Supervisor *supervisor, std::string name, LocationLimit *location_limit);
 
     // konumunu günceller
     void Update()
@@ -30,12 +31,13 @@ public:
     ~GroundRobot();
 };
 
-GroundRobot::GroundRobot(Supervisor *supervisor, std::string name)
+GroundRobot::GroundRobot(Supervisor *supervisor, std::string name, LocationLimit *location_limit)
 {
     // GroundRobot constructerı
     // isiminden node ve translation definii alıp tutar. buralardan konumuna ulaşırız.
     robot_name = name;
     node = supervisor->getFromDef(robot_name);
+    this->location_limit = location_limit;
     if (node == NULL)
     {
         std::cout << name << "'s node is NULL";
