@@ -18,10 +18,7 @@ public:
         return false;
     }
 
-    std::ostream &operator<<(std::ostream &strm)
-    {
-        return strm << "(x: " << x << " y: " << y << " z: " << z << ")";
-    }
+    friend std::ostream &operator<<(std::ostream &os, const Location &dt);
 
     Location Add(Location *location)
     {
@@ -44,6 +41,12 @@ public:
 
     ~Location();
 };
+
+std::ostream &operator<<(std::ostream &os, const Location &loc)
+{
+    os << "(x: " << loc.x << " y: " << loc.y << " z: " << loc.z << ")";
+    return os;
+}
 
 Location::Location(const double *locations)
 {

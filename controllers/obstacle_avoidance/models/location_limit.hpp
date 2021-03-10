@@ -18,7 +18,14 @@ public:
     {
         return LocationLimit(upper_limit, lower_limit);
     }
+    friend std::ostream &operator<<(std::ostream &os, const LocationLimit &lt);
 };
+
+std::ostream &operator<<(std::ostream &os, const LocationLimit &lt)
+{
+    os << lt.upper_limit;
+    return os;
+}
 
 LocationLimit::LocationLimit(Location *upper_limit, Location *lower_limit)
 {

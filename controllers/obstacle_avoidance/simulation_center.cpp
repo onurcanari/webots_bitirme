@@ -46,7 +46,6 @@ public:
         int i = 0;
         for (auto robot : ground_robots)
         {
-
             for (auto mine : ground_mines)
             {
                 if (!mine->is_found)
@@ -58,11 +57,10 @@ public:
                         foundMineCount++;
                         mine->is_found = true;
                         std::cout << robot->robot_name;
-                        std::cout << " found " << mine->mine_name << " at " << mine->location << std::endl;
+                        std::cout << " found " << mine->mine_name << " at " << *(mine->location) << std::endl;
                     }
                 }
             }
-
             i++;
         }
     }
@@ -119,6 +117,7 @@ SimulationCenter::SimulationCenter(int robot_count, int mine_count)
         AddMine(mine);
     }
 }
+
 SimulationCenter::~SimulationCenter()
 {
 }

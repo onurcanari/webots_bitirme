@@ -11,8 +11,7 @@ using namespace webots;
 
 int main()
 {
-  SimulationCenter *simulation_center = new SimulationCenter(ROBOT_COUNT, MINE_COUNT);
-  simulation_center->Run();
-  delete simulation_center;
+  SimulationCenter simulation_center = SimulationCenter(ROBOT_COUNT, MINE_COUNT);
+  simulation_center.Run();
   return 0;
 }
