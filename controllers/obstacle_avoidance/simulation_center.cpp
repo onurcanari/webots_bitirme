@@ -74,7 +74,6 @@ public:
             UpdateRobots();
             CalculateDistances();
         }
-        simulationQuit(0);
     }
 
     void SendCommandToRobot(int robot_num)
@@ -92,7 +91,6 @@ SimulationCenter::SimulationCenter(int robot_count, int mine_count)
     char buffer[20];
 
     Location map_start = Location(2, 0, -2);
-    Location map_end = Location(-2, 0, 2);
 
     Location *offset = new Location(0, 0, 1);
     Location temp_lower = map_start.Clone();
@@ -100,7 +98,7 @@ SimulationCenter::SimulationCenter(int robot_count, int mine_count)
 
     LocationLimit *robot_loc_limit;
 
-    for (int i = 0; i < robot_count; i++)
+    for (int i = 0; i < 20; i++)
     {
         temp_upper = temp_lower.Add(offset);
         robot_loc_limit = new LocationLimit(&temp_upper, &temp_lower);
