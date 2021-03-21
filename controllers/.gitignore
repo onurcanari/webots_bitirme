@@ -27,6 +27,7 @@
 *.out
 *.app
 
-*.exe
-
 .vscode
+
+#Custom
+*.wbproj

@@ -22,7 +22,7 @@ class GroundRobot : Robot
 private:
     const int TIME_STEP = 64;
     Receiver *command_receiver;
-    Compass *compass;
+    // Compass *compass;
     Motor *wheels[4];
     DistanceSensor *distance_sensors[2];
     int avoid_obstacle_counter = 0;
@@ -47,7 +47,7 @@ public:
         while(!found_area_to_search)
         {
             temp_upper = location_lower.Add(offset);
-            robot_loc_limit = new LocationLimit(&temp_upper, &temp_lower);
+            robot_loc_limit = new LocationLimit(&temp_upper, &location_lower);
             // https://github.com/onurcanari/webots_bitirme/issues/4#issue-832042964
             // int area_number = robot_loc_limit.CalculateAreaNumber();
             // found_area_to_search = askForArea(areaNumber, robotID);
@@ -58,8 +58,7 @@ public:
 
     void GoRandom()
     {
-        std::cout << "angle : "
-                  << "angle";
+       
         double leftSpeed = 5.0;
         double rightSpeed = 5.0;
         if (avoid_obstacle_counter > 0)
@@ -164,7 +163,7 @@ public:
         wheels[3]->setVelocity(rightSpeed);
     }
 
-    void GoWhere()
+ /*    void GoWhere()
     {
         double x = -2.0, z = -2.0;
 
@@ -183,11 +182,11 @@ public:
 
         std::cout << "angle : " << angle << std::endl;
 
-        /*  if (angle > 180)
-        {
-            angle = 360 - angle;
-            rotation = "right";
-        } */
+        //  if (angle > 180)
+        // {
+        //     angle = 360 - angle;
+        //     rotation = "right";
+        // }
 
         if (angle > -1 && angle < 1)
         {
@@ -220,14 +219,14 @@ public:
             bearing = bearing + 360.0;
         return bearing;
     }
-
+ */
     ~GroundRobot();
 
     void Run()
     {
         while (step(TIME_STEP) != -1)
         {
-            GoWhere();
+            GoRandom();
         }
     }
 
@@ -258,8 +257,8 @@ GroundRobot::GroundRobot(std::string robotID)
 
     command_receiver = getReceiver("receiver");
     command_receiver->setChannel(stoi(robotID));
-    compass = getCompass("compass");
-    compass->enable(TIME_STEP);
+/*     compass = getCompass("compass");
+    compass->enable(TIME_STEP); */
 }
 GroundRobot::~GroundRobot()
 {

@@ -98,7 +98,7 @@ SimulationCenter::SimulationCenter(int robot_count, int mine_count)
 
     LocationLimit *robot_loc_limit;
 
-    for (int i = 0; i < 20; i++)
+    for (int i = 0; i < robot_count; i++)
     {
         temp_upper = temp_lower.Add(offset);
         robot_loc_limit = new LocationLimit(&temp_upper, &temp_lower);
