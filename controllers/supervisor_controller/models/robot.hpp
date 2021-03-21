@@ -16,7 +16,7 @@ public:
     std::string robot_name;
     std::string message;
     int channel;
-    
+
     GroundRobot(Supervisor *supervisor, std::string name, LocationLimit *location_limit);
 
     // konumunu günceller
@@ -29,6 +29,10 @@ public:
     Location GetLocation()
     {
         return *location;
+    }
+    LocationLimit GetLocationLimit()
+    {
+      return *location_limit;
     }
 
     ~GroundRobot();

@@ -15,7 +15,6 @@ private:
     const int TIME_STEP = 64;
     int mine_count = 0;
     Emitter *emitter;
-    Node *robot;
 
 public:
     int foundMineCount = 0;
@@ -69,56 +68,33 @@ public:
             i++;
         }
     }
-        void locationControl(){
-        for(auto robot : ground_robots){
-            if(robot->robot_name == "robot0"){
-                if(robot->GetLocation().z > 1.8){
-                    sendMessage("turnRight",(robot->message).c_str(),(int)(robot->channel));
-                    robot->message = "turnRight";
-                }
-                else if(robot->GetLocation().z <1){
-                    sendMessage("turnLeft",(robot->message).c_str(),(int)(robot->channel));
-                    robot->message = "turnLeft";
-                }
+    //TODO FİX MEEEEE !!!!!
+    // robot->GetLocationLimit() log 4.212312e123 error 
+    void locationControl()
+    {
+        for (auto robot : ground_robots)
+        {
+            cout << " upper limit : " << robot->GetLocationLimit();
+            /*             if (locationZ > z)
+            {
+                sendMessage("turnRight", (robot->message).c_str(), (int)(robot->channel));
+                robot->message = "turnRight";
             }
-            else if(robot->robot_name == "robot1"){
-                if(robot->GetLocation().z > 0.8){
-                    sendMessage("turnRight",(robot->message).c_str(),(int)(robot->channel));
-                    robot->message = "turnRight";
-                }
-                else if(robot->GetLocation().z < 0){
-                    sendMessage("turnLeft",(robot->message).c_str(),(int)(robot->channel));
-                    robot->message = "turnLeft";
-                }
-            }
-            else if(robot->robot_name == "robot2"){
-                if(robot->GetLocation().z > -0.1){
-                    sendMessage("turnRight",(robot->message).c_str(),(int)(robot->channel));
-                    robot->message = "turnRight";
-                }
-                else if(robot->GetLocation().z < -1){
-                    sendMessage("turnLeft",(robot->message).c_str(),(int)(robot->channel));
-                    robot->message = "turnLeft";
-                }
-            }
-            else if(robot->robot_name == "robot3"){
-                if(robot->GetLocation().z > -1.1){
-                    sendMessage("turnRight",(robot->message).c_str(),(int)(robot->channel));
-                    robot->message = "turnRight";
-                }
-                else if(robot->GetLocation().z < -1.8){
-                    sendMessage("turnLeft",(robot->message).c_str(),(int)(robot->channel));
-                    robot->message = "turnLeft";
-                }
-            }
-
+            else if (locationZ < robot->GetLocationLimit().getLower('z'))
+            {
+                sendMessage("turnLeft", (robot->message).c_str(), (int)(robot->channel));
+                robot->message = "turnLeft";
+            } */
         }
     }
-    void sendMessage(string _message, string pre_message, int _channel){
+    void sendMessage(string _message, string pre_message, int _channel)
+    {
         message.assign(_message);
-        if(!message.empty()){
-            if(message != pre_message){
-                cout << _message << " geldi... " << endl; 
+        if (!message.empty())
+        {
+            if (message != pre_message)
+            {
+                cout << _message << " geldi... " << endl;
                 emitter->setChannel(_channel);
                 emitter->send(message.c_str(), (int)strlen(message.c_str()) + 1);
             }
@@ -135,12 +111,6 @@ public:
             locationControl();
         }
     }
-
-    void SendCommandToRobot(int robot_num)
-    {
-        this->emitter->setChannel(robot_num);
-        // this->emitter->send()
-    }
 };
 
 SimulationCenter::SimulationCenter(int robot_count, int mine_count)
@@ -151,9 +121,9 @@ SimulationCenter::SimulationCenter(int robot_count, int mine_count)
     emitter->setChannel(0);
     char buffer[20];
 
-    Location map_start = Location(2, 0, -2);
+    Location map_start = Location(2, 0, 2);
 
-    Location *offset = new Location(0, 0, 1);
+    Location *offset = new Location(0, 0, -1);
     Location temp_lower = map_start.Clone();
     Location temp_upper = temp_lower;
 
@@ -163,8 +133,11 @@ SimulationCenter::SimulationCenter(int robot_count, int mine_count)
     {
         temp_upper = temp_lower.Add(offset);
         robot_loc_limit = new LocationLimit(&temp_upper, &temp_lower);
+
         sprintf(buffer, "robot%d", i);
         auto robot = new GroundRobot(this, string(buffer), robot_loc_limit);
+
+        cout << robot->robot_name << robot->GetLocationLimit();
         robot->channel = i;
         AddRobot(robot);
         temp_lower = temp_upper;

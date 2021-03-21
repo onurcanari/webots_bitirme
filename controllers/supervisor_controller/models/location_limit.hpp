@@ -1,5 +1,5 @@
 #include "location.hpp"
-
+using namespace std;
 class LocationLimit
 {
 private:
@@ -18,12 +18,37 @@ public:
     {
         return LocationLimit(upper_limit, lower_limit);
     }
+
+    Location getUpper()
+    {
+        /*         cout << "upper_limit : " << upper_limit->x << endl;
+        cout << "upper_limit : " << upper_limit->y << endl;
+        cout << "upper_limit : " << upper_limit->z << endl; */
+        return *upper_limit;
+    }
+
+    /*     double getLower(char value)
+    {
+
+        switch (value)
+        {
+        case 'x':
+            return lower_limit->x;
+        case 'y':
+            return lower_limit->y;
+        case 'z':
+        cout << "lower_limit : " << *lower_limit.z << endl;
+            return *lower_limit.z;
+        default:
+            return 0.0;
+        }
+    } */
     friend std::ostream &operator<<(std::ostream &os, const LocationLimit &lt);
 };
 
 std::ostream &operator<<(std::ostream &os, const LocationLimit &lt)
 {
-    os << lt.upper_limit;
+    os << "Upper Limit : " << *lt.upper_limit << " / Lower Limit : " << *lt.lower_limit << endl;
     return os;
 }
 
