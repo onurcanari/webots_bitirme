@@ -16,12 +16,13 @@
 #include "models/location_limit.hpp"
 
 using namespace webots;
+using namespace std;
 
 class GroundRobot : Robot
 {
 private:
     const int TIME_STEP = 64;
-    Receiver *command_receiver;
+    Receiver *receiver;
     // Compass *compass;
     Motor *wheels[4];
     DistanceSensor *distance_sensors[2];
@@ -35,7 +36,7 @@ private:
     Location location_lower;
 
 public:
-    GroundRobot(std::string robotID);
+    GroundRobot(string robotID);
     
     void CalculateAreas(){
         Location map_start = Location(2, 0, -2);
@@ -97,7 +98,7 @@ public:
                 device_direction = (rand() % 10 + 1) > 5;
                 avoid_obstacle_counter = rand() % 100 + 1;
                 direction_counter = rand() % 200 + 10;
-                std::cout << "\n";
+                cout << "\n";
             }
         }
         wheels[0]->setVelocity(leftSpeed);
@@ -105,7 +106,61 @@ public:
         wheels[2]->setVelocity(leftSpeed);
         wheels[3]->setVelocity(rightSpeed);
     }
+ void GoCoverage()
+    {
+        double leftSpeed = 5.0;
+        double rightSpeed = 5.0;
 
+        if (avoid_obstacle_counter > 0)
+        {
+            avoid_obstacle_counter--;
+            if (device_direction)
+            {
+                leftSpeed = -1.0;
+                rightSpeed = 1.0;
+            }
+            else
+            {
+                leftSpeed = 1.0;
+                rightSpeed = -1.0;
+            }
+        }
+        else
+        {
+            if (direction_counter > 0)
+            {
+                direction_counter--;
+            }
+            else
+            {
+                if (turn)
+                {
+                    avoid_obstacle_counter = 57;
+                    turn = false;
+                }
+                else
+                {
+                    for (int i = 0; i < 2; i++)
+                    {
+                        if (GetMessage())
+                        {
+                            avoid_obstacle_counter = 57;
+                            direction_counter = 10;
+                            turn = true;
+                        }
+                    }
+                    if (avoid_obstacle_counter > 0)
+                    {
+                        device_direction = !device_direction;
+                    }
+                }
+            }
+        }
+        wheels[0]->setVelocity(leftSpeed);
+        wheels[1]->setVelocity(rightSpeed);
+        wheels[2]->setVelocity(leftSpeed);
+        wheels[3]->setVelocity(rightSpeed);
+    }
     void ObstacleAvoidence()
     {
         double leftSpeed = 5.0;
@@ -222,21 +277,39 @@ public:
  */
     ~GroundRobot();
 
+    int GetMessage(){
+        
+            if (receiver->getQueueLength() > 0) {
+                        
+                string message((const char *)receiver->getData());
+                receiver->nextPacket();
+                if(message.compare("turnRight") == 0){
+                    cout << "sağa dönmem lazim" << endl;
+                    return 1;
+                }
+                else if(message.compare("turnLeft") == 0){
+                    cout << "sola dönmem lazim" << endl;
+                      return 1;
+                }
+            }
+        return 0;
+    }
+
     void Run()
     {
         while (step(TIME_STEP) != -1)
         {
-            GoRandom();
+            GoCoverage();
         }
     }
 
-    std::string GetName()
+    string GetName()
     {
         return getName();
     }
 };
 
-GroundRobot::GroundRobot(std::string robotID)
+GroundRobot::GroundRobot(string robotID)
 {
     // uzaklık sensörlerini kaydet ve başlat
     char dsNames[2][10] = {"ds_right", "ds_left"};
@@ -255,8 +328,9 @@ GroundRobot::GroundRobot(std::string robotID)
         wheels[i]->setVelocity(0.0);
     }
 
-    command_receiver = getReceiver("receiver");
-    command_receiver->setChannel(stoi(robotID));
+    receiver = getReceiver("receiver");
+    receiver->setChannel(stoi(robotID));
+    receiver->enable(TIME_STEP);
 /*     compass = getCompass("compass");
     compass->enable(TIME_STEP); */
 }
