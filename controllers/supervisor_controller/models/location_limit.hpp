@@ -21,10 +21,13 @@ public:
 
     Location getUpper()
     {
-        /*         cout << "upper_limit : " << upper_limit->x << endl;
-        cout << "upper_limit : " << upper_limit->y << endl;
-        cout << "upper_limit : " << upper_limit->z << endl; */
+
         return *upper_limit;
+    }
+     Location getLower()
+    {
+
+        return *lower_limit;
     }
 
     /*     double getLower(char value)

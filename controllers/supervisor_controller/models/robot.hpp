@@ -11,10 +11,12 @@ private:
     Field *translation_field;
     Location *location;
     LocationLimit *location_limit;
+    double upperLimit, lowerLimit;
 
 public:
     std::string robot_name;
     std::string message;
+    
     int channel;
 
     GroundRobot(Supervisor *supervisor, std::string name, LocationLimit *location_limit);
@@ -30,10 +32,16 @@ public:
     {
         return *location;
     }
-    LocationLimit GetLocationLimit()
-    {
-      return *location_limit;
+
+    double getUpperZ(){
+        return this->upperLimit;
     }
+
+    double getLowerZ(){
+
+        return this->lowerLimit;
+    }
+
 
     ~GroundRobot();
 };
@@ -45,6 +53,10 @@ GroundRobot::GroundRobot(Supervisor *supervisor, std::string name, LocationLimit
     robot_name = name;
     node = supervisor->getFromDef(robot_name);
     this->location_limit = location_limit;
+    
+    this->upperLimit = this->location_limit->getUpper().z;
+    this->lowerLimit = this->location_limit->getLower().z;
+
     if (node == NULL)
     {
         std::cout << name << "'s node is NULL";

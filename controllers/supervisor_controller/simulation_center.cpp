@@ -68,23 +68,21 @@ public:
             i++;
         }
     }
-    //TODO FİX MEEEEE !!!!!
-    // robot->GetLocationLimit() log 4.212312e123 error 
+    
     void locationControl()
     {
         for (auto robot : ground_robots)
         {
-            cout << " upper limit : " << robot->GetLocationLimit();
-            /*             if (locationZ > z)
+          if (robot->GetLocation().z < robot->getUpperZ())
             {
                 sendMessage("turnRight", (robot->message).c_str(), (int)(robot->channel));
                 robot->message = "turnRight";
             }
-            else if (locationZ < robot->GetLocationLimit().getLower('z'))
+            else if (robot->GetLocation().z > robot->getLowerZ())
             {
                 sendMessage("turnLeft", (robot->message).c_str(), (int)(robot->channel));
                 robot->message = "turnLeft";
-            } */
+            } 
         }
     }
     void sendMessage(string _message, string pre_message, int _channel)
@@ -136,8 +134,6 @@ SimulationCenter::SimulationCenter(int robot_count, int mine_count)
 
         sprintf(buffer, "robot%d", i);
         auto robot = new GroundRobot(this, string(buffer), robot_loc_limit);
-
-        cout << robot->robot_name << robot->GetLocationLimit();
         robot->channel = i;
         AddRobot(robot);
         temp_lower = temp_upper;
