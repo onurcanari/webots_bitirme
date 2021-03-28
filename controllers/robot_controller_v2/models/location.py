@@ -1,13 +1,14 @@
 class Location:
-    def __init__(self):
-        self.x = self.y = self.z = 0
-
     def __init__(self, locations):
-        self.x = locations[0]
-        self.y = locations[1]
-        self.z = locations[2]
+        if locations is None:
+            self.x = self.y = self.z = 0
+            return
 
-    def is_close(other, delta=0.2) -> bool:
-        if (x <= other.x + delta and x >= other.x - delta) and (z <= other.z + delta and z >= other.z - delta):
-            return true;
-        return false;
+        self.x = round(locations[0],4)
+        self.y = round(locations[1],4)
+        self.z = round(locations[2],4)
+
+    def is_close(self, other, delta=0.2) -> bool:
+        if (self.x <= other.x + delta and self.x >= other.x - delta) and (self.z <= other.z + delta and self.z >= other.z - delta):
+            return True
+        return False
