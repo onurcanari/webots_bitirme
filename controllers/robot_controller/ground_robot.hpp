@@ -6,7 +6,10 @@
 #include <webots/Receiver.hpp>
 #include <webots/Robot.hpp>
 #include <webots/utils/AnsiCodes.hpp>
+#include <webots/Field.hpp>
 #include <webots/Compass.hpp>
+#include <webots/Supervisor.hpp>
+#include <webots/Emitter.hpp>
 
 #include <algorithm>
 #include <iostream>
@@ -18,10 +21,12 @@
 using namespace webots;
 using namespace std;
 
-class GroundRobot : Robot
+class GroundRobot : Supervisor
 {
 private:
+    int robotID;
     const int TIME_STEP = 64;
+    Emitter *emitter;
     Receiver *receiver;
     // Compass *compass;
     Motor *wheels[4];
@@ -35,31 +40,113 @@ private:
     LocationLimit *robot_loc_limit;
     Location location_lower;
 
+    Field *translation_field;
+
+    Location *robot_location;
+
+    unordered_map<int, Location> robot_location_map;
+    unordered_map<int, double> robot_distances;
+    bool discovery_started = false;
+    Location map_start = Location(2, 0, -2);
+
 public:
     GroundRobot(string robotID);
-    
-    void CalculateAreas(){
-        Location map_start = Location(2, 0, -2);
-        Location *offset = new Location(0, 0, 1);
-        location_lower = map_start.Clone();
-        Location temp_upper = location_lower;
-        
-        bool found_area_to_search = false;
-        while(!found_area_to_search)
+
+    void Setup()
+    {
+        string name = GetName();
+        robotID = 0.0 + (name[5] - '0');
+        cout << "Setup ground robot : " << name << "Robot ID : " << robotID << endl;
+        translation_field = getSelf()->getField("translation");
+
+        cout << "Getting distance sensors and enable them..." << endl;
+        char dsNames[2][10] = {"ds_right", "ds_left"};
+        for (int i = 0; i < 2; i++)
         {
-            temp_upper = location_lower.Add(offset);
-            robot_loc_limit = new LocationLimit(&temp_upper, &location_lower);
-            // https://github.com/onurcanari/webots_bitirme/issues/4#issue-832042964
-            // int area_number = robot_loc_limit.CalculateAreaNumber();
-            // found_area_to_search = askForArea(areaNumber, robotID);
-            location_lower = temp_upper;
+            distance_sensors[i] = getDistanceSensor(dsNames[i]);
+            distance_sensors[i]->enable(TIME_STEP);
         }
 
+        cout << "Get and reposition motors.." << endl;
+        char wheels_names[4][8] = {"wheel1", "wheel2", "wheel3", "wheel4"};
+        for (int i = 0; i < 4; i++)
+        {
+            wheels[i] = getMotor(wheels_names[i]);
+            wheels[i]->setPosition(INFINITY);
+            wheels[i]->setVelocity(0.0);
+        }
+
+        cout << "Get and Set Emitter" << endl;
+        emitter = getEmitter("emitter");
+        emitter->setChannel(-1);
+        cout << "Get and set Receiver" << endl;
+        receiver = getReceiver("receiver");
+        receiver->setChannel(-1);
+        receiver->enable(TIME_STEP);
+        cout << "Setup Passed" << endl;
+    }
+
+    // Robotun lokasyonunu günceller
+    void UpdateLocation()
+    {
+        robot_location = new Location(translation_field->getSFVec3f());
+    }
+
+    // lokasyonun değerini döndür. pointer olarak dönmez.
+    Location *GetLocation()
+    {
+        return robot_location;
+    }
+
+    void CalculateAreaToDiscover(int turn)
+    {
+
+        Location *offset = new Location(0, 0, 1.0 * turn);
+        location_lower = location_lower.Add(offset);
+
+        temp_upper = location_lower.Add(new Location(0, 0, 1.0));
+        robot_loc_limit = new LocationLimit(&temp_upper, &location_lower);
+        // https://github.com/onurcanari/webots_bitirme/issues/4#issue-832042964
+        // int area_number = robot_loc_limit.CalculateAreaNumber();
+        // found_area_to_search = askForArea(areaNumber, robotID);
+    }
+
+    void SaveRobotsLocation(double *message)
+    {
+        if (robot_location_map[*message] != NULL)
+        {
+            robot_location_map[*message] = Location(message++)
+        }
+    }
+
+    void SelectArea()
+    {
+        if (discovery_started == true)
+        {
+            return;
+        }
+
+        discovery_started = true;
+        for (auto const &x : robot_location_map)
+        {
+            robot_distances[x.second->Compare(map_start)] = x.first;
+        }
+        int i = 1;
+        for (auto const &x : robot_distances)
+        {
+            if (x.second == robotID)
+            {
+                CalculateAreaToDiscover(i);
+                break;
+            }
+            i++;
+        }
+        GoCoverage();
     }
 
     void GoRandom()
     {
-       
+
         double leftSpeed = 5.0;
         double rightSpeed = 5.0;
         if (avoid_obstacle_counter > 0)
@@ -89,7 +176,7 @@ public:
                 }
             }
 
-            if (direction_counter > 0)
+            if (direction_counter > 0) 
             {
                 direction_counter--;
             }
@@ -106,7 +193,8 @@ public:
         wheels[2]->setVelocity(leftSpeed);
         wheels[3]->setVelocity(rightSpeed);
     }
- void GoCoverage()
+
+    void GoCoverage()
     {
         double leftSpeed = 5.0;
         double rightSpeed = 5.0;
@@ -161,6 +249,7 @@ public:
         wheels[2]->setVelocity(leftSpeed);
         wheels[3]->setVelocity(rightSpeed);
     }
+
     void ObstacleAvoidence()
     {
         double leftSpeed = 5.0;
@@ -218,88 +307,74 @@ public:
         wheels[3]->setVelocity(rightSpeed);
     }
 
- /*    void GoWhere()
+    //TODO DÜZELTİLECEK
+    void LocationControl()
     {
-        double x = -2.0, z = -2.0;
-
-        double leftSpeed = 5.0;
-        double rightSpeed = 5.0;
-
-        std::string rotation = "right";
-
-        const double *north = compass->getValues();
-
-        double robotAngle = GetAngle(atan2(north[0], north[2]));
-
-        double pointAngle = GetAngle(atan2(x, z));
-
-        double angle = abs(robotAngle - pointAngle);
-
-        std::cout << "angle : " << angle << std::endl;
-
-        //  if (angle > 180)
-        // {
-        //     angle = 360 - angle;
-        //     rotation = "right";
-        // }
-
-        if (angle > -1 && angle < 1)
+       if (GetLocation().z < robot->getUpperZ())
         {
-            leftSpeed = 5.0;
-            rightSpeed = 5.0;
+            sendMessage("turnRight", (robot->message).c_str(), (int)(robot->channel));
+            robot->message = "turnRight";
         }
-        else
+        else if (robot->GetLocation().z > robot->getLowerZ())
         {
-            if (rotation == "right")
-            {
-                leftSpeed = 1.0;
-                rightSpeed = -1.0;
-            }
-            else
-            {
-                leftSpeed = -1.0;
-                rightSpeed = 1.0;
-            }
+            sendMessage("turnLeft", (robot->message).c_str(), (int)(robot->channel));
+            robot->message = "turnLeft";
         }
+    }
 
-        wheels[0]->setVelocity(leftSpeed);
-        wheels[1]->setVelocity(rightSpeed);
-        wheels[2]->setVelocity(leftSpeed);
-        wheels[3]->setVelocity(rightSpeed);
-    }
-    double GetAngle(double rad)
-    {
-        double bearing = (rad - 1.5708) / M_PI * 180.0;
-        if (bearing < 0.0)
-            bearing = bearing + 360.0;
-        return bearing;
-    }
- */
     ~GroundRobot();
-
-    int GetMessage(){
-        
-            if (receiver->getQueueLength() > 0) {
-                        
-                string message((const char *)receiver->getData());
-                receiver->nextPacket();
-                if(message.compare("turnRight") == 0){
-                    cout << "sağa dönmem lazim" << endl;
-                    return 1;
-                }
-                else if(message.compare("turnLeft") == 0){
-                    cout << "sola dönmem lazim" << endl;
-                      return 1;
-                }
+    
+    //TODO DÜZELTİLECEK
+    int GetMessage()
+    {
+        if (receiver->getQueueLength() > 0)
+        {
+            string message((const char *)receiver->getData());
+            receiver->nextPacket();
+            if (message.compare("turnRight") == 0)
+            {
+                cout << "sağa dönmem lazim" << endl;
+                return 1;
             }
+            else if (message.compare("turnLeft") == 0)
+            {
+                cout << "sola dönmem lazim" << endl;
+                return 1;
+            }
+        }
         return 0;
+    }
+
+    void ListenLocationData()
+    {
+        if (receiver->getQueueLength() > 0)
+        {
+            double *message = (double *)receiver->getData();
+
+            cout << "Robot ID : " << message[0] << " (x : " << message[1] << ", y : " << message[2] << ", z : " << message[3] << ")" << endl;
+            //cout << format("Robot ID : {} (x : {} y : {}, z : {})", message[0], message[1], message[2], message[3]) << endl;
+            receiver->nextPacket();
+        }
+    }
+
+    void SendLocation()
+    {
+        Location *location = GetLocation();
+        if (location == NULL)
+            return;
+
+        double array[4] = {robotID, location->x, location->y, location->z};
+        emitter->send(array, 4 * sizeof(double));
     }
 
     void Run()
     {
+        cout << "Start robot" << endl;
         while (step(TIME_STEP) != -1)
         {
-            GoCoverage();
+            UpdateLocation();
+            SendLocation();
+            ListenLocationData();
         }
     }
 
@@ -311,28 +386,7 @@ public:
 
 GroundRobot::GroundRobot(string robotID)
 {
-    // uzaklık sensörlerini kaydet ve başlat
-    char dsNames[2][10] = {"ds_right", "ds_left"};
-    for (int i = 0; i < 2; i++)
-    {
-        distance_sensors[i] = getDistanceSensor(dsNames[i]);
-        distance_sensors[i]->enable(TIME_STEP);
-    }
-
-    // motorları ekle, pozsiyonlarını ayarlar ve başlat
-    char wheels_names[4][8] = {"wheel1", "wheel2", "wheel3", "wheel4"};
-    for (int i = 0; i < 4; i++)
-    {
-        wheels[i] = getMotor(wheels_names[i]);
-        wheels[i]->setPosition(INFINITY);
-        wheels[i]->setVelocity(0.0);
-    }
-
-    receiver = getReceiver("receiver");
-    receiver->setChannel(stoi(robotID));
-    receiver->enable(TIME_STEP);
-/*     compass = getCompass("compass");
-    compass->enable(TIME_STEP); */
+    Setup();
 }
 GroundRobot::~GroundRobot()
 {

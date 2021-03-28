@@ -19,6 +19,8 @@ public:
         return false;
     }
 
+
+
     friend std::ostream &operator<<(std::ostream &os, const Location &dt);
 
     Location Add(Location *location)
@@ -38,6 +40,14 @@ public:
     Location Clone()
     {
         return Location(x, y, z);
+    }
+
+    double Compare(Location location)
+    {
+        if (location != NULL)
+        return this->z - location->z;
+
+        return 0.0;
     }
 
     ~Location();

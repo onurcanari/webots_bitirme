@@ -38,12 +38,13 @@ public:
     // her robotoun konumunu günceller
     void UpdateRobots()
     {
+
         for (auto robot : ground_robots)
         {
             robot->Update();
+
         }
     }
-
     // her robotun konumu ile diğer mayınların konumunu karşılaştırır.
     void CalculateDistances()
     {
@@ -68,12 +69,12 @@ public:
             i++;
         }
     }
-    
+
     void locationControl()
     {
         for (auto robot : ground_robots)
         {
-          if (robot->GetLocation().z < robot->getUpperZ())
+            if (robot->GetLocation().z < robot->getUpperZ())
             {
                 sendMessage("turnRight", (robot->message).c_str(), (int)(robot->channel));
                 robot->message = "turnRight";
@@ -82,7 +83,7 @@ public:
             {
                 sendMessage("turnLeft", (robot->message).c_str(), (int)(robot->channel));
                 robot->message = "turnLeft";
-            } 
+            }
         }
     }
     void sendMessage(string _message, string pre_message, int _channel)
@@ -98,15 +99,18 @@ public:
             }
         }
     }
+
+
     void Run()
     {
+
         while (step(TIME_STEP) != -1)
         {
             if (foundMineCount == mine_count)
                 break;
             UpdateRobots();
             CalculateDistances();
-            locationControl();
+            // locationControl();
         }
     }
 };
@@ -116,7 +120,7 @@ SimulationCenter::SimulationCenter(int robot_count, int mine_count)
     // verilen mayın ve robot sayısı kadar groundrobot objesi oluşturur. ve hepsini dinamik listeye ekler.
     this->mine_count = mine_count;
     this->emitter = getEmitter("emitter");
-    emitter->setChannel(0);
+    emitter->setChannel(-1);
     char buffer[20];
 
     Location map_start = Location(2, 0, 2);
