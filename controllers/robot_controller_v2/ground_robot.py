@@ -3,6 +3,7 @@ from models.location import Location
 from random import random
 import struct
 import json
+
 TIME_STEP = 64
 
 
@@ -14,6 +15,7 @@ class GroundRobot(Supervisor):
         self.robot_id = int(robot_id)
         self.distance_sensors = []
         self.wheels = []
+        self.device_direction = self.direction_counter = 0
         print("Setup ground robot with id:", self.robot_id)
         self.setup()
 
@@ -54,8 +56,9 @@ class GroundRobot(Supervisor):
     def robot_location(self):
         return self._robot_location
 
-    def saveRobotLocation(self):
-        pass
+    def saveRobotLocation(self, robot_id, location):
+        if robot_id in robot_locations:
+            robot_locations[robot_id] = location
 
     def sendLocation(self):
         location = self.robot_location
@@ -86,37 +89,37 @@ class GroundRobot(Supervisor):
             self.sendLocation()
             self.listenLocationData()
 
-    def GoCoverage(self):
+    def goCoverage(self):
         left_speed = 5.0
         right_speed = 5.0
 
         if self.avoid_obstacle_counter > 0:
             self.avoid_obstacle_counter -= 1
-            if (device_direction)
-            left_speed = -1.0
-            right_speed = 1.0
+            if (self.device_direction)
+                left_speed = -1.0
+                right_speed = 1.0
             else
-            left_speed = 1.0
-            right_speed = -1.0
+                left_speed = 1.0
+                right_speed = -1.0
         else:
-            if direction_counter > 0:
-                direction_counter -= 1
+            if self.direction_counter > 0:
+                self.direction_counter -= 1
             else:
-                if turn:
+                if self.turn:
                     # TODO burayı derece olarak döndür. random sayı olmasın
-                     self.avoid_obstacle_counter = 57
+                    self.avoid_obstacle_counter = 57
                     turn = False
                 else
                    for i in range(2):
                         if GetMessage():
                             self.avoid_obstacle_counter = 57
-                            direction_counter = 10
+                            self.direction_counter = 10
                             turn = True
 
                     if self.avoid_obstacle_counter > 0:
                         device_direction = not device_direction
 
-    def GetMessage(self):
+    def getMessage(self):
         if getLowerZ() < self.robot_location.z < getUpperZ():
             return 1
         else:
