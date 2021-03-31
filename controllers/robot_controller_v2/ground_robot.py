@@ -2,18 +2,26 @@ from controller import Supervisor
 from models.location import Location
 from models.location_limit import LocationLimit
 from models.rotation import Rotation
+import util
+from models.state import RobotState
+from models.state import State
+from models.state import Status
 
 from random import random
 import struct
 import json
 
 TIME_STEP = 64
-ROBOT_SPEED = 20
+ROBOT_SPEED = 5
+
 
 class GroundRobot(Supervisor):
-    map_start = Location.from_coords(2, 0, 2)
+    map_start = Location.from_coords(0, 0, 0)
+
     def __init__(self, robot_id: str):
         super().__init__()
+        self._robot_state = RobotState(State.IDLE)
+        self._robot_state.complete()
         self.robot_id = int(robot_id)
         self.distance_sensors = []
         self.wheels = []
@@ -21,8 +29,11 @@ class GroundRobot(Supervisor):
         self.direction_counter = 0
         self.avoid_obstacle_counter = 0
         self.discovered_area = False
-        self.turn = False
+        self.turn = True
         self.robot_locations = {}
+        self.target_rotation = None
+        self.target_location = None
+
         print("Setup ground robot with id:", self.robot_id)
         self.setup()
 
@@ -55,7 +66,7 @@ class GroundRobot(Supervisor):
         self.receiver.setChannel(-1)
         self.receiver.enable(TIME_STEP)
         self.updateFields()
-        self.saveRobotLocation(self.robot_id,self.robot_location)
+        self.saveRobotLocation(self.robot_id, self.robot_location)
         print("Setup Passed")
 
     def updateFields(self):
@@ -66,6 +77,10 @@ class GroundRobot(Supervisor):
     @property
     def robot_location(self):
         return self._robot_location
+
+    @property
+    def robot_rotation(self):
+        return self._robot_rotation
 
     def saveRobotLocation(self, robot_id, location):
         if robot_id not in self.robot_locations:
@@ -90,8 +105,9 @@ class GroundRobot(Supervisor):
             message = self.receiver.getData()
             my_decoded_str = message.decode()
             data = json.loads(my_decoded_str)
-            #print(data)
-            self.saveRobotLocation(data['robot_id'],Location.from_coords(data['x'],data['y'],data['z']))
+            # print(data)
+            self.saveRobotLocation(data['robot_id'], Location.from_coords(
+                data['x'], data['y'], data['z']))
             self.receiver.nextPacket()
 
     def run(self):
@@ -100,69 +116,69 @@ class GroundRobot(Supervisor):
             self.updateFields()
             self.sendLocation()
             self.listenLocationData()
-            self.dicoverAndRun()
+            self.go_to(GroundRobot.map_start)
 
-    def goCoverage(self):
-        left_speed = 5.0
-        right_speed = 5.0
-
-        if self.avoid_obstacle_counter > 0:
-            self.avoid_obstacle_counter -= 1
-            if self.device_direction:
-                left_speed = -1.0
-                right_speed = 1.0
-            else:
-                left_speed = 1.0
-                right_speed = -1.0
+    def go_coverage(self):
+        if self.turn:
+            self.state = State
+            self.turn_with_degree(90)
         else:
-            if self.direction_counter > 0:
-                self.direction_counter -= 1
-            else:
-                if self.turn:
-                    # TODO burayı derece olarak döndür. random sayı olmasın
-                    self.avoid_obstacle_counter = 57
-                    self.turn = False
-                else:
-                    for i in range(2):
-                        if self.getMessage():
-                            self.avoid_obstacle_counter = 57
-                            self.direction_counter = 10
-                            self.turn = True
-                    if self.avoid_obstacle_counter > 0:
-                        self.device_direction = not self.device_direction
-    
-    def turnWithDegree(self):
-        pass
+            self.move_forward()
 
-    def getMessage(self):
+    def turn_with_degree(self, degree, delta=0.1):
+        self.change_state(State.CHANGE_ROTATION)
+        if self._robot_state.state is not State.CHANGE_ROTATION:
+            return
+        print("Robot is turning with {} target_rotation".format(
+            self.target_rotation))
+        if not self.target_rotation:
+            self.target_rotation = self.robot_rotation.angle + abs(degree)
+            print("Target rotation is {}".format(self.target_rotation))
+        else:
+            if util.is_close(self.robot_rotation.angle, self.target_rotation, delta):
+                self.turn = False
+                self.target_rotation = None
+                print("Finish turning")
+                self._robot_state.complete()
+            else:
+                print("Robot is turning...")
+                self._robot_state.continue_pls()
+                if self.target_rotation - self.robot_rotation.angle > 0:
+                    self.move_right()
+                else:
+                    self.move_left()
+
+    def get_message(self):
         if self.loc_limit.lower_limit.z < self.robot_location.z < self.loc_limit.upper_limit.z:
             return 1
         else:
             return 0
 
-    def calculateAreaToDiscover(self, turn):
+    def calculate_area_to_discover(self, turn):
         print("Calculating area to discover...")
         offset = Location.from_coords(0, 0, 1.0 * turn)
         self.location_lower = GroundRobot.map_start.subtract(offset)
-        temp_upper = self.location_lower.subtract(Location.from_coords(0, 0, 1.0))
+        temp_upper = self.location_lower.subtract(
+            Location.from_coords(0, 0, 1.0))
         self.loc_limit = LocationLimit(temp_upper, self.location_lower)
         self.discovered_area = True
-        print("Robot ID : ",self.robot_id,"Location Limit :",self.loc_limit)
+        print("Robot ID : ", self.robot_id, "Location Limit :", self.loc_limit)
 
-    def selectArea(self):
+    def select_area(self):
         print("Selecting area...")
         robot_ids = sorted(self.robot_locations.items(),
                            key=lambda kv: GroundRobot.map_start.compare(kv[1]))
-        self.calculateAreaToDiscover(list(map(lambda x: x[0], robot_ids)).index(self.robot_id))
+        self.calculate_area_to_discover(
+            list(map(lambda x: x[0], robot_ids)).index(self.robot_id))
 
-    def dicoverAndRun(self):
+    def discover_and_run(self):
         if self.discovered_area:
-            self.goCoverage()
+            self.go_coverage()
         else:
             if len(self.robot_locations) == 4:
-                self.selectArea()
+                self.select_area()
 
-    def _set_motor_speeds(self, FL = None, FR = None, BL = None, BR=None):
+    def _set_motor_speeds(self, FL=None, FR=None, BL=None, BR=None):
         if FL:
             self.wheels[0].setVelocity(ROBOT_SPEED * FL)
         if FR:
@@ -171,10 +187,36 @@ class GroundRobot(Supervisor):
             self.wheels[2].setVelocity(ROBOT_SPEED * BL)
         if BR:
             self.wheels[3].setVelocity(ROBOT_SPEED * BR)
-    
-    def move_forward(self, speed):
+
+    def move_forward(self):
         self._set_motor_speeds(1, 1, 1, 1)
-    
+
+    def stop_engine(self):
+        self._set_motor_speeds(0, 0, 0, 0)
+
+    def move_right(self):
+        self._set_motor_speeds(0.2, -0.2, 0.2, -0.2)
+
+    def move_left(self):
+        self._set_motor_speeds(-0.2, 0.2, -0.2, 0.2)
+
     def go_to(self, location):
+        turning_degree = self.robot_location.calculate_degree_between(location)
+        print("Robot ID : {} , turning_degree : {}".format(
+            self.robot_id, turning_degree))
+        self.turn_with_degree(turning_degree)
+
+        self.change_state(State.GO_TO_LOCATION)
+        if self._robot_state.state is State.GO_TO_LOCATION:
+            self.move_forward()
+
+        if self.robot_location.is_close(location):
+            self.stop_engine()
+            self._robot_state.complete()
+            print("FİNİSHED PROCCESS")
         pass
-        
+
+    def change_state(self, new_state, force=False):
+        if self._robot_state.status is Status.COMPLETED:
+            if self._robot_state.state is not new_state or force:
+                self._robot_state = RobotState(new_state)

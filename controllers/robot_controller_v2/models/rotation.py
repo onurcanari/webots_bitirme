@@ -6,7 +6,7 @@ class Rotation:
             self.angle = 0
             return
 
-        self.angle = rotations[3] * 180 / math.pi
+        self.angle =  math.degrees(rotations[3])
 
     def __str__(self):
         return "angle: {}".format(self.angle)
