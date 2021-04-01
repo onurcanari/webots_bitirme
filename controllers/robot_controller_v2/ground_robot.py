@@ -72,7 +72,7 @@ class GroundRobot(Supervisor):
     def updateFields(self):
         self._robot_location = Location(self.translation_field.getSFVec3f())
         self._robot_rotation = Rotation(self.rotation_field.getSFRotation())
-        print(self._robot_rotation)
+        print(util.normalize_degree(self._robot_rotation.angle))
 
     @property
     def robot_location(self):
@@ -125,14 +125,14 @@ class GroundRobot(Supervisor):
         else:
             self.move_forward()
 
-    def turn_with_degree(self, degree, delta=0.1):
+    def turn_with_degree(self, degree, delta=1):
         self.change_state(State.CHANGE_ROTATION)
         if self._robot_state.state is not State.CHANGE_ROTATION:
             return
         print("Robot is turning with {} target_rotation".format(
             self.target_rotation))
         if not self.target_rotation:
-            self.target_rotation = self.robot_rotation.angle + abs(degree)
+            self.target_rotation = degree
             print("Target rotation is {}".format(self.target_rotation))
         else:
             if util.is_close(self.robot_rotation.angle, self.target_rotation, delta):
@@ -140,13 +140,12 @@ class GroundRobot(Supervisor):
                 self.target_rotation = None
                 print("Finish turning")
                 self._robot_state.complete()
+                self.stop_engine()
             else:
                 print("Robot is turning...")
                 self._robot_state.continue_pls()
-                if self.target_rotation - self.robot_rotation.angle > 0:
-                    self.move_right()
-                else:
-                    self.move_left()
+                self.move_right()
+
 
     def get_message(self):
         if self.loc_limit.lower_limit.z < self.robot_location.z < self.loc_limit.upper_limit.z:
@@ -201,9 +200,11 @@ class GroundRobot(Supervisor):
         self._set_motor_speeds(-0.2, 0.2, -0.2, 0.2)
 
     def go_to(self, location):
-        turning_degree = self.robot_location.calculate_degree_between(location)
+        turning_degree = self.robot_location.calculate_degree_between(location) % 360
         print("Robot ID : {} , turning_degree : {}".format(
             self.robot_id, turning_degree))
+
+        print("Robot ID : ", self.robot_id, self.robot_rotation)
         self.turn_with_degree(turning_degree)
 
         self.change_state(State.GO_TO_LOCATION)

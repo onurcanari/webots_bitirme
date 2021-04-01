@@ -32,15 +32,15 @@ class Location:
         return self.z - location.z
 
     def calculate_degree_between(self, other):
-        delta_x = self.x - other.x
-        delta_z = self.z - other.z
+        delta_x = other.x - self.x 
+        delta_z = other.z - self.z
 
-        rads = atan2(delta_x,delta_z )
-        degree = degrees(rads)
-        
-        return degree 
+        rads = atan2(-delta_z, delta_x)
+        degree = util.normalize_degree(degrees(rads)) + 90
 
-    def calculate_area(self,x,y):
+        return degree
+
+    def calculate_area(self, x, y):
         if x < 0 and y < 0:
             return 90
         else:
