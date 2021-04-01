@@ -16,7 +16,7 @@ ROBOT_SPEED = 5
 
 
 class GroundRobot(Supervisor):
-    map_start = Location.from_coords(0, 0, 0)
+    map_start = Location.from_coords(-2, 0, 2)
 
     def __init__(self, robot_id: str):
         super().__init__()
@@ -33,7 +33,7 @@ class GroundRobot(Supervisor):
         self.robot_locations = {}
         self.target_rotation = None
         self.target_location = None
-
+        self.first_area = False
         print("Setup ground robot with id:", self.robot_id)
         self.setup()
 
@@ -105,7 +105,6 @@ class GroundRobot(Supervisor):
             message = self.receiver.getData()
             my_decoded_str = message.decode()
             data = json.loads(my_decoded_str)
-            # print(data)
             self.saveRobotLocation(data['robot_id'], Location.from_coords(
                 data['x'], data['y'], data['z']))
             self.receiver.nextPacket()
@@ -116,7 +115,7 @@ class GroundRobot(Supervisor):
             self.updateFields()
             self.sendLocation()
             self.listenLocationData()
-            self.go_to(GroundRobot.map_start)
+            self.discover_and_run()
 
     def go_coverage(self):
         if self.turn:
@@ -171,11 +170,16 @@ class GroundRobot(Supervisor):
             list(map(lambda x: x[0], robot_ids)).index(self.robot_id))
 
     def discover_and_run(self):
-        if self.discovered_area:
-            self.go_coverage()
-        else:
+        if not self.discovered_area:
             if len(self.robot_locations) == 4:
                 self.select_area()
+        elif not self.first_area:
+            self.go_to(self.loc_limit.lower_limit)
+        else:
+            self.go_coverage()
+            
+            
+        
 
     def _set_motor_speeds(self, FL=None, FR=None, BL=None, BR=None):
         if FL:
@@ -215,7 +219,7 @@ class GroundRobot(Supervisor):
             self.stop_engine()
             self._robot_state.complete()
             print("FİNİSHED PROCCESS")
-        pass
+            self.first_area = True
 
     def change_state(self, new_state, force=False):
         if self._robot_state.status is Status.COMPLETED:
