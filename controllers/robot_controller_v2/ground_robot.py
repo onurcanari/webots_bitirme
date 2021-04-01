@@ -12,11 +12,11 @@ import struct
 import json
 
 TIME_STEP = 64
-ROBOT_SPEED = 5
+ROBOT_SPEED = 5.0
 
 
 class GroundRobot(Supervisor):
-    map_start = Location.from_coords(-2, 0, 2)
+    map_start = Location.from_coords(0, 0, 0)
 
     def __init__(self, robot_id: str):
         super().__init__()
@@ -72,7 +72,6 @@ class GroundRobot(Supervisor):
     def updateFields(self):
         self._robot_location = Location(self.translation_field.getSFVec3f())
         self._robot_rotation = Rotation(self.rotation_field.getSFRotation())
-        print(util.normalize_degree(self._robot_rotation.angle))
 
     @property
     def robot_location(self):
@@ -128,11 +127,8 @@ class GroundRobot(Supervisor):
         self.change_state(State.CHANGE_ROTATION)
         if self._robot_state.state is not State.CHANGE_ROTATION:
             return
-        print("Robot is turning with {} target_rotation".format(
-            self.target_rotation))
         if not self.target_rotation:
             self.target_rotation = degree
-            print("Target rotation is {}".format(self.target_rotation))
         else:
             if util.is_close(self.robot_rotation.angle, self.target_rotation, delta):
                 self.turn = False
@@ -144,7 +140,11 @@ class GroundRobot(Supervisor):
                 print("Robot is turning...")
                 self._robot_state.continue_pls()
                 self.move_right()
-
+        print("------------------------------------")
+        print("Robot ID : {}".format(self.robot_id))
+        print("Robot angle : {}".format(self.robot_rotation.angle))
+        print("Robot target degree : {}".format(self.target_rotation))
+        print("------------------------------------")
 
     def get_message(self):
         if self.loc_limit.lower_limit.z < self.robot_location.z < self.loc_limit.upper_limit.z:
@@ -174,28 +174,22 @@ class GroundRobot(Supervisor):
             if len(self.robot_locations) == 4:
                 self.select_area()
         elif not self.first_area:
-            self.go_to(self.loc_limit.lower_limit)
+            self.go_to(GroundRobot.map_start)
         else:
-            self.go_coverage()
-            
-            
-        
+            print("STOP ENGİNE")
+            self.stop_engine()
 
     def _set_motor_speeds(self, FL=None, FR=None, BL=None, BR=None):
-        if FL:
-            self.wheels[0].setVelocity(ROBOT_SPEED * FL)
-        if FR:
-            self.wheels[1].setVelocity(ROBOT_SPEED * FR)
-        if BL:
-            self.wheels[2].setVelocity(ROBOT_SPEED * BL)
-        if BR:
-            self.wheels[3].setVelocity(ROBOT_SPEED * BR)
+        self.wheels[0].setVelocity(ROBOT_SPEED * FL)
+        self.wheels[1].setVelocity(ROBOT_SPEED * FR)
+        self.wheels[2].setVelocity(ROBOT_SPEED * BL)
+        self.wheels[3].setVelocity(ROBOT_SPEED * BR)
 
     def move_forward(self):
-        self._set_motor_speeds(1, 1, 1, 1)
+        self._set_motor_speeds(1.0, 1.0, 1.0, 1.0)
 
     def stop_engine(self):
-        self._set_motor_speeds(0, 0, 0, 0)
+        self._set_motor_speeds(0.0, 0.0, 0.0, 0.0)
 
     def move_right(self):
         self._set_motor_speeds(0.2, -0.2, 0.2, -0.2)
@@ -204,11 +198,8 @@ class GroundRobot(Supervisor):
         self._set_motor_speeds(-0.2, 0.2, -0.2, 0.2)
 
     def go_to(self, location):
-        turning_degree = self.robot_location.calculate_degree_between(location) % 360
-        print("Robot ID : {} , turning_degree : {}".format(
-            self.robot_id, turning_degree))
-
-        print("Robot ID : ", self.robot_id, self.robot_rotation)
+        turning_degree = self.robot_location.calculate_degree_between(
+            location) % 360
         self.turn_with_degree(turning_degree)
 
         self.change_state(State.GO_TO_LOCATION)
