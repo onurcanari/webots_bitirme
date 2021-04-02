@@ -16,7 +16,7 @@ ROBOT_SPEED = 5.0
 
 
 class GroundRobot(Supervisor):
-    map_start = Location.from_coords(0, 0, 0)
+    map_start = Location.from_coords(0, 0, 2)
 
     def __init__(self, robot_id: str):
         super().__init__()
@@ -174,7 +174,7 @@ class GroundRobot(Supervisor):
             if len(self.robot_locations) == 4:
                 self.select_area()
         elif not self.first_area:
-            self.go_to(GroundRobot.map_start)
+            self.go_to(self.loc_limit.lower_limit)
         else:
             print("STOP ENGİNE")
             self.stop_engine()

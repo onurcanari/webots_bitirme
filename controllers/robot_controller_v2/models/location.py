@@ -13,7 +13,7 @@ class Location:
         self.z = round(locations[2], 4)
 
     def is_close(self, other, delta=0.2) -> bool:
-        if util.is_close(self.x, other.x, delta) and util.is_close(self.x, other.z, delta):
+        if util.is_close(self.x, other.x, delta) and util.is_close(self.z, other.z, delta):
             return True
         return False
 
