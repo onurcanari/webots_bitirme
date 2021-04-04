@@ -139,7 +139,13 @@ class GroundRobot(Supervisor):
             else:
                 print("Robot is turning...")
                 self._robot_state.continue_pls()
-                self.move_right()
+                if(self.robot_rotation.angle > self.target_rotation):
+                    if(self.robot_rotation.angle < 270):
+                        self.move_right()
+                    else:
+                        self.move_left()
+                else:
+                    self.move_left()
         print("------------------------------------")
         print("Robot ID : {}".format(self.robot_id))
         print("Robot angle : {}".format(self.robot_rotation.angle))

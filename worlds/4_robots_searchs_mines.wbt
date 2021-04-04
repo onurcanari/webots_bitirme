@@ -1,10 +1,10 @@
-#VRML_SIM R2020b utf8
+#VRML_SIM R2021a utf8
 WorldInfo {
   coordinateSystem "NUE"
 }
 Viewpoint {
-  orientation 0.9999761904573585 0.004755974369023079 0.00499992261837809 4.662365200328831
-  position 0.03143884726098674 10.972452777281136 -0.11141835210497317
+  orientation 0.9996202455961587 0.0231192932988267 0.014995428357939444 5.132042138130486
+  position -0.127822385750195 8.488803276961221 3.8702061474427243
 }
 TexturedBackground {
 }
@@ -16,8 +16,8 @@ RectangleArena {
   wallHeight 0.5
 }
 DEF robot0 Robot {
-  translation -1.90138 0.0397206 1.32314
-  rotation 8.81467999946644e-06 0.9999999999394691 6.585079999601399e-06 1.28738
+  translation -2.86475 0.0397206 1
+  rotation 3.2866351745836306e-06 0.9999999999487033 -9.580778982226143e-06 0
   children [
     Emitter {
       channel -1
@@ -36,7 +36,7 @@ DEF robot0 Robot {
     }
     HingeJoint {
       jointParameters HingeJointParameters {
-        position 43819.526156998276
+        position 43884.96607707316
         anchor 0.06 0 0.05
       }
       device [
@@ -45,8 +45,8 @@ DEF robot0 Robot {
         }
       ]
       endPoint Solid {
-        translation 0.060000000000000026 -6.416651804553882e-18 0.050000000000000024
-        rotation 0.2801577597181958 -0.2799347513693075 0.9182309974322832 1.6552058738883306
+        translation 0.060000000000000026 -3.947273876914978e-18 0.04999999999999998
+        rotation 0.7072380854001235 -0.7066751168860492 -0.02060508999389237 3.1828298187646387
         children [
           DEF Wheel Shape {
             appearance PBRAppearance {
@@ -66,7 +66,7 @@ DEF robot0 Robot {
     }
     HingeJoint {
       jointParameters HingeJointParameters {
-        position 40373.46937639743
+        position 40411.70945349283
         anchor -0.06 0 0.05
       }
       device [
@@ -75,8 +75,8 @@ DEF robot0 Robot {
         }
       ]
       endPoint Solid {
-        translation -0.06 2.099800298327424e-17 0.05000000000000002
-        rotation -0.6727305594466018 0.6721950592646395 0.3091721149891592 2.54144267745626
+        translation -0.06 1.0570434462676557e-17 0.050000000000000024
+        rotation -0.6073142906920832 0.6068308625073404 0.5127627683732207 2.193334637453841
         children [
           USE Wheel
         ]
@@ -87,7 +87,7 @@ DEF robot0 Robot {
     }
     HingeJoint {
       jointParameters HingeJointParameters {
-        position 43819.526439549925
+        position 43884.966362714615
         anchor 0.06 0 -0.05
       }
       device [
@@ -96,8 +96,8 @@ DEF robot0 Robot {
         }
       ]
       endPoint Solid {
-        translation 0.060000000000000026 6.419374041545984e-18 -0.050000000000000024
-        rotation 0.2802773878748805 -0.28005428430079715 0.9181580385155935 1.6552850498264358
+        translation 0.060000000000000026 3.947949370787151e-18 -0.04999999999999998
+        rotation 0.7072366097480942 -0.7066736424086548 -0.02070606087372919 3.183031835071632
         children [
           USE Wheel
         ]
@@ -108,7 +108,7 @@ DEF robot0 Robot {
     }
     HingeJoint {
       jointParameters HingeJointParameters {
-        position 40373.46971837833
+        position 40411.709798414995
         anchor -0.06 0 -0.05
       }
       device [
@@ -117,8 +117,8 @@ DEF robot0 Robot {
         }
       ]
       endPoint Solid {
-        translation -0.06 8.231152808536645e-09 -0.049999990390048966
-        rotation -0.6727016105646342 0.6721661334262673 0.3092979667222671 2.541212791643679
+        translation -0.06 2.1070308218003287e-09 -0.0499999875234838
+        rotation -0.6072584616914315 0.6067750779471254 0.5128948873662286 2.193125324605423
         children [
           USE Wheel
         ]
@@ -210,8 +210,8 @@ DEF robot0 Robot {
   supervisor TRUE
 }
 DEF robot1 Robot {
-  translation -1.65576 0.0397206 -1.51747
-  rotation 6.761349999698662e-06 0.9999999999554323 6.589339999706329e-06 1.54918
+  translation -2.7341704704117946 0.03972062055835439 0.5168090985672764
+  rotation 2.08722e-08 1 -2.6853e-07 -1.3079996938995748
   children [
     Emitter {
       channel -1
@@ -230,7 +230,7 @@ DEF robot1 Robot {
     }
     HingeJoint {
       jointParameters HingeJointParameters {
-        position 43819.52615699942
+        position 43858.02215799354
         anchor 0.06 0 0.05
       }
       device [
@@ -239,8 +239,8 @@ DEF robot1 Robot {
         }
       ]
       endPoint Solid {
-        translation 0.060000000000000026 -1.60409515677363e-17 0.05000000000000002
-        rotation 0.2801577602018764 -0.2799347518526022 0.9182309971373707 1.6552058742083617
+        translation 0.060000000000000026 -2.2427782207884132e-17 0.049999999999999996
+        rotation 0.5392933390244747 -0.5388640561903212 0.6471384886018968 1.9921441284262629
         children [
           DEF Wheel Shape {
             appearance PBRAppearance {
@@ -260,7 +260,7 @@ DEF robot1 Robot {
     }
     HingeJoint {
       jointParameters HingeJointParameters {
-        position 40373.469376394685
+        position 40412.73337410005
         anchor -0.06 0 0.05
       }
       device [
@@ -269,8 +269,8 @@ DEF robot1 Robot {
         }
       ]
       endPoint Solid {
-        translation -0.06 2.0999482530578554e-17 0.05000000000000002
-        rotation -0.6727305596789187 0.6721950594967699 0.3091721139789662 2.5414426793015843
+        translation -0.06 -1.2343678910205426e-17 0.050000000000000024
+        rotation -0.33034028161931994 0.33007732748644497 0.8842648111392168 1.6926956817024679
         children [
           USE Wheel
         ]
@@ -281,7 +281,7 @@ DEF robot1 Robot {
     }
     HingeJoint {
       jointParameters HingeJointParameters {
-        position 43819.52643954879
+        position 43858.02244161523
         anchor 0.06 0 -0.05
       }
       device [
@@ -290,8 +290,8 @@ DEF robot1 Robot {
         }
       ]
       endPoint Solid {
-        translation 0.060000000000000026 1.6039488920134784e-17 -0.05000000000000002
-        rotation 0.28027738739435437 -0.280054283820653 0.9181580388087316 1.6552850495083067
+        translation 0.060000000000000026 2.2424726386526002e-17 -0.049999999999999996
+        rotation 0.5393584629371352 -0.5389291282637043 0.6470300172070959 1.9922970929491646
         children [
           USE Wheel
         ]
@@ -302,7 +302,7 @@ DEF robot1 Robot {
     }
     HingeJoint {
       jointParameters HingeJointParameters {
-        position 40373.46971838107
+        position 40412.733717444135
         anchor -0.06 0 -0.05
       }
       device [
@@ -311,8 +311,8 @@ DEF robot1 Robot {
         }
       ]
       endPoint Solid {
-        translation -0.06 8.231152786555779e-09 -0.04999999039004894
-        rotation -0.6727016103322073 0.672166133194025 0.3092979677324883 2.541212789798434
+        translation -0.06 -9.561144809822904e-09 -0.049999991712205025
+        rotation -0.33020502110644734 0.3299421746422811 0.8843657645049435 1.6925823681196934
         children [
           USE Wheel
         ]
@@ -404,8 +404,8 @@ DEF robot1 Robot {
   supervisor TRUE
 }
 DEF robot2 Robot {
-  translation 2.25232 0.0397209 -1.54662
-  rotation -2.638249999933203e-06 0.9999999999746814 6.608839999832673e-06 -2.3778153071795862
+  translation -2.79078923498724 0.039720592674574624 -1.164630013805655
+  rotation -1.902944053112892e-05 0.9999999998107677 4.042907032089164e-06 3.141592653589793
   children [
     Emitter {
       channel -1
@@ -424,7 +424,7 @@ DEF robot2 Robot {
     }
     HingeJoint {
       jointParameters HingeJointParameters {
-        position 43819.52615699942
+        position 43885.92607557584
         anchor 0.06 0 0.05
       }
       device [
@@ -433,8 +433,8 @@ DEF robot2 Robot {
         }
       ]
       endPoint Solid {
-        translation 0.060000000000000026 -6.356478027903232e-18 0.050000000000000024
-        rotation 0.2801577602018762 -0.27993475185260236 0.9182309971373706 1.6552058742083604
+        translation 0.060000000000000026 1.5490730867904325e-17 0.04999999999999999
+        rotation 0.6580162906112148 -0.6574925031328402 -0.3670397384676073 3.845655200995858
         children [
           DEF Wheel Shape {
             appearance PBRAppearance {
@@ -454,7 +454,7 @@ DEF robot2 Robot {
     }
     HingeJoint {
       jointParameters HingeJointParameters {
-        position 40373.469376394685
+        position 40412.02945664714
         anchor -0.06 0 0.05
       }
       device [
@@ -463,8 +463,8 @@ DEF robot2 Robot {
         }
       ]
       endPoint Solid {
-        translation -0.06 3.1879033795064564e-18 0.049999999999999996
-        rotation -0.672730559678919 0.6721950594967693 0.3091721139789665 2.541442679301583
+        translation -0.06 7.020017205020825e-18 0.05
+        rotation -0.5460247821449858 0.5455901410155024 0.6357580792331349 2.008275274218866
         children [
           USE Wheel
         ]
@@ -475,7 +475,7 @@ DEF robot2 Robot {
     }
     HingeJoint {
       jointParameters HingeJointParameters {
-        position 43819.52643954879
+        position 43885.92635935684
         anchor 0.06 0 -0.05
       }
       device [
@@ -484,8 +484,8 @@ DEF robot2 Robot {
         }
       ]
       endPoint Solid {
-        translation 0.060000000000000026 6.359429772994652e-18 -0.050000000000000024
-        rotation 0.28027738739435526 -0.280054283820653 0.9181580388087311 1.6552850495083065
+        translation 0.060000000000000026 -1.5492627675096024e-17 -0.04999999999999999
+        rotation 0.6579867320020355 -0.6574629680526075 -0.3671456198141789 3.8458419293246355
         children [
           USE Wheel
         ]
@@ -496,7 +496,7 @@ DEF robot2 Robot {
     }
     HingeJoint {
       jointParameters HingeJointParameters {
-        position 40373.46971838107
+        position 40412.02979974228
         anchor -0.06 0 -0.05
       }
       device [
@@ -505,8 +505,8 @@ DEF robot2 Robot {
         }
       ]
       endPoint Solid {
-        translation -0.06 8.231152786596948e-09 -0.04999999039004894
-        rotation -0.6727016103322075 0.6721661331940247 0.30929796773248835 2.5412127897984336
+        translation -0.06 -1.9246431069773e-09 -0.04999998749405004
+        rotation -0.5459482187494367 0.5455136385651741 0.6358894656964381 2.0080880870726157
         children [
           USE Wheel
         ]
@@ -598,8 +598,8 @@ DEF robot2 Robot {
   supervisor TRUE
 }
 DEF robot3 Robot {
-  translation -1.89202 0.0397206 2.58527
-  rotation 2.5767865287551025e-05 0.9999999996465582 6.549884834529889e-06 0.501984908141561
+  translation -2.7509964290358653 0.03972059737531007 -0.6337762480382841
+  rotation 6.904089999752373e-06 0.9999999999641334 4.905819999824045e-06 -1.9645796938995748
   children [
     Emitter {
       channel -1
@@ -618,7 +618,7 @@ DEF robot3 Robot {
     }
     HingeJoint {
       jointParameters HingeJointParameters {
-        position 43819.526156998276
+        position 43886.50208791606
         anchor 0.06 0 0.05
       }
       device [
@@ -627,8 +627,8 @@ DEF robot3 Robot {
         }
       ]
       endPoint Solid {
-        translation 0.060000000000000026 -1.6040951573648927e-17 0.05000000000000002
-        rotation 0.280157759718196 -0.2799347513693075 0.9182309974322832 1.6552058738883308
+        translation 0.060000000000000026 2.0659242586586914e-17 0.05000000000000001
+        rotation 0.5730780754064138 -0.5726218995878044 -0.5862471147911392 4.202779069205771
         children [
           DEF Wheel Shape {
             appearance PBRAppearance {
@@ -648,7 +648,7 @@ DEF robot3 Robot {
     }
     HingeJoint {
       jointParameters HingeJointParameters {
-        position 40373.469376397436
+        position 40417.85344378605
         anchor -0.06 0 0.05
       }
       device [
@@ -657,8 +657,8 @@ DEF robot3 Robot {
         }
       ]
       endPoint Solid {
-        translation -0.06 2.1000116735833796e-17 0.05000000000000002
-        rotation -0.6727305594459861 0.6721950592640233 0.3091721149918383 2.541442677451365
+        translation -0.06 1.3823963982547296e-17 0.050000000000000024
+        rotation 0.6282482371842046 -0.6277481453709124 -0.45960463276420443 4.003821890932696
         children [
           USE Wheel
         ]
@@ -669,7 +669,7 @@ DEF robot3 Robot {
     }
     HingeJoint {
       jointParameters HingeJointParameters {
-        position 43819.526439549925
+        position 43886.502372223506
         anchor 0.06 0 -0.05
       }
       device [
@@ -678,8 +678,8 @@ DEF robot3 Robot {
         }
       ]
       endPoint Solid {
-        translation 0.060000000000000026 1.6039488914266722e-17 -0.05000000000000002
-        rotation 0.28027738787488066 -0.28005428430079726 0.9181580385155934 1.655285049826436
+        translation 0.060000000000000026 -2.0657408551447464e-17 -0.05000000000000001
+        rotation 0.5730220551847743 -0.5725659239588158 -0.5863565357297597 4.202941991607293
         children [
           USE Wheel
         ]
@@ -690,7 +690,7 @@ DEF robot3 Robot {
     }
     HingeJoint {
       jointParameters HingeJointParameters {
-        position 40373.46971837832
+        position 40417.85378732571
         anchor -0.06 0 -0.05
       }
       device [
@@ -699,8 +699,8 @@ DEF robot3 Robot {
         }
       ]
       endPoint Solid {
-        translation -0.06 8.231152808657782e-09 -0.049999990390048966
-        rotation -0.6727016105652506 0.6721661334268834 0.3092979667195876 2.541212791648573
+        translation -0.06 3.817734519211493e-09 -0.04999998793650389
+        rotation 0.6282004387183711 -0.6277003849531313 -0.45973517977607165 4.004037551926353
         children [
           USE Wheel
         ]
@@ -821,7 +821,7 @@ DEF mine1 Robot {
   name "mine1_name"
 }
 DEF mine2 Robot {
-  translation -1.24 0 0.63
+  translation 2.43 0 -1.3
   children [
     Shape {
       appearance PBRAppearance {
@@ -836,7 +836,7 @@ DEF mine2 Robot {
   name "mine2_name"
 }
 DEF mine3 Robot {
-  translation -1.4 0 -1.35
+  translation 0 0 -1
   children [
     Shape {
       appearance PBRAppearance {
@@ -851,7 +851,7 @@ DEF mine3 Robot {
   name "mine3_name"
 }
 DEF mine4 Robot {
-  translation 0.88 0 -0.35
+  translation 0 0 -2
   children [
     Shape {
       appearance PBRAppearance {
@@ -866,7 +866,7 @@ DEF mine4 Robot {
   name "mine4_name"
 }
 DEF mine5 Robot {
-  translation -0.37 0 1.36
+  translation 0 0 1
   children [
     Shape {
       appearance PBRAppearance {
