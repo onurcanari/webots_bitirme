@@ -9,7 +9,7 @@ class State(Enum):
     IDLE = 0,
     GO_TO_LOCATION = 1,
     CHANGE_ROTATION = 2,
-    GO_COVERAGE = 3,
+    GO_COVERAGE = 3
 
 
 class RobotState:

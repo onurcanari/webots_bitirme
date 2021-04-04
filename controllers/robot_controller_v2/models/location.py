@@ -12,7 +12,7 @@ class Location:
         self.y = round(locations[1], 4)
         self.z = round(locations[2], 4)
 
-    def is_close(self, other, delta=0.2) -> bool:
+    def is_close(self, other, delta=0.1) -> bool:
         if util.is_close(self.x, other.x, delta) and util.is_close(self.z, other.z, delta):
             return True
         return False
@@ -32,7 +32,7 @@ class Location:
         return self.z - location.z
 
     def calculate_degree_between(self, other):
-        delta_x = other.x - self.x 
+        delta_x = other.x - self.x
         delta_z = other.z - self.z
 
         rads = atan2(-delta_z, delta_x)
@@ -45,6 +45,22 @@ class Location:
             return 90
         else:
             return -90
+
+    def calculate_target_location(self, loc_limit, turn):
+        if turn:
+            if util.is_close(self.z, loc_limit.lower_limit.z):
+                print("Z 1")
+                return Location.from_coords(self.x, self.y, self.z+0.98)
+            elif util.is_close(self.z, loc_limit.upper_limit.z):
+                print("Z 2")
+                return Location.from_coords(self.x, self.y, self.z-0.98)
+            else:
+                print("Self Z : {} , upper Z : {}".format(
+                    self.z, loc_limit.upper_limit.z))
+                return None
+        else:
+            print("x ++++++")
+            return Location.from_coords(self.x+0.5, self.y, self.z)
 
     def __str__(self):
         return "x: {}, y: {}, z: {}".format(self.x, self.y, self.z)

@@ -12,6 +12,7 @@ class IGroundRobot(Supervisor):
         self.robot_id = int(robot_id)
         self.distance_sensors = []
         self.wheels = []
+        self.setup()
 
     def setup(self):
         self.root_node = self.getFromDef("robot"+str(self.robot_id))
@@ -21,7 +22,7 @@ class IGroundRobot(Supervisor):
         ds_names = ["ds_right", "ds_left"]
 
         for name in ds_names:
-            distance_sensor = self.getDistanceSensor(name)
+            distance_sensor = self.getDistanceSensor    (name)
             distance_sensor.enable(TIME_STEP)
             self.distance_sensors.append(distance_sensor)
 
@@ -41,8 +42,7 @@ class IGroundRobot(Supervisor):
         self.receiver = self.getReceiver("receiver")
         self.receiver.setChannel(-1)
         self.receiver.enable(TIME_STEP)
-        self.updateFields()
-        self.saveRobotLocation(self.robot_id, self.robot_location)
+        self.update_fields()
         print("Setup Passed")
         
     def _set_motor_speeds(self, FL=None, FR=None, BL=None, BR=None):

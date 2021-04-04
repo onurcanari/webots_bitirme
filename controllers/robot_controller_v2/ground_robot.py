@@ -13,6 +13,7 @@ import json
 
 TIME_STEP = 64
 
+
 class GroundRobot(IGroundRobot):
     map_start = Location.from_coords(0, 0, 2)
 
@@ -21,13 +22,13 @@ class GroundRobot(IGroundRobot):
         self._robot_state = RobotState(State.IDLE)
         self._robot_state.complete()
         self.discovered_area = False
-        self.turn = True
+        self.turn = False
         self.robot_locations = {}
         self.target_rotation = None
         self.target_location = None
         self.first_area = False
+        self.saveRobotLocation(self.robot_id, self.robot_location)
         print("Setup ground robot with id:", self.robot_id)
-        self.setup()
 
     def saveRobotLocation(self, robot_id, location):
         if robot_id not in self.robot_locations:
@@ -65,11 +66,19 @@ class GroundRobot(IGroundRobot):
             self.discover_and_run()
 
     def go_coverage(self):
-        if self.turn:
-            self.state = State
-            self.turn_with_degree(90)
+        if self._robot_state.status is Status.COMPLETED:
+            target = self.robot_location.calculate_target_location(
+                self.loc_limit, self.turn)
+            if target is not None:
+                self.turn = not self.turn
+                self.target_location = target
+                self.go_to(self.target_location)
+            else:
+                self.stop_engine()
+            # print("-------------------\nRobot ID : {} \n Target Location : {}\n----------------".format(
+            #     self.robot_id, self.target_location))
         else:
-            self.move_forward()
+            self.go_to(self.target_location)
 
     def turn_with_degree(self, degree, delta=1):
         self.change_state(State.CHANGE_ROTATION)
@@ -79,13 +88,12 @@ class GroundRobot(IGroundRobot):
             self.target_rotation = degree
         else:
             if util.is_close(self.robot_rotation.angle, self.target_rotation, delta):
-                self.turn = False
                 self.target_rotation = None
-                print("Finish turning")
+                # print("Finish turning")
                 self._robot_state.complete()
                 self.stop_engine()
             else:
-                print("Robot is turning...")
+                # print("Robot is turning...")
                 self._robot_state.continue_pls()
                 if(self.robot_rotation.angle > self.target_rotation):
                     if(self.robot_rotation.angle < 270):
@@ -94,17 +102,11 @@ class GroundRobot(IGroundRobot):
                         self.move_left()
                 else:
                     self.move_left()
-        print("------------------------------------")
-        print("Robot ID : {}".format(self.robot_id))
-        print("Robot angle : {}".format(self.robot_rotation.angle))
-        print("Robot target degree : {}".format(self.target_rotation))
-        print("------------------------------------")
-
-    def get_message(self):
-        if self.loc_limit.lower_limit.z < self.robot_location.z < self.loc_limit.upper_limit.z:
-            return 1
-        else:
-            return 0
+        # print("------------------------------------")
+        # print("Robot ID : {}".format(self.robot_id))
+        # print("Robot angle : {}".format(self.robot_rotation.angle))
+        # print("Robot target degree : {}".format(self.target_rotation))
+        # print("------------------------------------")
 
     def calculate_area_to_discover(self, turn):
         print("Calculating area to discover...")
@@ -122,6 +124,7 @@ class GroundRobot(IGroundRobot):
                            key=lambda kv: GroundRobot.map_start.compare(kv[1]))
         self.calculate_area_to_discover(
             list(map(lambda x: x[0], robot_ids)).index(self.robot_id))
+        self.target_location = self.loc_limit.lower_limit
 
     def discover_and_run(self):
         if not self.discovered_area:
@@ -130,10 +133,8 @@ class GroundRobot(IGroundRobot):
         elif not self.first_area:
             self.go_to(self.loc_limit.lower_limit)
         else:
-            print("STOP ENGİNE")
-            self.stop_engine()
+            self.go_coverage()
 
-    
     def go_to(self, location):
         turning_degree = self.robot_location.calculate_degree_between(
             location) % 360
@@ -142,12 +143,11 @@ class GroundRobot(IGroundRobot):
         self.change_state(State.GO_TO_LOCATION)
         if self._robot_state.state is State.GO_TO_LOCATION:
             self.move_forward()
-
-        if self.robot_location.is_close(location):
-            self.stop_engine()
-            self._robot_state.complete()
-            print("FİNİSHED PROCCESS")
-            self.first_area = True
+            if self.robot_location.is_close(location):
+                # self.stop_engine()
+                self.first_area = True
+                self._robot_state.complete()
+                print("FİNİSHED PROCCESS")
 
     def change_state(self, new_state, force=False):
         if self._robot_state.status is Status.COMPLETED:
