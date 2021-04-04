@@ -1,4 +1,3 @@
-from controller import Supervisor
 from models.location import Location
 from models.location_limit import LocationLimit
 from models.rotation import Rotation
@@ -6,28 +5,21 @@ import util
 from models.state import RobotState
 from models.state import State
 from models.state import Status
+from models.ground_robot_i import IGroundRobot
 
 from random import random
 import struct
 import json
 
 TIME_STEP = 64
-ROBOT_SPEED = 5.0
 
-
-class GroundRobot(Supervisor):
+class GroundRobot(IGroundRobot):
     map_start = Location.from_coords(0, 0, 2)
 
     def __init__(self, robot_id: str):
-        super().__init__()
+        super().__init__(robot_id)
         self._robot_state = RobotState(State.IDLE)
         self._robot_state.complete()
-        self.robot_id = int(robot_id)
-        self.distance_sensors = []
-        self.wheels = []
-        self.device_direction = True
-        self.direction_counter = 0
-        self.avoid_obstacle_counter = 0
         self.discovered_area = False
         self.turn = True
         self.robot_locations = {}
@@ -36,50 +28,6 @@ class GroundRobot(Supervisor):
         self.first_area = False
         print("Setup ground robot with id:", self.robot_id)
         self.setup()
-
-    def setup(self):
-        self.root_node = self.getFromDef("robot"+str(self.robot_id))
-        self.translation_field = self.root_node.getField("translation")
-        self.rotation_field = self.root_node.getField("rotation")
-        print("Getting distance sensors and enable them...")
-        ds_names = ["ds_right", "ds_left"]
-
-        for name in ds_names:
-            distance_sensor = self.getDistanceSensor(name)
-            distance_sensor.enable(TIME_STEP)
-            self.distance_sensors.append(distance_sensor)
-
-        print("Get and reposition motors..")
-        wheels_names = ["wheel1", "wheel2", "wheel3", "wheel4"]
-
-        for wheels_name in wheels_names:
-            wheel = self.getMotor(wheels_name)
-            wheel.setPosition(float('+inf'))
-            wheel.setVelocity(0.0)
-            self.wheels.append(wheel)
-
-        print("Get and Set Emitter")
-        self.emitter = self.getEmitter("emitter")
-        self.emitter.setChannel(-1)
-        print("Get and set Receiver")
-        self.receiver = self.getReceiver("receiver")
-        self.receiver.setChannel(-1)
-        self.receiver.enable(TIME_STEP)
-        self.updateFields()
-        self.saveRobotLocation(self.robot_id, self.robot_location)
-        print("Setup Passed")
-
-    def updateFields(self):
-        self._robot_location = Location(self.translation_field.getSFVec3f())
-        self._robot_rotation = Rotation(self.rotation_field.getSFRotation())
-
-    @property
-    def robot_location(self):
-        return self._robot_location
-
-    @property
-    def robot_rotation(self):
-        return self._robot_rotation
 
     def saveRobotLocation(self, robot_id, location):
         if robot_id not in self.robot_locations:
@@ -111,7 +59,7 @@ class GroundRobot(Supervisor):
     def run(self):
         print("Start robot")
         while self.step(TIME_STEP) != -1:
-            self.updateFields()
+            self.update_fields()
             self.sendLocation()
             self.listenLocationData()
             self.discover_and_run()
@@ -185,24 +133,7 @@ class GroundRobot(Supervisor):
             print("STOP ENGİNE")
             self.stop_engine()
 
-    def _set_motor_speeds(self, FL=None, FR=None, BL=None, BR=None):
-        self.wheels[0].setVelocity(ROBOT_SPEED * FL)
-        self.wheels[1].setVelocity(ROBOT_SPEED * FR)
-        self.wheels[2].setVelocity(ROBOT_SPEED * BL)
-        self.wheels[3].setVelocity(ROBOT_SPEED * BR)
-
-    def move_forward(self):
-        self._set_motor_speeds(1.0, 1.0, 1.0, 1.0)
-
-    def stop_engine(self):
-        self._set_motor_speeds(0.0, 0.0, 0.0, 0.0)
-
-    def move_right(self):
-        self._set_motor_speeds(0.2, -0.2, 0.2, -0.2)
-
-    def move_left(self):
-        self._set_motor_speeds(-0.2, 0.2, -0.2, 0.2)
-
+    
     def go_to(self, location):
         turning_degree = self.robot_location.calculate_degree_between(
             location) % 360
