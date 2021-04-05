@@ -95,18 +95,30 @@ class GroundRobot(IGroundRobot):
             else:
                 # print("Robot is turning...")
                 self._robot_state.continue_pls()
-                if(self.robot_rotation.angle > self.target_rotation):
-                    if(self.robot_rotation.angle < 270):
-                        self.move_right()
+                
+                print(" =>>>>>>>>>>>>>>>>>>>>>>>>>>>< ", self.target_location.x)
+
+                if(self.robot_location.x < self.target_location.x):
+                    if(self.robot_rotation.angle > self.target_rotation):
+                        if((self.robot_rotation.angle - self.target_rotation) < 180 ):
+                            self.move_right()
+                        else:
+                            self.move_left()
                     else:
                         self.move_left()
                 else:
-                    self.move_left()
-        # print("------------------------------------")
-        # print("Robot ID : {}".format(self.robot_id))
-        # print("Robot angle : {}".format(self.robot_rotation.angle))
-        # print("Robot target degree : {}".format(self.target_rotation))
-        # print("------------------------------------")
+                    if( self.robot_rotation.angle < self.target_rotation ):
+                        if(( self.target_rotation - self.robot_rotation.angle) < 180):
+                            self.move_left()
+                        else:
+                            self.move_right()
+                    else:
+                        self.move_right()
+        print("------------------------------------")
+        print("Robot ID : {}".format(self.robot_id))
+        print("Robot angle : {}".format(self.robot_rotation.angle))
+        print("Robot target degree : {}".format(self.target_rotation))
+        print("------------------------------------")
 
     def calculate_area_to_discover(self, turn):
         print("Calculating area to discover...")
