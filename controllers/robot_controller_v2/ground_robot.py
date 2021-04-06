@@ -15,7 +15,7 @@ TIME_STEP = 64
 
 
 class GroundRobot(IGroundRobot):
-    map_start = Location.from_coords(0, 0, 2)
+    map_start = Location.from_coords(0, 0, -2)
 
     def __init__(self, robot_id: str):
         super().__init__(robot_id)
@@ -27,6 +27,7 @@ class GroundRobot(IGroundRobot):
         self.target_rotation = None
         self.target_location = None
         self.first_area = False
+        self.second_area = False
         self.saveRobotLocation(self.robot_id, self.robot_location)
         print("Setup ground robot with id:", self.robot_id)
 
@@ -74,7 +75,15 @@ class GroundRobot(IGroundRobot):
                 self.target_location = target
                 self.go_to(self.target_location)
             else:
-                self.stop_engine()
+                if not self.second_area:
+                    GroundRobot.map_start = GroundRobot.map_start.add(
+                        Location.from_coords(0, 0, 6))
+                    self.discovered_area = False
+                    self.first_area = False
+                    self.second_area = True
+                else:
+                    self.stop_engine()
+
             # print("-------------------\nRobot ID : {} \n Target Location : {}\n----------------".format(
             #     self.robot_id, self.target_location))
         else:
@@ -95,45 +104,50 @@ class GroundRobot(IGroundRobot):
             else:
                 # print("Robot is turning...")
                 self._robot_state.continue_pls()
-                
-                print(" =>>>>>>>>>>>>>>>>>>>>>>>>>>>< ", self.target_location.x)
+
+                # print(" =>>>>>>>>>>>>>>>>>>>>>>>>>>>< ", self.target_location.x)
 
                 if(self.robot_location.x < self.target_location.x):
                     if(self.robot_rotation.angle > self.target_rotation):
-                        if((self.robot_rotation.angle - self.target_rotation) < 180 ):
+                        if((self.robot_rotation.angle - self.target_rotation) < 180):
                             self.move_right()
                         else:
                             self.move_left()
                     else:
                         self.move_left()
                 else:
-                    if( self.robot_rotation.angle < self.target_rotation ):
-                        if(( self.target_rotation - self.robot_rotation.angle) < 180):
+                    if(self.robot_rotation.angle < self.target_rotation):
+                        if((self.target_rotation - self.robot_rotation.angle) < 180):
                             self.move_left()
                         else:
                             self.move_right()
                     else:
                         self.move_right()
-        print("------------------------------------")
-        print("Robot ID : {}".format(self.robot_id))
-        print("Robot angle : {}".format(self.robot_rotation.angle))
-        print("Robot target degree : {}".format(self.target_rotation))
-        print("------------------------------------")
+        # print("------------------------------------")
+        # print("Robot ID : {}".format(self.robot_id))
+        # print("Robot angle : {}".format(self.robot_rotation.angle))
+        # print("Robot target degree : {}".format(self.target_rotation))
+        # print("------------------------------------")
 
     def calculate_area_to_discover(self, turn):
         print("Calculating area to discover...")
-        offset = Location.from_coords(0, 0, 1.0 * turn)
-        self.location_lower = GroundRobot.map_start.subtract(offset)
-        temp_upper = self.location_lower.subtract(
-            Location.from_coords(0, 0, 1.0))
-        self.loc_limit = LocationLimit(temp_upper, self.location_lower)
+        offset = Location.from_coords(0, 0, -1.5 * turn)
+        self.location_lower = GroundRobot.map_start.add(offset)
+        temp_upper = self.location_lower.add(
+            Location.from_coords(0, 0, -1.0))
+        new_upper = temp_upper.add(Location.from_coords(1, 0, 0))
+        self.loc_limit = LocationLimit(self.location_lower, new_upper)
         self.discovered_area = True
         print("Robot ID : ", self.robot_id, "Location Limit :", self.loc_limit)
 
     def select_area(self):
         print("Selecting area...")
+
         robot_ids = sorted(self.robot_locations.items(),
                            key=lambda kv: GroundRobot.map_start.compare(kv[1]))
+        if not self.second_area:
+            GroundRobot.map_start = robot_ids[0][1]
+
         self.calculate_area_to_discover(
             list(map(lambda x: x[0], robot_ids)).index(self.robot_id))
         self.target_location = self.loc_limit.lower_limit
@@ -159,7 +173,6 @@ class GroundRobot(IGroundRobot):
                 # self.stop_engine()
                 self.first_area = True
                 self._robot_state.complete()
-                print("FİNİSHED PROCCESS")
 
     def change_state(self, new_state, force=False):
         if self._robot_state.status is Status.COMPLETED:
