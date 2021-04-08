@@ -64,7 +64,7 @@ class Location:
                     self.z, loc_limit.upper_limit.z))
                 return None
         else:
-            return Location.from_coords(self.x+0.3, self.y, self.z)
+            return Location.from_coords(self.x+0.2, self.y, self.z)
 
     def __str__(self):
         return "x: {}, y: {}, z: {}".format(self.x, self.y, self.z)

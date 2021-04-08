@@ -15,7 +15,7 @@ TIME_STEP = 64
 
 
 class GroundRobot(IGroundRobot):
-    map_start = Location.from_coords(0, 0, -2)
+    map_start = None
 
     def __init__(self, robot_id: str):
         super().__init__(robot_id)
@@ -26,8 +26,8 @@ class GroundRobot(IGroundRobot):
         self.robot_locations = {}
         self.target_rotation = None
         self.target_location = None
-        self.first_area = False
-        self.second_area = False
+        self.went_first_area = False
+        self.loc_limit = None
         self.saveRobotLocation(self.robot_id, self.robot_location)
         print("Setup ground robot with id:", self.robot_id)
 
@@ -37,14 +37,13 @@ class GroundRobot(IGroundRobot):
 
     def sendLocation(self):
         location = self.robot_location
+
         if location == None:
             return
-
         message = {
             "robot_id": self.robot_id,
             **vars(location)
         }
-
         json_message = json.dumps(message)
         my_str_as_bytes = str.encode(json_message)
         self.emitter.send(my_str_as_bytes)
@@ -54,6 +53,7 @@ class GroundRobot(IGroundRobot):
             message = self.receiver.getData()
             my_decoded_str = message.decode()
             data = json.loads(my_decoded_str)
+            self.saveRobotLocation(self.robot_id, self.robot_location)
             self.saveRobotLocation(data['robot_id'], Location.from_coords(
                 data['x'], data['y'], data['z']))
             self.receiver.nextPacket()
@@ -67,7 +67,7 @@ class GroundRobot(IGroundRobot):
             self.discover_and_run()
 
     def go_coverage(self):
-        if self._robot_state.status is Status.COMPLETED:
+        if self._robot_state.status is Status.COMPLETED or self.go_to(self.target_location):
             target = self.robot_location.calculate_target_location(
                 self.loc_limit, self.turn)
             if target is not None:
@@ -75,19 +75,10 @@ class GroundRobot(IGroundRobot):
                 self.target_location = target
                 self.go_to(self.target_location)
             else:
-                if not self.second_area:
-                    GroundRobot.map_start = GroundRobot.map_start.add(
-                        Location.from_coords(0, 0, 6))
-                    self.discovered_area = False
-                    self.first_area = False
-                    self.second_area = True
-                else:
-                    self.stop_engine()
-
+                self.stop_engine()
+                self.loc_limit = None
             # print("-------------------\nRobot ID : {} \n Target Location : {}\n----------------".format(
             #     self.robot_id, self.target_location))
-        else:
-            self.go_to(self.target_location)
 
     def turn_with_degree(self, degree, delta=1):
         self.change_state(State.CHANGE_ROTATION)
@@ -104,8 +95,6 @@ class GroundRobot(IGroundRobot):
             else:
                 # print("Robot is turning...")
                 self._robot_state.continue_pls()
-
-                # print(" =>>>>>>>>>>>>>>>>>>>>>>>>>>>< ", self.target_location.x)
 
                 if(self.robot_location.x < self.target_location.x):
                     if(self.robot_rotation.angle > self.target_rotation):
@@ -142,22 +131,29 @@ class GroundRobot(IGroundRobot):
 
     def select_area(self):
         print("Selecting area...")
+        comparing_location = Location.from_coords(
+            0, 0, 0) if GroundRobot.map_start is None else GroundRobot.map_start
 
         robot_ids = sorted(self.robot_locations.items(),
-                           key=lambda kv: GroundRobot.map_start.compare(kv[1]))
-        if not self.second_area:
+                           key=lambda kv: comparing_location.compare(kv[1]))
+        if GroundRobot.map_start is None:
             GroundRobot.map_start = robot_ids[0][1]
 
         self.calculate_area_to_discover(
             list(map(lambda x: x[0], robot_ids)).index(self.robot_id))
         self.target_location = self.loc_limit.lower_limit
+        self.robot_locations.clear()
+        self.went_first_area = False
+        GroundRobot.map_start = GroundRobot.map_start.add(
+            Location.from_coords(0, 0, 6))
 
     def discover_and_run(self):
-        if not self.discovered_area:
+        if self.loc_limit is None:
             if len(self.robot_locations) == 4:
                 self.select_area()
-        elif not self.first_area:
-            self.go_to(self.loc_limit.lower_limit)
+        elif not self.went_first_area:
+            self.went_first_area = self.go_to(
+                self.loc_limit.lower_limit)
         else:
             self.go_coverage()
 
@@ -171,8 +167,9 @@ class GroundRobot(IGroundRobot):
             self.move_forward()
             if self.robot_location.is_close(location):
                 # self.stop_engine()
-                self.first_area = True
                 self._robot_state.complete()
+                return True
+        return False
 
     def change_state(self, new_state, force=False):
         if self._robot_state.status is Status.COMPLETED:

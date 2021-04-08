@@ -4,3 +4,4 @@
 *.wbproj
 *.exe
 
+__pycache__
