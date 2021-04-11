@@ -13,7 +13,6 @@ import json
 
 TIME_STEP = 64
 
-
 class GroundRobot(IGroundRobot):
     map_start = None
 
@@ -26,16 +25,22 @@ class GroundRobot(IGroundRobot):
         self.robot_locations = {}
         self.target_rotation = None
         self.target_location = None
+<<<<<<< Updated upstream
         self.went_first_area = False
         self.loc_limit = None
         self.saveRobotLocation(self.robot_id, self.robot_location)
+=======
+        self.first_area = False
+        self.second_area = False
+        self.save_robot_location(self.robot_id, self.robot_location)
+>>>>>>> Stashed changes
         print("Setup ground robot with id:", self.robot_id)
 
-    def saveRobotLocation(self, robot_id, location):
+    def save_robot_location(self, robot_id, location):
         if robot_id not in self.robot_locations:
             self.robot_locations[robot_id] = location
 
-    def sendLocation(self):
+    def send_location(self):
         location = self.robot_location
 
         if location == None:
@@ -48,13 +53,17 @@ class GroundRobot(IGroundRobot):
         my_str_as_bytes = str.encode(json_message)
         self.emitter.send(my_str_as_bytes)
 
-    def listenLocationData(self):
+    def listen_location_data(self):
         if self.receiver.getQueueLength() > 0:
             message = self.receiver.getData()
             my_decoded_str = message.decode()
             data = json.loads(my_decoded_str)
+<<<<<<< Updated upstream
             self.saveRobotLocation(self.robot_id, self.robot_location)
             self.saveRobotLocation(data['robot_id'], Location.from_coords(
+=======
+            self.save_robot_location(data['robot_id'], Location.from_coords(
+>>>>>>> Stashed changes
                 data['x'], data['y'], data['z']))
             self.receiver.nextPacket()
 
@@ -62,8 +71,8 @@ class GroundRobot(IGroundRobot):
         print("Start robot")
         while self.step(TIME_STEP) != -1:
             self.update_fields()
-            self.sendLocation()
-            self.listenLocationData()
+            self.send_location()
+            self.listen_location_data()
             self.discover_and_run()
 
     def go_coverage(self):
@@ -75,10 +84,23 @@ class GroundRobot(IGroundRobot):
                 self.target_location = target
                 self.go_to(self.target_location)
             else:
+<<<<<<< Updated upstream
                 self.stop_engine()
                 self.loc_limit = None
             # print("-------------------\nRobot ID : {} \n Target Location : {}\n----------------".format(
             #     self.robot_id, self.target_location))
+=======
+                if not self.second_area:
+                    GroundRobot.map_start = GroundRobot.map_start.add(
+                        Location.from_coords(0, 0, 6))
+                    self.discovered_area = False
+                    self.first_area = False
+                    self.second_area = True
+                else:
+                    self.stop_engine()
+        else:
+            self.go_to(self.target_location)
+>>>>>>> Stashed changes
 
     def turn_with_degree(self, degree, delta=1):
         self.change_state(State.CHANGE_ROTATION)
@@ -89,13 +111,10 @@ class GroundRobot(IGroundRobot):
         else:
             if util.is_close(self.robot_rotation.angle, self.target_rotation, delta):
                 self.target_rotation = None
-                # print("Finish turning")
                 self._robot_state.complete()
                 self.stop_engine()
             else:
-                # print("Robot is turning...")
                 self._robot_state.continue_pls()
-
                 if(self.robot_location.x < self.target_location.x):
                     if(self.robot_rotation.angle > self.target_rotation):
                         if((self.robot_rotation.angle - self.target_rotation) < 180):
@@ -112,11 +131,6 @@ class GroundRobot(IGroundRobot):
                             self.move_right()
                     else:
                         self.move_right()
-        # print("------------------------------------")
-        # print("Robot ID : {}".format(self.robot_id))
-        # print("Robot angle : {}".format(self.robot_rotation.angle))
-        # print("Robot target degree : {}".format(self.target_rotation))
-        # print("------------------------------------")
 
     def calculate_area_to_discover(self, turn):
         print("Calculating area to discover...")

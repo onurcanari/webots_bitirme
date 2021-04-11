@@ -22,7 +22,7 @@ class IGroundRobot(Supervisor):
         ds_names = ["ds_right", "ds_left"]
 
         for name in ds_names:
-            distance_sensor = self.getDistanceSensor    (name)
+            distance_sensor = self.getDevice(name)
             distance_sensor.enable(TIME_STEP)
             self.distance_sensors.append(distance_sensor)
 
@@ -30,16 +30,16 @@ class IGroundRobot(Supervisor):
         wheels_names = ["wheel1", "wheel2", "wheel3", "wheel4"]
 
         for wheels_name in wheels_names:
-            wheel = self.getMotor(wheels_name)
+            wheel = self.getDevice(wheels_name)
             wheel.setPosition(float('+inf'))
             wheel.setVelocity(0.0)
             self.wheels.append(wheel)
 
         print("Get and Set Emitter")
-        self.emitter = self.getEmitter("emitter")
+        self.emitter = self.getDevice("emitter")
         self.emitter.setChannel(-1)
         print("Get and set Receiver")
-        self.receiver = self.getReceiver("receiver")
+        self.receiver = self.getDevice("receiver")
         self.receiver.setChannel(-1)
         self.receiver.enable(TIME_STEP)
         self.update_fields()
