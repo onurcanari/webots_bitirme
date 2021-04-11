@@ -3,5 +3,3 @@
 #Custom
 *.wbproj
 *.exe
-
-__pycache__
