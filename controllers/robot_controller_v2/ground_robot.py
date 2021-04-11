@@ -25,15 +25,9 @@ class GroundRobot(IGroundRobot):
         self.robot_locations = {}
         self.target_rotation = None
         self.target_location = None
-<<<<<<< Updated upstream
-        self.went_first_area = False
-        self.loc_limit = None
-        self.saveRobotLocation(self.robot_id, self.robot_location)
-=======
         self.first_area = False
         self.second_area = False
         self.save_robot_location(self.robot_id, self.robot_location)
->>>>>>> Stashed changes
         print("Setup ground robot with id:", self.robot_id)
 
     def save_robot_location(self, robot_id, location):
@@ -58,12 +52,7 @@ class GroundRobot(IGroundRobot):
             message = self.receiver.getData()
             my_decoded_str = message.decode()
             data = json.loads(my_decoded_str)
-<<<<<<< Updated upstream
-            self.saveRobotLocation(self.robot_id, self.robot_location)
-            self.saveRobotLocation(data['robot_id'], Location.from_coords(
-=======
             self.save_robot_location(data['robot_id'], Location.from_coords(
->>>>>>> Stashed changes
                 data['x'], data['y'], data['z']))
             self.receiver.nextPacket()
 
@@ -84,12 +73,6 @@ class GroundRobot(IGroundRobot):
                 self.target_location = target
                 self.go_to(self.target_location)
             else:
-<<<<<<< Updated upstream
-                self.stop_engine()
-                self.loc_limit = None
-            # print("-------------------\nRobot ID : {} \n Target Location : {}\n----------------".format(
-            #     self.robot_id, self.target_location))
-=======
                 if not self.second_area:
                     GroundRobot.map_start = GroundRobot.map_start.add(
                         Location.from_coords(0, 0, 6))
@@ -100,7 +83,6 @@ class GroundRobot(IGroundRobot):
                     self.stop_engine()
         else:
             self.go_to(self.target_location)
->>>>>>> Stashed changes
 
     def turn_with_degree(self, degree, delta=1):
         self.change_state(State.CHANGE_ROTATION)
