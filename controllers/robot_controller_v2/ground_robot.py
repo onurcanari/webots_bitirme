@@ -27,6 +27,7 @@ class GroundRobot(IGroundRobot):
         self.target_location = None
         self.first_area = False
         self.second_area = False
+        self.loc_limit = None
         self.save_robot_location(self.robot_id, self.robot_location)
         print("Setup ground robot with id:", self.robot_id)
 
@@ -83,6 +84,8 @@ class GroundRobot(IGroundRobot):
                     self.stop_engine()
         else:
             self.go_to(self.target_location)
+
+    
 
     def turn_with_degree(self, degree, delta=1):
         self.change_state(State.CHANGE_ROTATION)
@@ -154,8 +157,7 @@ class GroundRobot(IGroundRobot):
             self.go_coverage()
 
     def go_to(self, location):
-        turning_degree = self.robot_location.calculate_degree_between(
-            location) % 360
+        turning_degree = self.robot_location.calculate_degree_between(location) % 360
         self.turn_with_degree(turning_degree)
 
         self.change_state(State.GO_TO_LOCATION)
