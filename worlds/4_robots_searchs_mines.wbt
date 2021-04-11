@@ -1,17 +1,27 @@
-#VRML_SIM R2020b utf8
+#VRML_SIM R2021a utf8
 WorldInfo {
   coordinateSystem "NUE"
 }
 Viewpoint {
+<<<<<<< Updated upstream
   orientation 0.9985715460112334 0.04423684148272677 0.029966136760801964 5.091061125709899
   position -2.904566601525694 17.204711970193895 7.884124999350683
+=======
+  orientation 0.9993251013187591 0.030818420856925155 0.019989167319759783 5.131772444998734
+  position -0.22643457739717449 28.32212485631626 13.463410850641798
+>>>>>>> Stashed changes
 }
 TexturedBackground {
 }
 TexturedBackgroundLight {
 }
 RectangleArena {
+<<<<<<< Updated upstream
   floorSize 100 100
+=======
+  translation 0 0 7.79
+  floorSize 20 20
+>>>>>>> Stashed changes
   wallThickness 0.1
   wallHeight 0.5
 }
@@ -45,7 +55,11 @@ DEF robot0 Robot {
         }
       ]
       endPoint Solid {
+<<<<<<< Updated upstream
         translation 0.060000000000000026 -3.576084869377188e-18 0.04999999999999998
+=======
+        translation 0.060000000000000026 -3.765163118931336e-18 0.04999999999999998
+>>>>>>> Stashed changes
         rotation 0.7072380854001235 -0.7066751168860492 -0.02060508999389237 3.1828298187646387
         children [
           DEF Wheel Shape {
@@ -96,7 +110,11 @@ DEF robot0 Robot {
         }
       ]
       endPoint Solid {
+<<<<<<< Updated upstream
         translation 0.060000000000000026 3.5729659881802e-18 -0.04999999999999998
+=======
+        translation 0.060000000000000026 3.7639379047333056e-18 -0.04999999999999998
+>>>>>>> Stashed changes
         rotation 0.7072366097480942 -0.7066736424086548 -0.02070606087372919 3.183031835071632
         children [
           USE Wheel
@@ -239,8 +257,13 @@ DEF robot1 Robot {
         }
       ]
       endPoint Solid {
+<<<<<<< Updated upstream
         translation 0.060000000000000026 2.25013348587894e-17 0.049999999999999996
         rotation 0.6796648066178624 -0.6791237867065351 -0.2772122525691826 3.682846307860758
+=======
+        translation 0.060000000000000026 -2.244419343582714e-17 0.049999999999999996
+        rotation 0.5392933390244742 -0.5388640561903215 0.647138488601897 1.9921441284262609
+>>>>>>> Stashed changes
         children [
           DEF Wheel Shape {
             appearance PBRAppearance {
@@ -269,8 +292,13 @@ DEF robot1 Robot {
         }
       ]
       endPoint Solid {
+<<<<<<< Updated upstream
         translation -0.06 2.271303376261999e-17 0.049999999999999996
         rotation -0.7069381579568204 0.7063754281879598 -0.0356678465413077 3.212954875656009
+=======
+        translation -0.06 -1.340748311504556e-17 0.050000000000000024
+        rotation -0.33034028161932044 0.33007732748644486 0.8842648111392167 1.692695681702468
+>>>>>>> Stashed changes
         children [
           USE Wheel
         ]
@@ -311,8 +339,13 @@ DEF robot1 Robot {
         }
       ]
       endPoint Solid {
+<<<<<<< Updated upstream
         translation -0.06 1.2589260425854799e-08 -0.050000001270258866
         rotation -0.7069412122420559 0.7063784800419531 -0.035546664644558815 3.212712626416847
+=======
+        translation -0.06 -9.561144808812592e-09 -0.049999991712205025
+        rotation -0.33020502110644734 0.3299421746422811 0.8843657645049435 1.6925823681196934
+>>>>>>> Stashed changes
         children [
           USE Wheel
         ]
@@ -433,8 +466,13 @@ DEF robot2 Robot {
         }
       ]
       endPoint Solid {
+<<<<<<< Updated upstream
         translation 0.060000000000000026 -1.9763148056573656e-17 0.049999999999999996
         rotation 0.6352611087291231 -0.6347554346006865 0.4399191539148292 2.3121271851090697
+=======
+        translation 0.060000000000000026 1.5898904633425468e-17 0.04999999999999999
+        rotation 0.6580162906112149 -0.65749250313284 -0.3670397384676071 3.845655200995858
+>>>>>>> Stashed changes
         children [
           DEF Wheel Shape {
             appearance PBRAppearance {
@@ -484,8 +522,13 @@ DEF robot2 Robot {
         }
       ]
       endPoint Solid {
+<<<<<<< Updated upstream
         translation 0.060000000000000026 1.976354320475162e-17 -0.049999999999999996
         rotation 0.6352985155151432 -0.6347928116105357 0.4398111896164609 2.312308205772405
+=======
+        translation 0.060000000000000026 -1.590006192122937e-17 -0.04999999999999999
+        rotation 0.6579867320020357 -0.6574629680526074 -0.3671456198141787 3.8458419293246364
+>>>>>>> Stashed changes
         children [
           USE Wheel
         ]
@@ -505,8 +548,13 @@ DEF robot2 Robot {
         }
       ]
       endPoint Solid {
+<<<<<<< Updated upstream
         translation -0.06 -1.112729885349771e-09 -0.05000001260416074
         rotation -0.5599495139103449 0.5595037885565904 -0.6110745064739573 4.239346905452836
+=======
+        translation -0.06 -1.9246431069749137e-09 -0.04999998749405004
+        rotation -0.5459482187494367 0.5455136385651741 0.6358894656964381 2.0080880870726157
+>>>>>>> Stashed changes
         children [
           USE Wheel
         ]
@@ -657,8 +705,13 @@ DEF robot3 Robot {
         }
       ]
       endPoint Solid {
+<<<<<<< Updated upstream
         translation -0.06 -2.2322824752102388e-17 0.049999999999999996
         rotation -0.3045361840316171 0.3042937702157538 -0.9025868456959381 4.610869771116894
+=======
+        translation -0.06 1.3874592435852657e-17 0.050000000000000024
+        rotation 0.6282482371842046 -0.6277481453709124 -0.45960463276420443 4.003821890932696
+>>>>>>> Stashed changes
         children [
           USE Wheel
         ]
