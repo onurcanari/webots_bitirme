@@ -1,17 +1,16 @@
+from models.field import FieldService
 from models.location import Location
 from models.location_limit import LocationLimit
-from models.rotation import Rotation
 import util
 from models.state import RobotState
 from models.state import State
 from models.state import Status
 from models.ground_robot_i import IGroundRobot
 
-from random import random
-import struct
 import json
 
 TIME_STEP = 64
+
 
 class GroundRobot(IGroundRobot):
     map_start = None
@@ -29,6 +28,7 @@ class GroundRobot(IGroundRobot):
         self.second_area = False
         self.loc_limit = None
         self.save_robot_location(self.robot_id, self.robot_location)
+        self.field_service = None
         print("Setup ground robot with id:", self.robot_id)
 
     def save_robot_location(self, robot_id, location):
@@ -38,7 +38,7 @@ class GroundRobot(IGroundRobot):
     def send_location(self):
         location = self.robot_location
 
-        if location == None:
+        if location is None:
             return
         message = {
             "robot_id": self.robot_id,
@@ -85,8 +85,6 @@ class GroundRobot(IGroundRobot):
         else:
             self.go_to(self.target_location)
 
-    
-
     def turn_with_degree(self, degree, delta=1):
         self.change_state(State.CHANGE_ROTATION)
         if self._robot_state.state is not State.CHANGE_ROTATION:
@@ -100,17 +98,17 @@ class GroundRobot(IGroundRobot):
                 self.stop_engine()
             else:
                 self._robot_state.continue_pls()
-                if(self.robot_location.x < self.target_location.x):
-                    if(self.robot_rotation.angle > self.target_rotation):
-                        if((self.robot_rotation.angle - self.target_rotation) < 180):
+                if self.robot_location.x < self.target_location.x:
+                    if self.robot_rotation.angle > self.target_rotation:
+                        if (self.robot_rotation.angle - self.target_rotation) < 180:
                             self.move_right()
                         else:
                             self.move_left()
                     else:
                         self.move_left()
                 else:
-                    if(self.robot_rotation.angle < self.target_rotation):
-                        if((self.target_rotation - self.robot_rotation.angle) < 180):
+                    if self.robot_rotation.angle < self.target_rotation:
+                        if (self.target_rotation - self.robot_rotation.angle) < 180:
                             self.move_left()
                         else:
                             self.move_right()
@@ -137,6 +135,18 @@ class GroundRobot(IGroundRobot):
                            key=lambda kv: comparing_location.compare(kv[1]))
         if GroundRobot.map_start is None:
             GroundRobot.map_start = robot_ids[0][1]
+            self.field_service = FieldService(middle_loc=GroundRobot.map_start, offset=Location.from_coords(x=2, z=2))
+            if self.robot_id == 0:
+                for x in range(20):
+                    for y in range(20):
+                        field = self.root_node.getField("children")
+                        field.importMFNodeFromString(-1,
+                                                     "Transform { children [ Shape { appearance PBRAppearance { } geometry Sphere { radius 0.1 subdivision 3 } } ] }")
+                        node = field.getMFNode(-1)
+                        transField = node.getField("translation")
+                        loc = self.field_service.fields[x][y].lower_limit
+                        transField.setSFVec3f([loc.x, 0, loc.z])
+                        print("{} x {},".format(x, y), self.field_service.fields[x][y], )
 
         self.calculate_area_to_discover(
             list(map(lambda x: x[0], robot_ids)).index(self.robot_id))
@@ -151,8 +161,7 @@ class GroundRobot(IGroundRobot):
             if len(self.robot_locations) == 4:
                 self.select_area()
         elif not self.went_first_area:
-            self.went_first_area = self.go_to(
-                self.loc_limit.lower_limit)
+            self.went_first_area = self.go_to(self.loc_limit.lower_limit)
         else:
             self.go_coverage()
 

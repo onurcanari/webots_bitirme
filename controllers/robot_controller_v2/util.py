@@ -7,8 +7,10 @@ def is_close(value, target, delta=0.2):
 
 def normalize_degree(degree):
     width = 360
-    return (degree - (floor(degree / width) * width))
+    return degree - (floor(degree / width) * width)
 
 
 def is_over(value, target):
     return value >= target
+
+
