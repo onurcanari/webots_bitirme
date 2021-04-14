@@ -31,15 +31,19 @@ class FieldService:
     MAP_LENGTH = 20
 
     def __init__(self, middle_loc: Location, offset: Location):
-        self.fields = [[0 for i in range(FieldService.MAP_LENGTH)] for j in range(FieldService.MAP_LENGTH)]
-        middle_coords = [[0 for i in range(FieldService.MAP_LENGTH)] for j in range(FieldService.MAP_LENGTH)]
+        self.fields = [[0 for i in range(FieldService.MAP_LENGTH)]
+                       for j in range(FieldService.MAP_LENGTH)]
+        middle_coords = [[0 for i in range(FieldService.MAP_LENGTH)] for j in range(
+            FieldService.MAP_LENGTH)]
         firstSideX = middle_loc.x - (FieldService.MAP_LENGTH // 2 * offset.x)
         firstSideZ = middle_loc.z - (FieldService.MAP_LENGTH // 2 * offset.z)
 
         for i in range(FieldService.MAP_LENGTH):
             for j in range(FieldService.MAP_LENGTH):
-                middle_coords[i][j] = Location.from_coords(firstSideX + j * offset.x, None, firstSideZ + i * offset.z)
-                Location.from_coords(middle_coords[i][j].x, None, middle_coords[i][j].z + offset.z / 2)
+                middle_coords[i][j] = Location.from_coords(
+                    firstSideX + j * offset.x, None, firstSideZ + i * offset.z)
+                Location.from_coords(
+                    middle_coords[i][j].x, None, middle_coords[i][j].z + offset.z / 2)
                 lower_limit = Location.from_coords(x=middle_coords[i][j].x - offset.x / 2,
                                                    z=middle_coords[i][j].z + offset.z / 2)
                 upper_limit = Location.from_coords(x=middle_coords[i][j].x + offset.x / 2,
@@ -48,3 +52,25 @@ class FieldService:
 
     def get_middle(self):
         return self.fields[FieldService.MAP_LENGTH // 2][FieldService.MAP_LENGTH // 2]
+
+    def make_field_neighbors_available(self, delta):
+        self.delta = delta
+        fields1 = self.calculate_neighbors(delta-1)
+        fields2 = self.calculate_neighbors(delta)
+        for location in fields1:
+            fields2.remove(location)
+    pass
+
+    def calculate_neighbors(self, delta):
+        avaible_fields = []
+        rowNumber = colNumber = FieldService.MAP_LENGTH/2
+        for rowAdd in range(-delta+1, delta):
+            newRow = rowNumber + rowAdd
+            if newRow >= 0 and newRow <= len(self.fields)-1:
+                for colAdd in range(-delta+1, delta):
+                    newCol = colNumber + colAdd
+                    if newCol >= 0 and newCol <= len(self.fields)-1:
+                        if newCol == colNumber and newRow == rowNumber:
+                            continue
+                        avaible_fields.append(self.fields[newCol][newRow])
+        return avaible_fields
