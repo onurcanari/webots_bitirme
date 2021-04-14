@@ -8,9 +8,16 @@ class Location:
             self.x = self.y = self.z = 0
             return
 
-        self.x = round(locations[0], 4)
-        self.y = round(locations[1], 4)
-        self.z = round(locations[2], 4)
+        if locations[0] is not None:
+            self.x = round(locations[0], 4)
+
+        if locations[1] is not None:
+            self.y = round(locations[1], 4)
+        else:
+            self.y = 0
+
+        if locations[2] is not None:
+            self.z = round(locations[2], 4)
 
     def is_close(self, other, delta=0.1) -> bool:
         if util.is_close(self.x, other.x, delta) and util.is_close(self.z, other.z, delta):
@@ -70,5 +77,5 @@ class Location:
         return "x: {}, y: {}, z: {}".format(self.x, self.y, self.z)
 
     @staticmethod
-    def from_coords(x, y, z):
+    def from_coords(x=None, y=None, z=None):
         return Location([x, y, z])
