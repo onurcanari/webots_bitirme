@@ -30,9 +30,6 @@ class Location:
     def add(self, location):
         return self._arithmetic_operator(location, lambda x, y: x+y)
 
-    def addTest(self, location):
-        return Location.from_coords(self.x+location.x, self.y, self.z)
-
     def _arithmetic_operator(self, location, operate):
         return Location([operate(self.x, location.x), operate(self.y, location.y), operate(self.z, location.z)])
 
@@ -50,7 +47,8 @@ class Location:
 
         return degree
 
-    def calculate_area(self, x, y):
+    @staticmethod
+    def calculate_area(x, y):
         if x < 0 and y < 0:
             return 90
         else:

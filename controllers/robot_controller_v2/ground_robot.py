@@ -2,12 +2,11 @@ from models.field import FieldService
 from models.location import Location
 from models.location_limit import LocationLimit
 import util
+from models.message import Message, MessageType
 from models.state import RobotState
 from models.state import State
 from models.state import Status
 from models.ground_robot_i import IGroundRobot
-
-import json
 
 TIME_STEP = 64
 
@@ -32,37 +31,31 @@ class GroundRobot(IGroundRobot):
         print("Setup ground robot with id:", self.robot_id)
 
     def save_robot_location(self, robot_id, location):
-        if robot_id not in self.robot_locations:
-            self.robot_locations[robot_id] = location
+        self.robot_locations[robot_id] = location
 
     def send_location(self):
         location = self.robot_location
 
         if location is None:
             return
-        message = {
-            "robot_id": self.robot_id,
-            **vars(location)
-        }
-        json_message = json.dumps(message)
-        my_str_as_bytes = str.encode(json_message)
-        self.emitter.send(my_str_as_bytes)
 
-    def listen_location_data(self):
-        if self.receiver.getQueueLength() > 0:
-            message = self.receiver.getData()
-            my_decoded_str = message.decode()
-            data = json.loads(my_decoded_str)
-            self.save_robot_location(data['robot_id'], Location.from_coords(
-                data['x'], data['y'], data['z']))
-            self.receiver.nextPacket()
+        self.send_message(Message(self.robot_id, location, MessageType.NEW_ROBOT_LOCATION))
+
+    def _listen_message(self):
+        self.get_message(self._process_message)
+
+    def _process_message(self, message):
+        if message.type == MessageType.FIELD_UPDATE:
+            self.save_robot_location(message.robot_id, message.content)
+        elif message.type == MessageType.NEW_ROBOT_LOCATION:
+            pass
 
     def run(self):
         print("Start robot")
         while self.step(TIME_STEP) != -1:
             self.update_fields()
             self.send_location()
-            self.listen_location_data()
+            self._listen_message()
             self.discover_and_run()
 
     def go_coverage(self):
@@ -144,7 +137,7 @@ class GroundRobot(IGroundRobot):
                                                      "Transform { children [ Shape { appearance PBRAppearance { } geometry Sphere { radius 0.1 subdivision 3 } } ] }")
                         node = field.getMFNode(-1)
                         transField = node.getField("translation")
-                        loc = self.field_service.fields[x][y].lower_limit
+                        loc = self.field_service.fields[x][y].loc_limit.lower_limit
                         transField.setSFVec3f([loc.x, 0, loc.z])
                         print("{} x {},".format(x, y), self.field_service.fields[x][y], )
 
@@ -173,7 +166,6 @@ class GroundRobot(IGroundRobot):
         if self._robot_state.state is State.GO_TO_LOCATION:
             self.move_forward()
             if self.robot_location.is_close(location):
-                # self.stop_engine()
                 self._robot_state.complete()
                 return True
         return False

@@ -10,4 +10,3 @@ class LocationLimit:
 
     def __str__(self):
         return "Lower Limit : {}, Upper Limit : {}".format(self.lower_limit,self.upper_limit)
-        

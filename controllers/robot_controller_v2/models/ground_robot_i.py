@@ -2,6 +2,9 @@ from controller import Supervisor
 from models.location import Location
 from models.rotation import Rotation
 
+import json
+from types import SimpleNamespace
+
 ROBOT_SPEED = 5.0
 TIME_STEP = 64
 
@@ -15,7 +18,7 @@ class IGroundRobot(Supervisor):
         self.setup()
 
     def setup(self):
-        self.root_node = self.getFromDef("robot"+str(self.robot_id))
+        self.root_node = self.getFromDef("robot" + str(self.robot_id))
         self.translation_field = self.root_node.getField("translation")
         self.rotation_field = self.root_node.getField("rotation")
         print("Getting distance sensors and enable them...")
@@ -44,7 +47,7 @@ class IGroundRobot(Supervisor):
         self.receiver.enable(TIME_STEP)
         self.update_fields()
         print("Setup Passed")
-        
+
     def _set_motor_speeds(self, FL=None, FR=None, BL=None, BR=None):
         self.wheels[0].setVelocity(ROBOT_SPEED * FL)
         self.wheels[1].setVelocity(ROBOT_SPEED * FR)
@@ -74,3 +77,16 @@ class IGroundRobot(Supervisor):
     @property
     def robot_rotation(self):
         return self._robot_rotation
+
+    def send_message(self, message):
+        json_message = json.dumps(vars(message))
+        my_str_as_bytes = str.encode(json_message)
+        self.emitter.send(my_str_as_bytes)
+
+    def get_message(self, callback):
+        if self.receiver.getQueueLength() > 0:
+            message = self.receiver.getData()
+            my_decoded_str = message.decode()
+            data = json.loads(my_decoded_str, object_hook=lambda d: SimpleNamespace(**d))
+            callback(data)
+            self.receiver.nextPacket()
