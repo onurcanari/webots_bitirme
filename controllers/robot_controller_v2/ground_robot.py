@@ -13,6 +13,7 @@ import json
 
 TIME_STEP = 64
 
+
 class GroundRobot(IGroundRobot):
     map_start = None
 
@@ -27,6 +28,7 @@ class GroundRobot(IGroundRobot):
         self.target_location = None
         self.first_area = False
         self.second_area = False
+        self.loc_limit = None
         self.save_robot_location(self.robot_id, self.robot_location)
         print("Setup ground robot with id:", self.robot_id)
 
