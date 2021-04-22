@@ -1,6 +1,7 @@
 from controller import Supervisor
 from models.location import Location
 from models.rotation import Rotation
+from models.message import Message, MessageType
 
 import json
 from types import SimpleNamespace
@@ -79,14 +80,15 @@ class IGroundRobot(Supervisor):
         return self._robot_rotation
 
     def send_message(self, message):
-        json_message = json.dumps(vars(message))
-        my_str_as_bytes = str.encode(json_message)
+        json_data = json.dumps(message, default=lambda o: o.__dict__, indent=4)
+        my_str_as_bytes = str.encode(json_data)
         self.emitter.send(my_str_as_bytes)
 
     def get_message(self, callback):
         if self.receiver.getQueueLength() > 0:
             message = self.receiver.getData()
             my_decoded_str = message.decode()
-            data = json.loads(my_decoded_str, object_hook=lambda d: SimpleNamespace(**d))
-            callback(data)
+            response = json.loads(
+                my_decoded_str, object_hook=lambda d: SimpleNamespace(**d))
+            callback(response)
             self.receiver.nextPacket()

@@ -1,4 +1,4 @@
-from models.field import FieldService
+from models.field import FieldService, Field
 from models.location import Location
 from models.location_limit import LocationLimit
 import util
@@ -10,7 +10,6 @@ from models.ground_robot_i import IGroundRobot
 
 TIME_STEP = 64
 
-
 class GroundRobot(IGroundRobot):
     map_start = None
 
@@ -18,16 +17,15 @@ class GroundRobot(IGroundRobot):
         super().__init__(robot_id)
         self._robot_state = RobotState(State.IDLE)
         self._robot_state.complete()
-        self.discovered_area = False
         self.turn = False
         self.robot_locations = {}
         self.target_rotation = None
         self.target_location = None
         self.first_area = False
         self.second_area = False
-        self.loc_limit = None
+        self.target_field: Field = None
         self.save_robot_location(self.robot_id, self.robot_location)
-        self.field_service = None
+        self.field_service: FieldService = None
         print("Setup ground robot with id:", self.robot_id)
 
     def save_robot_location(self, robot_id, location):
@@ -39,7 +37,8 @@ class GroundRobot(IGroundRobot):
         if location is None:
             return
 
-        self.send_message(Message(self.robot_id, location, MessageType.NEW_ROBOT_LOCATION))
+        self.send_message(Message(self.robot_id, location,
+                          MessageType.NEW_ROBOT_LOCATION))
 
     def _listen_message(self):
         self.get_message(self._process_message)
@@ -67,14 +66,7 @@ class GroundRobot(IGroundRobot):
                 self.target_location = target
                 self.go_to(self.target_location)
             else:
-                if not self.second_area:
-                    GroundRobot.map_start = GroundRobot.map_start.add(
-                        Location.from_coords(0, 0, 6))
-                    self.discovered_area = False
-                    self.first_area = False
-                    self.second_area = True
-                else:
-                    self.stop_engine()
+                FieldService.change_state()
         else:
             self.go_to(self.target_location)
 
@@ -109,15 +101,10 @@ class GroundRobot(IGroundRobot):
                         self.move_right()
 
     def calculate_area_to_discover(self, turn):
-        print("Calculating area to discover...")
-        offset = Location.from_coords(0, 0, -1.5 * turn)
-        self.location_lower = GroundRobot.map_start.add(offset)
-        temp_upper = self.location_lower.add(
-            Location.from_coords(0, 0, -1.0))
-        new_upper = temp_upper.add(Location.from_coords(1, 0, 0))
-        self.loc_limit = LocationLimit(self.location_lower, new_upper)
-        self.discovered_area = True
-        print("Robot ID : ", self.robot_id, "Location Limit :", self.loc_limit)
+        available_fields = self.field_service.available_fields
+        # TODO Field objesine bütün robotların uzaklığını bulan ve en yakın olanın robot_id döndüren bir fonk.
+        # ardından o en ykaın olan kendiyse target_field olarak o fieldı ekleyip go_coverage o fieldın loc_limitiyle çalışacak
+        # taramaya başlarken send message ile o fieldın x ysi diğer robotlara atılacak. her robot bu alanla kendi fieldını güncelleyecek.
 
     def select_area(self):
         print("Selecting area...")
@@ -128,7 +115,8 @@ class GroundRobot(IGroundRobot):
                            key=lambda kv: comparing_location.compare(kv[1]))
         if GroundRobot.map_start is None:
             GroundRobot.map_start = robot_ids[0][1]
-            self.field_service = FieldService(middle_loc=GroundRobot.map_start, offset=Location.from_coords(x=2, z=2))
+            self.field_service = FieldService(
+                middle_loc=GroundRobot.map_start, offset=Location.from_coords(x=2, z=2))
             if self.robot_id == 0:
                 for x in range(20):
                     for y in range(20):
@@ -139,7 +127,8 @@ class GroundRobot(IGroundRobot):
                         transField = node.getField("translation")
                         loc = self.field_service.fields[x][y].loc_limit.lower_limit
                         transField.setSFVec3f([loc.x, 0, loc.z])
-                        print("{} x {},".format(x, y), self.field_service.fields[x][y], )
+                        print("{} x {},".format(x, y),
+                              self.field_service.fields[x][y], )
 
         self.calculate_area_to_discover(
             list(map(lambda x: x[0], robot_ids)).index(self.robot_id))
@@ -159,7 +148,8 @@ class GroundRobot(IGroundRobot):
             self.go_coverage()
 
     def go_to(self, location):
-        turning_degree = self.robot_location.calculate_degree_between(location) % 360
+        turning_degree = self.robot_location.calculate_degree_between(
+            location) % 360
         self.turn_with_degree(turning_degree)
 
         self.change_state(State.GO_TO_LOCATION)

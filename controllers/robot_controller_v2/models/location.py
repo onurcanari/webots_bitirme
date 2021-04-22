@@ -74,6 +74,9 @@ class Location:
     def __str__(self):
         return "x: {}, y: {}, z: {}".format(self.x, self.y, self.z)
 
+    def to_list(self):
+        return [self.x, self.y, self.z]
+
     @staticmethod
     def from_coords(x=None, y=None, z=None):
         return Location([x, y, z])
