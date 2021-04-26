@@ -1,4 +1,4 @@
-from math import atan2, degrees
+from math import atan2, degrees, sqrt, pow
 import util
 
 
@@ -53,6 +53,9 @@ class Location:
             return 90
         else:
             return -90
+
+    def distance_to_other_loc(self, other):
+        return sqrt(pow(self.x - other.x, 2) + pow(self.y - other.y, 2) + pow(self.z - other.z, 2))
 
     def calculate_target_location(self, loc_limit, turn):
         if turn:

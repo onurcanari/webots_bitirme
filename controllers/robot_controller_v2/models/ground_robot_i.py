@@ -47,7 +47,7 @@ class IGroundRobot(Supervisor):
         self.receiver.setChannel(-1)
         self.receiver.enable(TIME_STEP)
         self.update_fields()
-        print("Setup Passed")
+        print("Setup Completed")
 
     def _set_motor_speeds(self, FL=None, FR=None, BL=None, BR=None):
         self.wheels[0].setVelocity(ROBOT_SPEED * FL)

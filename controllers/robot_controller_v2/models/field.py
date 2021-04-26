@@ -74,7 +74,7 @@ class FieldService:
 
     @property
     def available_fields(self):
-        return _available_fields
+        return self._available_fields
 
     def is_available_to_search(self) -> bool:
         _available_fields = list(
