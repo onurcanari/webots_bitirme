@@ -1,5 +1,5 @@
-import numpy as np
 from enum import Enum
+from time import sleep
 
 from models.location import Location
 from models.location_limit import LocationLimit
@@ -48,6 +48,7 @@ class FieldService:
         firstSideZ = middle_loc.z - (FieldService.MAP_LENGTH // 2 * offset.z)
 
         self._available_fields: [Field] = None
+        self.delta = 0
 
         for i in range(FieldService.MAP_LENGTH):
             for j in range(FieldService.MAP_LENGTH):
@@ -74,36 +75,39 @@ class FieldService:
 
     @property
     def available_fields(self):
+        if not self.is_available_to_search():
+            self.make_field_neighbors_available(FieldService.DELTA)
         return self._available_fields
 
     def is_available_to_search(self) -> bool:
         _available_fields = list(
-            filter(lambda f: f.STATE == FieldState.CAN_BE_SCANNED, self._available_fields))
+            filter(lambda f: f.state == FieldState.CAN_BE_SCANNED, self._available_fields))
         if not _available_fields:
             return False
         return True
 
     def make_field_neighbors_available(self, delta):
-        self.delta = delta
-        old_fields = self._calculate_neighbors(delta - 1)
-        new_fields = self._calculate_neighbors(delta)
+        self.delta += delta
+        old_fields = self._calculate_neighbors(self.delta - 1)
+        new_fields = self._calculate_neighbors(self.delta)
         for field in old_fields:
             new_fields.remove(field)
         self._available_fields = new_fields
 
     def _calculate_neighbors(self, delta):
-        avaible_fields = []
-        rowNumber = colNumber = FieldService.MAP_LENGTH/2
-        for rowAdd in range(-delta+1, delta):
+        available_fields = []
+        rowNumber = colNumber = FieldService.MAP_LENGTH // 2
+        for rowAdd in range(-delta + 1, delta):
             newRow = rowNumber + rowAdd
-            if 0 <= newRow <= len(self.fields)-1:
-                for colAdd in range(-delta+1, delta):
+            if 0 <= newRow <= len(self.fields) - 1:
+                for colAdd in range(-delta + 1, delta):
                     newCol = colNumber + colAdd
-                    if 0 <= newCol <= len(self.fields)-1:
+                    if 0 <= newCol <= len(self.fields) - 1:
                         if newCol == colNumber and newRow == rowNumber:
                             continue
-
                         new_field = self.fields[newCol][newRow]
                         new_field.state = FieldState.CAN_BE_SCANNED
-                        avaible_fields.append(new_field)
-        return avaible_fields
+                        available_fields.append(new_field)
+
+        print(available_fields)
+        return available_fields

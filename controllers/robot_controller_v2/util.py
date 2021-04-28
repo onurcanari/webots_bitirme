@@ -13,4 +13,3 @@ def normalize_degree(degree):
 def is_over(value, target):
     return value >= target
 
-

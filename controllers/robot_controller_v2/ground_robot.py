@@ -7,8 +7,11 @@ from models.state import RobotState
 from models.state import State
 from models.state import Status
 from models.ground_robot_i import IGroundRobot
+import logging
 
 TIME_STEP = 64
+
+logger = logging.getLogger('something')
 
 
 class GroundRobot(IGroundRobot):
@@ -25,9 +28,15 @@ class GroundRobot(IGroundRobot):
         self.went_first_area = False
         self.second_area = False
         self.target_field: Field = None
-        self.save_robot_location(self.robot_id, self.robot_location)
         self.field_service: FieldService = None
-        print("Setup ground robot with id:", self.robot_id)
+
+        myFormatter = logging.Formatter('RobotId: {} - %(message)s'.format(str(robot_id)))
+        handler = logging.StreamHandler()
+        handler.setFormatter(myFormatter)
+        logger.addHandler(handler)
+        logger.setLevel(logging.DEBUG)
+
+        logger.debug("Setup ground robot with id: {}".format(self.robot_id))
 
     def save_robot_location(self, robot_id, location):
         self.robot_locations[robot_id] = location
@@ -48,15 +57,16 @@ class GroundRobot(IGroundRobot):
         if message.type == MessageType.FIELD_UPDATE:
             pass
         elif message.type == MessageType.NEW_ROBOT_LOCATION:
-            self.save_robot_location(message.robot_id, message.content)
+            self.save_robot_location(message.robot_id, Location.from_coords(**vars(message.content)))
 
     def run(self):
-        print("Start robot")
+        logger.debug("Start robot")
         while self.step(TIME_STEP) != -1:
             self.update_fields()
             self.send_location()
             self._listen_message()
-            self.discover_and_run()
+            if len(self.robot_locations) == 3:
+                self.discover_and_run()
 
     def go_coverage(self):
         if self._robot_state.status is Status.COMPLETED or self.go_to(self.target_location):
@@ -106,30 +116,33 @@ class GroundRobot(IGroundRobot):
         if self.target_field is not None:
             return
 
-        # gelen alanlara bak doğru mu?
         # robot_field update geldiğinde robltarın durumunu da tut. tarıyor idle vs. eğer tarıyorsa onları hesaba katmadan uzaklık hesabı yap.
+
         for field in available_fields:
             if self.is_closest_to_field(field):
                 self.target_field = field
                 break
 
-        #print("RobotId: ", self.robot_id, " loc_limit: ", self.target_field.loc_limit)
+        # print("RobotId: ", self.robot_id, " loc_limit: ", self.target_field.loc_limit)
 
     def is_closest_to_field(self, target: Field):
         closes_robot = None
-        distance_to_field = self.robot_location.calculate_degree_between(target.loc_limit.lower_limit)
-        for robot_id, loc in self.robot_locations:
-            temp_dist = loc.calculate_degree_between(target.loc_limit.lower_limit)
+        distance_to_field = self.robot_location.distance_to_other_loc(target.loc_limit.lower_limit)
+        for robot_id, loc in self.robot_locations.items():
+            temp_dist = loc.distance_to_other_loc(target.loc_limit.lower_limit)
             if distance_to_field < temp_dist:
+                logger.debug("{} closer than {}".format(str(robot_id), str(closes_robot)))
                 closes_robot = robot_id
 
+        # robot neden yakın olmuyor?
         if self.robot_id == closes_robot:
+            logger.info("This robot is closes to x: {}, y: {}".format(target.x, target.y))
             return True
 
         return False
 
     def select_area(self):
-        print("Selecting area...")
+        logger.debug("Selecting area...")
         comparing_location = Location.from_coords(
             0, 0, 0) if GroundRobot.map_start is None else GroundRobot.map_start
 
@@ -139,17 +152,6 @@ class GroundRobot(IGroundRobot):
             GroundRobot.map_start = robot_ids[0][1]
             self.field_service = FieldService(
                 middle_loc=GroundRobot.map_start, offset=Location.from_coords(x=2, z=2))
-            if self.robot_id == 0:
-                for x in range(20):
-                    for y in range(20):
-                        field = self.root_node.getField("children")
-                        field.importMFNodeFromString(-1,
-                                                     "Transform { children [ Shape { appearance PBRAppearance { } geometry Sphere { radius 0.1 subdivision 3 } } ] }")
-                        node = field.getMFNode(-1)
-                        transField = node.getField("translation")
-                        loc = self.field_service.fields[x][y].loc_limit.lower_limit
-                        transField.setSFVec3f([loc.x, 0, loc.z])
-                        # print("{} x {},".format(x, y), self.field_service.fields[x][y])
 
         self.calculate_area_to_discover()
         self.went_first_area = False

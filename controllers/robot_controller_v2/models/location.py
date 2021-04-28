@@ -25,10 +25,10 @@ class Location:
         return False
 
     def subtract(self, location):
-        return self._arithmetic_operator(location, lambda x, y: x-y)
+        return self._arithmetic_operator(location, lambda x, y: x - y)
 
     def add(self, location):
-        return self._arithmetic_operator(location, lambda x, y: x+y)
+        return self._arithmetic_operator(location, lambda x, y: x + y)
 
     def _arithmetic_operator(self, location, operate):
         return Location([operate(self.x, location.x), operate(self.y, location.y), operate(self.z, location.z)])
@@ -60,19 +60,19 @@ class Location:
     def calculate_target_location(self, loc_limit, turn):
         if turn:
             if util.is_close(self.z, loc_limit.lower_limit.z):
-                return Location.from_coords(self.x, self.y, self.z-1)
+                return Location.from_coords(self.x, self.y, self.z - 1)
             elif util.is_close(self.z, loc_limit.upper_limit.z):
                 if util.is_close(self.x, loc_limit.upper_limit.x):
                     print("LAST LİMİTT")
                     return None
                 else:
-                    return Location.from_coords(self.x, self.y, self.z+1)
+                    return Location.from_coords(self.x, self.y, self.z + 1)
             else:
                 print("Self Z : {} , upper Z : {}".format(
                     self.z, loc_limit.upper_limit.z))
                 return None
         else:
-            return Location.from_coords(self.x+0.2, self.y, self.z)
+            return Location.from_coords(self.x + 0.2, self.y, self.z)
 
     def __str__(self):
         return "x: {}, y: {}, z: {}".format(self.x, self.y, self.z)
@@ -83,3 +83,4 @@ class Location:
     @staticmethod
     def from_coords(x=None, y=None, z=None):
         return Location([x, y, z])
+
