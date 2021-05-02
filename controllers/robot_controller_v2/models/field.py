@@ -68,8 +68,7 @@ class FieldService:
         return self.fields[FieldService.MAP_LENGTH // 2][FieldService.MAP_LENGTH // 2]
 
     def change_field_state(self, field: Field, new_state: FieldState):
-        field.state = new_state
-
+        self.fields[field.x][field.y].state = new_state
         if not self.is_available_to_search():
             self.make_field_neighbors_available(FieldService.DELTA)
 
