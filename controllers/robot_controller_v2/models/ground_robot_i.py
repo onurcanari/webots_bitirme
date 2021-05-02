@@ -79,7 +79,7 @@ class IGroundRobot(Supervisor):
     def robot_rotation(self):
         return self._robot_rotation
 
-    def send_message(self, message):
+    def _send_message(self, message):
         json_data = json.dumps(message, default=lambda o: o.__dict__, indent=4)
         my_str_as_bytes = str.encode(json_data)
         self.emitter.send(my_str_as_bytes)

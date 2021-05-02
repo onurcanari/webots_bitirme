@@ -3,8 +3,8 @@ from time import sleep
 
 from models.location import Location
 from models.location_limit import LocationLimit
-
-
+import logging
+logger = logging.getLogger('something')
 class FieldState(str, Enum):
     NONE = "NONE",
     BLOCKED = "BLOCKED",
@@ -21,7 +21,7 @@ class Field:
         self.scanner = None
 
     def __str__(self):
-        return "{}".format(self.loc_limit)
+        return "state: {}, loc_limit: {}".format(self.state,self.loc_limit)
 
     @property
     def state(self):
@@ -34,6 +34,10 @@ class Field:
                 return
         self._state = new_state
 
+    #TODO from json methodu yazılacak field update için
+    @staticmethod
+    def from_json(x=None, y=None, z=None):
+        return Location([x, y, z])
 
 class FieldService:
     MAP_LENGTH = 20
@@ -67,8 +71,11 @@ class FieldService:
     def get_middle(self):
         return self.fields[FieldService.MAP_LENGTH // 2][FieldService.MAP_LENGTH // 2]
 
+    #TODO field update yaparken hem state hem de scanner update edilecek
+    #TODO gelen field ın state değeri scanned ise avaible fields içerisinden çıkarılacak
     def change_field_state(self, field: Field, new_state: FieldState):
         self.fields[field.x][field.y].state = new_state
+        logger.debug("UPDATED TARGET FİELD  {}".format(self.fields[field.x][field.y]))
         if not self.is_available_to_search():
             self.make_field_neighbors_available(FieldService.DELTA)
 
