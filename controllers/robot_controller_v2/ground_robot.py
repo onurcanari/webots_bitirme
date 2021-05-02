@@ -123,17 +123,15 @@ class GroundRobot(IGroundRobot):
                 self.target_field = field
                 break
 
-        # print("RobotId: ", self.robot_id, " loc_limit: ", self.target_field.loc_limit)
-
     def is_closest_to_field(self, target: Field):
         distance_to_field = self.robot_location.distance_to_other_loc(target.loc_limit.lower_limit)
         for robot_id, loc in self.robot_locations.items():
             temp_dist = loc.distance_to_other_loc(target.loc_limit.lower_limit)
             if distance_to_field < temp_dist:
-                logger.debug("{} closer to {}.".format(str(robot_id), str(loc)))
+                # logger.debug("{} closer to {}.".format(str(robot_id), str(loc)))
                 return False
 
-        logger.info("This robot is closes to x: {}, y: {}".format(target.x, target.y))
+        logger.info("This robot is closes to field: {}".format(target))
         return True
 
     def select_area(self):
@@ -155,13 +153,13 @@ class GroundRobot(IGroundRobot):
         if self.target_field is None:
             self.select_area()
         elif not self.went_first_area:
+            self.target_location = self.target_field.loc_limit.lower_limit
             self.went_first_area = self.go_to(self.target_field.loc_limit.lower_limit)
         else:
             self.go_coverage()
 
     def go_to(self, location):
-        turning_degree = self.robot_location.calculate_degree_between(
-            location) % 360
+        turning_degree = self.robot_location.calculate_degree_between(location) % 360
         self.turn_with_degree(turning_degree)
 
         self.change_state(State.GO_TO_LOCATION)
