@@ -126,20 +126,15 @@ class GroundRobot(IGroundRobot):
         # print("RobotId: ", self.robot_id, " loc_limit: ", self.target_field.loc_limit)
 
     def is_closest_to_field(self, target: Field):
-        closes_robot = None
         distance_to_field = self.robot_location.distance_to_other_loc(target.loc_limit.lower_limit)
         for robot_id, loc in self.robot_locations.items():
             temp_dist = loc.distance_to_other_loc(target.loc_limit.lower_limit)
             if distance_to_field < temp_dist:
-                logger.debug("{} closer than {}".format(str(robot_id), str(closes_robot)))
-                closes_robot = robot_id
+                logger.debug("{} closer to {}.".format(str(robot_id), str(loc)))
+                return False
 
-        # robot neden yakın olmuyor?
-        if self.robot_id == closes_robot:
-            logger.info("This robot is closes to x: {}, y: {}".format(target.x, target.y))
-            return True
-
-        return False
+        logger.info("This robot is closes to x: {}, y: {}".format(target.x, target.y))
+        return True
 
     def select_area(self):
         logger.debug("Selecting area...")
