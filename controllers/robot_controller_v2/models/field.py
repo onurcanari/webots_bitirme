@@ -3,8 +3,8 @@ from time import sleep
 
 from models.location import Location
 from models.location_limit import LocationLimit
-import logging
-logger = logging.getLogger('something')
+
+
 class FieldState(str, Enum):
     NONE = "NONE",
     BLOCKED = "BLOCKED",
@@ -21,7 +21,7 @@ class Field:
         self.scanner = None
 
     def __str__(self):
-        return "state: {}, loc_limit: {}".format(self.state,self.loc_limit)
+        return "state: {}, loc_limit: {}".format(self.state, self.loc_limit)
 
     @property
     def state(self):
@@ -32,28 +32,29 @@ class Field:
         if new_state is FieldState.CAN_BE_SCANNED:
             if self._state is not FieldState.NONE:
                 return
+        logger.debug("State with x: {}, y: {} old_state: {} => new_state: {}".format(
+            self.x, self.y, self._state, new_state))
         self._state = new_state
 
-    #TODO from json methodu yazılacak field update için
-    @staticmethod
-    def from_json(x=None, y=None, z=None):
-        return Location([x, y, z])
 
 class FieldService:
     MAP_LENGTH = 20
     DELTA = 1
 
-    def __init__(self, middle_loc: Location, offset: Location):
+    def __init__(self, middle_loc: Location, offset: Location, log=None):
+        global logger
+        logger = log
         self.fields: [Field] = [[0 for i in range(
             FieldService.MAP_LENGTH)] for j in range(FieldService.MAP_LENGTH)]
         middle_coords = [[0 for i in range(FieldService.MAP_LENGTH)] for j in range(
             FieldService.MAP_LENGTH)]
         firstSideX = middle_loc.x - (FieldService.MAP_LENGTH // 2 * offset.x)
         firstSideZ = middle_loc.z - (FieldService.MAP_LENGTH // 2 * offset.z)
+        
 
         self._available_fields: [Field] = None
         self.delta = 0
-
+        # TODO LOC LİMİTLER YANLIŞ YERDE OLUŞTURULUYOR KONTROL ET
         for i in range(FieldService.MAP_LENGTH):
             for j in range(FieldService.MAP_LENGTH):
                 middle_coords[i][j] = Location.from_coords(
@@ -71,11 +72,9 @@ class FieldService:
     def get_middle(self):
         return self.fields[FieldService.MAP_LENGTH // 2][FieldService.MAP_LENGTH // 2]
 
-    #TODO field update yaparken hem state hem de scanner update edilecek
-    #TODO gelen field ın state değeri scanned ise avaible fields içerisinden çıkarılacak
-    def change_field_state(self, field: Field, new_state: FieldState):
-        self.fields[field.x][field.y].state = new_state
-        logger.debug("UPDATED TARGET FİELD  {}".format(self.fields[field.x][field.y]))
+    def change_field_state(self, field):
+        self.fields[field.x][field.y].state = field._state
+        self.fields[field.x][field.y].scanner = field.scanner
         if not self.is_available_to_search():
             self.make_field_neighbors_available(FieldService.DELTA)
 
@@ -115,5 +114,7 @@ class FieldService:
                         new_field.state = FieldState.CAN_BE_SCANNED
                         available_fields.append(new_field)
 
-        print(available_fields)
+        if available_fields:
+            for item in available_fields:
+                print(item)
         return available_fields

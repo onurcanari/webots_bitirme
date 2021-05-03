@@ -43,7 +43,8 @@ class GroundRobot(IGroundRobot):
         logger.debug("Start robot")
         while self.step(TIME_STEP) != -1:
             self.update_fields()
-            self.send_message(MessageType.NEW_ROBOT_LOCATION,self.robot_location)
+            self.send_message(MessageType.NEW_ROBOT_LOCATION,
+                              self.robot_location)
             self._listen_message()
             if len(self.robot_locations) == 3:
                 self.discover_and_run()
@@ -68,8 +69,7 @@ class GroundRobot(IGroundRobot):
 
     def _process_message(self, message):
         if message.type == MessageType.FIELD_UPDATE:
-            #TODO gelen fieldlar objeye çevirilip field_service.change_field_state() çalıştırılacak
-            logger.debug("FIELD_UPDATE Message : {}".format(message))
+            self.field_service.change_field_state(message.content)
             pass
         elif message.type == MessageType.NEW_ROBOT_LOCATION:
             self.save_robot_location(
@@ -85,10 +85,9 @@ class GroundRobot(IGroundRobot):
                 self.target_location = target
                 self.go_to(target)
             else:
-                self.field_service.change_field_state(
-                    self.target_field,  FieldState.SCANNED)
+                self.target_field.state = FieldState.SCANNED
                 logger.debug("FİELD STATE : {}".format(self.target_field))
-                self.send_message(MessageType.FIELD_UPDATE,self.target_field)
+                self.send_message(MessageType.FIELD_UPDATE, self.target_field)
                 self.clear_target()
                 self.first_test = True
                 logger.debug("Go coverage finished")
@@ -130,15 +129,14 @@ class GroundRobot(IGroundRobot):
         if self.target_field is not None:
             return
 
-        # robot_field update geldiğinde robltarın durumunu da tut. tarıyor idle vs. eğer tarıyorsa onları hesaba katmadan uzaklık hesabı yap.
-
         for field in available_fields:
             if self.is_closest_to_field(field):
                 self.target_field = field
+                self.target_field.scanner = self.robot_id
+                self.target_field.state = FieldState.SCANNING
                 self.target_location = self.target_field.loc_limit.lower_limit
-                self.field_service.change_field_state(
-                    self.target_field,  FieldState.SCANNING)
-                self.send_message(MessageType.FIELD_UPDATE,self.target_field)
+
+                self.send_message(MessageType.FIELD_UPDATE, self.target_field)
                 break
 
     def is_closest_to_field(self, target: Field):
@@ -162,8 +160,27 @@ class GroundRobot(IGroundRobot):
                            key=lambda kv: comparing_location.compare(kv[1]))
         if GroundRobot.map_start is None:
             GroundRobot.map_start = robot_ids[0][1]
+            logger.debug("MAP START : {}".format(GroundRobot.map_start))
             self.field_service = FieldService(
-                middle_loc=GroundRobot.map_start, offset=Location.from_coords(x=2, z=2))
+                middle_loc=GroundRobot.map_start, offset=Location.from_coords(x=2, z=2), log=logger)
+
+        if self.field_service.available_fields and self.robot_id == 0:
+            for x in range(len(self.field_service.available_fields)):
+                field = self.root_node.getField("children")
+                field.importMFNodeFromString(-1,
+                                             "Transform { children [ Shape { appearance PBRAppearance { } geometry Sphere { radius 0.1 subdivision 3 } } ] }")
+                node = field.getMFNode(-1)
+                transField = node.getField("translation")
+                loc_upper = self.field_service.available_fields[x].loc_limit.upper_limit
+                transField.setSFVec3f([loc_upper.x, 0, loc_upper.z])
+
+                field = self.root_node.getField("children")
+                field.importMFNodeFromString(-1,
+                                             "Transform { children [ Shape { appearance PBRAppearance { } geometry Sphere { radius 0.1 subdivision 3 } } ] }")
+                node = field.getMFNode(-1)
+                transField = node.getField("translation")
+                loc_lower = self.field_service.available_fields[x].loc_limit.lower_limit
+                transField.setSFVec3f([loc_lower.x, 0, loc_lower.z])
 
         self.calculate_area_to_discover()
 
@@ -199,4 +216,3 @@ class GroundRobot(IGroundRobot):
             if self._robot_state.state is not new_state or force:
                 self._robot_state = RobotState(new_state)
 
-# taramaya başlarken send message ile o fieldın x ysi diğer robotlara atılacak. her robot bu alanla kendi fieldını güncelleyecek.
