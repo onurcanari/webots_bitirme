@@ -60,13 +60,13 @@ class Location:
     def calculate_target_location(self, loc_limit, turn):
         if turn:
             if util.is_close(self.z, loc_limit.lower_limit.z):
-                return Location.from_coords(self.x, self.y, self.z - 2)
+                return Location.from_coords(self.x, self.y, self.z - 1)
             elif util.is_close(self.z, loc_limit.upper_limit.z):
                 if util.is_close(self.x, loc_limit.upper_limit.x):
                     print("LAST LİMİTT")
                     return None
                 else:
-                    return Location.from_coords(self.x, self.y, self.z + 2)
+                    return Location.from_coords(self.x, self.y, self.z + 1)
             else:
                 print("Self Z : {} , upper Z : {}".format(
                     self.z, loc_limit.upper_limit.z))

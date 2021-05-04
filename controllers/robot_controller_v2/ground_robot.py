@@ -13,6 +13,7 @@ TIME_STEP = 64
 
 logger = logging.getLogger('something')
 
+logger.disabled = True
 
 class GroundRobot(IGroundRobot):
     map_start = None
@@ -80,17 +81,16 @@ class GroundRobot(IGroundRobot):
             target = self.robot_location.calculate_target_location(
                 self.target_field.loc_limit, self.turn)
             if target is not None:
-                logger.debug(target)
                 self.turn = not self.turn
                 self.target_location = target
                 self.go_to(target)
             else:
                 self.target_field.state = FieldState.SCANNED
-                logger.debug("FİELD STATE : {}".format(self.target_field))
+                # logger.debug("FİELD STATE : {}".format(self.target_field))
                 self.send_message(MessageType.FIELD_UPDATE, self.target_field)
                 self.clear_target()
                 self.first_test = True
-                logger.debug("Go coverage finished")
+                # logger.debug("Go coverage finished")
         else:
             self.go_to(self.target_location)
 
@@ -148,7 +148,7 @@ class GroundRobot(IGroundRobot):
                 # logger.debug("{} closer to {}.".format(str(robot_id), str(loc)))
                 return False
 
-        logger.info("This robot is closes to field: {}".format(target))
+        # logger.info("This robot is closes to field: {}".format(target))
         return True
 
     def select_area(self):
@@ -160,29 +160,9 @@ class GroundRobot(IGroundRobot):
                            key=lambda kv: comparing_location.compare(kv[1]))
         if GroundRobot.map_start is None:
             GroundRobot.map_start = robot_ids[0][1]
-            logger.debug("MAP START : {}".format(GroundRobot.map_start))
+            # logger.debug("MAP START : {}".format(GroundRobot.map_start))
             self.field_service = FieldService(
                 middle_loc=GroundRobot.map_start, offset=Location.from_coords(x=2, z=2), log=logger)
-
-        if self.field_service.available_fields and self.robot_id == 0:
-            for x in range(len(self.field_service.available_fields)):
-                field = self.root_node.getField("children")
-                field.importMFNodeFromString(-1,
-                                             "Transform { children [ Shape { appearance PBRAppearance { } geometry Sphere { radius 0.1 subdivision 3 } } ] }")
-                node = field.getMFNode(-1)
-                transField = node.getField("translation")
-                loc_upper = self.field_service.available_fields[x].loc_limit.upper_limit
-                transField.setSFVec3f([loc_upper.x, 0, loc_upper.z])
-
-                field = self.root_node.getField("children")
-                field.importMFNodeFromString(-1,
-                                             "Transform { children [ Shape { appearance PBRAppearance { } geometry Sphere { radius 0.1 subdivision 3 } } ] }")
-                node = field.getMFNode(-1)
-                transField = node.getField("translation")
-                loc_lower = self.field_service.available_fields[x].loc_limit.lower_limit
-               
-                transField.setSFVec3f([loc_lower.x, 0, loc_lower.z])
-
         self.calculate_area_to_discover()
 
     def discover_and_run(self):

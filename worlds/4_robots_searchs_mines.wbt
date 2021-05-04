@@ -3,8 +3,8 @@ WorldInfo {
   coordinateSystem "NUE"
 }
 Viewpoint {
-  orientation 0.5819774166593065 -0.5778906467261128 -0.572140443357254 4.204433245850941
-  position 1.1976683158911172 26.822045765907667 0.21097022260587447
+  orientation 0.9996468888453452 0.01943558720479723 0.018120584202132584 4.78203666744936
+  position 0.20722381209883606 15.682329044094711 0.7057248144395755
 }
 TexturedBackground {
 }
@@ -17,7 +17,7 @@ RectangleArena {
   wallHeight 0.5
 }
 DEF robot0 Robot {
-  translation 0 0.0397215 0
+  translation -1.16701 0.0397215 -0.113161
   rotation 1.3736399998669196e-05 0.9999999999031184 2.252719999781753e-06 0
   children [
     Emitter {
@@ -211,8 +211,7 @@ DEF robot0 Robot {
   supervisor TRUE
 }
 DEF robot1 Robot {
-  translation 0.19 0.0397206 -0.29
-  rotation -8.328909999539522e-06 0.9999999999447133 6.41891999964512e-06 0
+  translation -0.330655 0.0397206 -0.880311
   children [
     Emitter {
       channel -1
@@ -405,7 +404,7 @@ DEF robot1 Robot {
   supervisor TRUE
 }
 DEF robot2 Robot {
-  translation 0 0.0397206 0.35
+  translation -0.0210252 0.0397206 0.750555
   rotation -1.0752699999127208e-05 0.9999999999188305 6.8350799994452005e-06 0
   children [
     Emitter {
@@ -599,7 +598,7 @@ DEF robot2 Robot {
   supervisor TRUE
 }
 DEF robot3 Robot {
-  translation 0.19 0.0397206 0.11
+  translation 1.08379 0.0397206 -0.0700476
   rotation 7.025569999801596e-06 0.9999999999717597 -2.668669999924636e-06 0
   children [
     Emitter {
@@ -794,6 +793,10 @@ DEF robot3 Robot {
 }
 DEF mine0 Robot {
   children [
+    Emitter {
+    }
+    Receiver {
+    }
     Shape {
       appearance PBRAppearance {
         baseColor 1 0 0
@@ -805,6 +808,8 @@ DEF mine0 Robot {
     }
   ]
   name "mine0_name"
+  controller "field_controller"
+  supervisor TRUE
 }
 DEF mine1 Robot {
   translation 1.61 0 0.91
