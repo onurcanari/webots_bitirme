@@ -38,7 +38,7 @@ class Field:
 
 
 class FieldService:
-    MAP_LENGTH = 20
+    MAP_LENGTH = 21
     DELTA = 1
 
     def __init__(self, middle_loc: Location, offset: Location, log=None):

@@ -180,6 +180,7 @@ class GroundRobot(IGroundRobot):
                 node = field.getMFNode(-1)
                 transField = node.getField("translation")
                 loc_lower = self.field_service.available_fields[x].loc_limit.lower_limit
+               
                 transField.setSFVec3f([loc_lower.x, 0, loc_lower.z])
 
         self.calculate_area_to_discover()
