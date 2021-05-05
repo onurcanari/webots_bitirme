@@ -34,6 +34,7 @@ class Field:
                 return
         logger.debug("State with x: {}, y: {} old_state: {} => new_state: {}".format(
             self.x, self.y, self._state, new_state))
+        logger.debug("\tloc_limit: {}".format(self.loc_limit))
         self._state = new_state
 
 
@@ -51,10 +52,8 @@ class FieldService:
         firstSideX = middle_loc.x - (FieldService.MAP_LENGTH // 2 * offset.x)
         firstSideZ = middle_loc.z - (FieldService.MAP_LENGTH // 2 * offset.z)
         
-
         self._available_fields: [Field] = None
         self.delta = 0
-        # TODO LOC LİMİTLER YANLIŞ YERDE OLUŞTURULUYOR KONTROL ET
         for i in range(FieldService.MAP_LENGTH):
             for j in range(FieldService.MAP_LENGTH):
                 middle_coords[i][j] = Location.from_coords(
@@ -114,7 +113,4 @@ class FieldService:
                         new_field.state = FieldState.CAN_BE_SCANNED
                         available_fields.append(new_field)
 
-        if available_fields:
-            for item in available_fields:
-                print(item)
         return available_fields

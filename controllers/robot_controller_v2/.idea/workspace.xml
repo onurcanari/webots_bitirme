@@ -8,8 +8,6 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ground_robot.py" beforeDir="false" afterPath="$PROJECT_DIR$/ground_robot.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/models/field.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/field.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/location.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/location.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/util.py" beforeDir="false" afterPath="$PROJECT_DIR$/util.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -106,7 +104,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/models/field.py</url>
-          <line>104</line>
+          <line>109</line>
           <option name="timeStamp" value="1" />
         </line-breakpoint>
       </breakpoints>
