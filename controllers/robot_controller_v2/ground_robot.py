@@ -7,6 +7,7 @@ from models.state import State
 from models.state import Status
 from models.ground_robot_i import IGroundRobot
 import logging
+import random
 
 TIME_STEP = 64
 
@@ -35,7 +36,7 @@ class GroundRobot(IGroundRobot):
         handler.setFormatter(myFormatter)
         logger.addHandler(handler)
         logger.setLevel(logging.DEBUG)
-        if robot_id != "1":
+        if robot_id != "2":
             logger.disabled = True
 
         logger.debug("Setup ground robot with id: {}".format(self.robot_id))
@@ -131,36 +132,45 @@ class GroundRobot(IGroundRobot):
             return
 
         target_field = None
-        dist_to_field = None
-        for field in available_fields:
-            temp_dist = self.is_closest_to_field(field)
-            if dist_to_field is None:
-                dist_to_field = temp_dist
-            else:
-                if temp_dist is not None and dist_to_field > temp_dist:
-                    dist_to_field = temp_dist
-                    target_field = field
+        am_i_closest = None
+        sorted_stol_fields = []
 
+        for field in available_fields:
+            temp_field = self.robot_location.distance_to_other_loc(field.loc_limit.lower_limit)
+            sorted_stol_fields.append([temp_field, [field]])
+
+        sorted_stol_fields = sorted(sorted_stol_fields, key=lambda sorted_stol_fields: sorted_stol_fields[0])
+
+        for field in sorted_stol_fields:
+            am_i_closest = self.is_closest_to_field(field)
+            if am_i_closest is not None:
+                target_field = am_i_closest
+                break
+        
         if target_field is not None:
             self.target_field = target_field
             self.target_field.scanner = self.robot_id
             self.target_field.state = FieldState.SCANNING
             self.target_location = self.target_field.loc_limit.lower_limit
             self.send_message(MessageType.FIELD_UPDATE, self.target_field)
+      
 
     def is_closest_to_field(self, target: Field):
-        distance_to_field = self.robot_location.distance_to_other_loc(
-            target.loc_limit.lower_limit)
-        logger.debug("Distance is {}, between {} and {}".format(distance_to_field, self.robot_location,
-                                                                target.loc_limit.lower_limit))
-        for robot_id, loc in self.robot_locations.items():
-            temp_dist = loc.distance_to_other_loc(target.loc_limit.lower_limit)
-            if distance_to_field > temp_dist:
-                # logger.debug("{} closer to {}.".format(str(robot_id), str(loc)))
-                return None
+        target_field = None
 
-        logger.info("This robot is closes to field: {}".format(target))
-        return distance_to_field
+        my_distance = target[0]
+        for item in target[1]:
+            target_field = item
+
+        for robot_id, loc in self.robot_locations.items():
+            other_robot_dist = loc.distance_to_other_loc(target_field.loc_limit.lower_limit)
+            if other_robot_dist < my_distance:
+                return None
+        
+        return target_field
+            
+
+        
 
     def select_area(self):
         comparing_location = Location.from_coords(

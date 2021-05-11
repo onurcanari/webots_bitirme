@@ -97,6 +97,7 @@ class FieldService:
         for field in old_fields:
             new_fields.remove(field)
         self._available_fields = new_fields
+        self._available_fields.append(self.get_middle())
 
     def _calculate_neighbors(self, delta):
         available_fields = []
