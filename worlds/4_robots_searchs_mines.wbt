@@ -3,8 +3,8 @@ WorldInfo {
   coordinateSystem "NUE"
 }
 Viewpoint {
-  orientation 0.9996468888453452 0.01943558720479723 0.018120584202132584 4.78203666744936
-  position 0.20722381209883606 15.682329044094711 0.7057248144395755
+  orientation 0.997579333514056 0.06117772668540602 0.03305690704311918 5.2903603831455195
+  position -0.13014995820379538 12.48465782486594 8.22805613917518
 }
 TexturedBackground {
 }
@@ -17,7 +17,7 @@ RectangleArena {
   wallHeight 0.5
 }
 DEF robot0 Robot {
-  translation -1.16701 0.0397215 -0.113161
+  translation -0.45701 0.0397215 0.51684
   rotation 1.3736399998669196e-05 0.9999999999031184 2.252719999781753e-06 0
   children [
     Emitter {
@@ -46,7 +46,7 @@ DEF robot0 Robot {
         }
       ]
       endPoint Solid {
-        translation 0.060000000000000026 -3.691449840376926e-18 0.04999999999999998
+        translation 0.060000000000000026 -3.505559412828705e-18 0.04999999999999998
         rotation 0.7072380854001235 -0.7066751168860492 -0.02060508999389237 3.1828298187646387
         children [
           DEF Wheel Shape {
@@ -97,7 +97,7 @@ DEF robot0 Robot {
         }
       ]
       endPoint Solid {
-        translation 0.060000000000000026 3.6894765161026866e-18 -0.04999999999999998
+        translation 0.060000000000000026 3.501755723792311e-18 -0.04999999999999998
         rotation 0.7072366097480942 -0.7066736424086548 -0.02070606087372919 3.183031835071632
         children [
           USE Wheel
@@ -211,7 +211,7 @@ DEF robot0 Robot {
   supervisor TRUE
 }
 DEF robot1 Robot {
-  translation -0.330655 0.0397206 -0.880311
+  translation 0.43934 0.0397206 0.439689
   children [
     Emitter {
       channel -1
@@ -239,7 +239,7 @@ DEF robot1 Robot {
         }
       ]
       endPoint Solid {
-        translation 0.060000000000000026 -2.676018837460662e-17 0.049999999999999996
+        translation 0.060000000000000026 -2.691487182562803e-17 0.049999999999999996
         rotation 0.5392933390244743 -0.5388640561903215 0.6471384886018969 1.9921441284262607
         children [
           DEF Wheel Shape {
@@ -269,7 +269,7 @@ DEF robot1 Robot {
         }
       ]
       endPoint Solid {
-        translation -0.06 -1.268867344651086e-17 0.050000000000000024
+        translation -0.06 -1.0982609872840947e-17 0.050000000000000024
         rotation -0.33034028161932044 0.33007732748644486 0.8842648111392165 1.692695681702468
         children [
           USE Wheel
@@ -290,7 +290,7 @@ DEF robot1 Robot {
         }
       ]
       endPoint Solid {
-        translation 0.060000000000000026 -2.2653764152646392e-17 -0.049999999999999996
+        translation 0.060000000000000026 -2.2659335369060684e-17 -0.049999999999999996
         rotation 0.6796436605486997 -0.6791026574698533 -0.27731584032172896 3.683038824998462
         children [
           USE Wheel
@@ -311,7 +311,7 @@ DEF robot1 Robot {
         }
       ]
       endPoint Solid {
-        translation -0.06 -9.561144808332604e-09 -0.049999991712205025
+        translation -0.06 -9.561144807192676e-09 -0.049999991712205025
         rotation -0.33020502110644745 0.3299421746422811 0.8843657645049434 1.6925823681196934
         children [
           USE Wheel
@@ -404,7 +404,7 @@ DEF robot1 Robot {
   supervisor TRUE
 }
 DEF robot2 Robot {
-  translation -0.0210252 0.0397206 0.750555
+  translation 0.478975 0.0397206 1.14056
   rotation -1.0752699999127208e-05 0.9999999999188305 6.8350799994452005e-06 0
   children [
     Emitter {
@@ -433,8 +433,8 @@ DEF robot2 Robot {
         }
       ]
       endPoint Solid {
-        translation 0.060000000000000026 1.2613685256946422e-17 0.04999999999999999
-        rotation 0.6580162906112147 -0.6574925031328404 -0.3670397384676068 3.845655200995858
+        translation 0.060000000000000026 1.2613591855627456e-17 0.04999999999999999
+        rotation 0.6580162906112148 -0.6574925031328404 -0.3670397384676069 3.845655200995858
         children [
           DEF Wheel Shape {
             appearance PBRAppearance {
@@ -463,7 +463,7 @@ DEF robot2 Robot {
         }
       ]
       endPoint Solid {
-        translation -0.06 -6.966093569331855e-18 0.05
+        translation -0.06 -6.966093569331888e-18 0.05
         rotation -0.5598773699301796 0.5594317020037495 -0.6112065947233006 4.239539314480346
         children [
           USE Wheel
@@ -484,7 +484,7 @@ DEF robot2 Robot {
         }
       ]
       endPoint Solid {
-        translation 0.060000000000000026 -1.2618988675851626e-17 -0.04999999999999999
+        translation 0.060000000000000026 -1.261889468102472e-17 -0.04999999999999999
         rotation 0.6579867320020357 -0.6574629680526075 -0.3671456198141785 3.8458419293246364
         children [
           USE Wheel
@@ -598,7 +598,7 @@ DEF robot2 Robot {
   supervisor TRUE
 }
 DEF robot3 Robot {
-  translation 1.08379 0.0397206 -0.0700476
+  translation -0.39621 0.0397206 1.23995
   rotation 7.025569999801596e-06 0.9999999999717597 -2.668669999924636e-06 0
   children [
     Emitter {
@@ -627,7 +627,7 @@ DEF robot3 Robot {
         }
       ]
       endPoint Solid {
-        translation 0.060000000000000026 -1.0496049958068891e-17 0.04999999999999998
+        translation 0.060000000000000026 -1.0491328279960078e-17 0.04999999999999998
         rotation 0.6663695508776137 -0.6658391141214117 0.33557397957705426 2.493580583817602
         children [
           DEF Wheel Shape {
@@ -657,7 +657,7 @@ DEF robot3 Robot {
         }
       ]
       endPoint Solid {
-        translation -0.06 1.5696380472718312e-17 0.050000000000000024
+        translation -0.06 1.590269719151359e-17 0.050000000000000024
         rotation 0.6282482371842046 -0.6277481453709124 -0.45960463276420443 4.003821890932696
         children [
           USE Wheel
@@ -678,7 +678,7 @@ DEF robot3 Robot {
         }
       ]
       endPoint Solid {
-        translation 0.060000000000000026 1.049237113845984e-17 -0.04999999999999998
+        translation 0.060000000000000026 1.0487623315530177e-17 -0.04999999999999998
         rotation 0.6663960477424486 -0.6658655898944812 0.335468811885276 2.493769756750608
         children [
           USE Wheel
@@ -699,7 +699,7 @@ DEF robot3 Robot {
         }
       ]
       endPoint Solid {
-        translation -0.06 -1.0067787224038108e-08 -0.05000000766437837
+        translation -0.06 -1.0067787224165204e-08 -0.05000000766437837
         rotation -0.30467668251046753 0.30443415685642244 -0.9024920848813772 4.61076531870655
         children [
           USE Wheel
@@ -796,6 +796,7 @@ DEF mine0 Robot {
     Emitter {
     }
     Receiver {
+      channel -1
     }
     Shape {
       appearance PBRAppearance {
@@ -857,7 +858,7 @@ DEF mine3 Robot {
   name "mine3_name"
 }
 DEF mine4 Robot {
-  translation 0 0 -2
+  translation 0 0 -7.29
   children [
     Shape {
       appearance PBRAppearance {
