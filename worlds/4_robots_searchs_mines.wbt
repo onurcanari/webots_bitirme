@@ -211,7 +211,8 @@ DEF robot0 Robot {
   supervisor TRUE
 }
 DEF robot1 Robot {
-  translation 0.43934 0.0397206 0.439689
+  translation 0.930987 0.0397206 1.0194
+  rotation 0 1 0 4.692820414042842e-06
   children [
     Emitter {
       channel -1
@@ -404,7 +405,7 @@ DEF robot1 Robot {
   supervisor TRUE
 }
 DEF robot2 Robot {
-  translation 0.478975 0.0397206 1.14056
+  translation -1.25538 0.0397206 0.960007
   rotation -1.0752699999127208e-05 0.9999999999188305 6.8350799994452005e-06 0
   children [
     Emitter {

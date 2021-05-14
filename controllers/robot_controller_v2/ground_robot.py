@@ -125,33 +125,64 @@ class GroundRobot(IGroundRobot):
         available_fields = self.field_service.available_fields
         log.debug("{} available field exist. Selecting one.".format(len(available_fields)))
 
+        for item in available_fields:
+            log.info(item)
+        
         if self.target_field is not None:
             log.debug("Already exist target field. Returning.")
             return
-
-        target_field = None
-        am_i_closest = None
-        sorted_stol_fields = []
-
+        robot_states = {"-1":True,"0": False, "1": False, "2": False, "3": False}
+        temp_target_field = None
+        distance = None
         for field in available_fields:
-            temp_field = self.robot_location.distance_to_other_loc(field.loc_limit.lower_limit)
-            sorted_stol_fields.append([temp_field, [field]])
+            temp_distance = self.robot_location.distance_to_other_loc(
+                field.loc_limit.lower_limit)
+            if distance is None and field.state == FieldState.CAN_BE_SCANNED:
+                temp_target_field = field
+                distance = temp_distance
+            else:
+                if distance is not None and temp_distance < distance and  field.state == FieldState.CAN_BE_SCANNED:
+                    temp_target_field = field
+                    distance = temp_distance
+            if field.scanner is not None:
+                robot_states[str(field.scanner)] = True
 
-        sorted_stol_fields = sorted(sorted_stol_fields, key=lambda sorted_stol_fields: sorted_stol_fields[0])
-
-        for field in sorted_stol_fields:
-            am_i_closest = self.is_closest_to_field(field)
-            if am_i_closest is not None:
-                target_field = am_i_closest
-                break
-
-        if target_field is not None:
-            log.debug("New target : {} selected.".format(target_field))
-            self.target_field = target_field
+        # logger.info(temp_target_field)
+        before_robot_id = str(int(self.robot_id)-1)
+        # logger.info(robot_states)
+        if not robot_states[before_robot_id]:
+            return
+        else:
+            log.debug("New target : {} selected.".format(temp_target_field))
+            self.target_field = temp_target_field
             self.target_field.scanner = self.robot_id
             self.target_field.state = FieldState.SCANNING
             self.target_location = self.target_field.loc_limit.lower_limit
             self.send_message(MessageType.FIELD_UPDATE, self.target_field)
+        #  target_field = None
+        # am_i_closest = None
+        # sorted_stol_fields = []
+
+        # for field in available_fields:
+        #     temp_field = self.robot_location.distance_to_other_loc(
+        #         field.loc_limit.lower_limit)
+        #     sorted_stol_fields.append([temp_field, [field]])
+
+        # sorted_stol_fields = sorted(
+        #     sorted_stol_fields, key=lambda sorted_stol_fields: sorted_stol_fields[0])
+
+        # for field in sorted_stol_fields:
+        #     am_i_closest = self.is_closest_to_field(field)
+        #     if am_i_closest is not None:
+        #         target_field = am_i_closest
+        #         break
+
+        # if target_field is not None:
+        #     self.target_field = target_field
+        #     self.target_field.scanner = self.robot_id
+        #     self.target_field.state = FieldState.SCANNING
+        #     self.target_location = self.target_field.loc_limit.lower_limit
+        #     self.send_message(MessageType.FIELD_UPDATE, self.target_field)
 
     def is_closest_to_field(self, target: Field):
         target_field = None
@@ -161,11 +192,13 @@ class GroundRobot(IGroundRobot):
             target_field = item
 
         for robot_id, loc in self.robot_locations.items():
-            other_robot_dist = loc.distance_to_other_loc(target_field.loc_limit.lower_limit)
+            other_robot_dist = loc.distance_to_other_loc(
+                target_field.loc_limit.lower_limit)
             if other_robot_dist < my_distance:
                 return None
 
         return target_field
+
 
     def select_area(self):
         log.info("Selecting area..")
@@ -214,3 +247,16 @@ class GroundRobot(IGroundRobot):
         if self._robot_state.status is Status.COMPLETED:
             if self._robot_state.state is not new_state or force:
                 self._robot_state = RobotState(new_state)
+
+
+# TODO
+#   Her robot birbirine konumlarını iletir
+#   Her robot diğer robotların konumlarını bekler
+#   Tüm robotların konumları geldiğinde taranacak alan belirlenir her robot kendi belirler
+#   Fieldların state i tutulacak
+#   Robotların state bilgisini fieldların içinden alınacak
+#   Boşta olan robotlar belirlenecek ve bir sonraki alanı seçmek için karar verecekler
+#   Robotlar alan seçmeden önce boşta olan robotlar var ise sırasını bekleyecek yok ise seçip devam edecek
+#
+#
+#
