@@ -7,11 +7,10 @@ from models.state import State
 from models.state import Status
 from models.ground_robot_i import IGroundRobot
 import logging
-import random
 
 TIME_STEP = 64
 
-logger = logging.getLogger('something')
+log = logging.getLogger('something')
 
 
 class GroundRobot(IGroundRobot):
@@ -28,21 +27,20 @@ class GroundRobot(IGroundRobot):
         self.went_first_area = False
         self.target_field: Field = None
         self.field_service: FieldService = None
-        self.first_test = False
 
         myFormatter = logging.Formatter(
             'RobotId: {} - %(message)s'.format(str(robot_id)))
         handler = logging.StreamHandler()
         handler.setFormatter(myFormatter)
-        logger.addHandler(handler)
-        logger.setLevel(logging.DEBUG)
-        if robot_id != "2":
-            logger.disabled = True
+        log.addHandler(handler)
+        log.setLevel(logging.DEBUG)
+        if robot_id != "0":
+            log.disabled = True
 
-        logger.debug("Setup ground robot with id: {}".format(self.robot_id))
+        log.debug("Setup ground robot with id: {}".format(self.robot_id))
 
     def run(self):
-        logger.debug("Start robot")
+        log.debug("Start robot")
         while self.step(TIME_STEP) != -1:
             self.update_fields()
             self.send_message(MessageType.NEW_ROBOT_LOCATION,
@@ -55,7 +53,7 @@ class GroundRobot(IGroundRobot):
         self.target_rotation = None
         self.target_location = None
         self.went_first_area = False
-        self.target_field: Field = None
+        self.target_field = None
 
     def save_robot_location(self, robot_id, location):
         self.robot_locations[robot_id] = location
@@ -63,8 +61,7 @@ class GroundRobot(IGroundRobot):
     def send_message(self, message_type, content):
         if content is None:
             return
-        self._send_message(Message(self.robot_id, content,
-                                   message_type))
+        self._send_message(Message(self.robot_id, content, message_type))
 
     def _listen_message(self):
         self.get_message(self._process_message)
@@ -87,11 +84,9 @@ class GroundRobot(IGroundRobot):
                 self.go_to(target)
             else:
                 self.target_field.state = FieldState.SCANNED
-                # logger.debug("FİELD STATE : {}".format(self.target_field))
                 self.send_message(MessageType.FIELD_UPDATE, self.target_field)
                 self.clear_target()
-                self.first_test = True
-                # logger.debug("Go coverage finished")
+                log.debug("Go coverage finished.")
         else:
             self.go_to(self.target_location)
 
@@ -125,10 +120,13 @@ class GroundRobot(IGroundRobot):
                     else:
                         self.move_right()
 
-    #  diğerlerinden yakın olduğu hem de en yakın olduklarını çevirip aralarında en yakın olana gitsin.
     def calculate_area_to_discover(self):
+        log.debug("Calculating area to discover...")
         available_fields = self.field_service.available_fields
+        log.debug("{} available field exist. Selecting one.".format(len(available_fields)))
+
         if self.target_field is not None:
+            log.debug("Already exist target field. Returning.")
             return
 
         target_field = None
@@ -146,14 +144,14 @@ class GroundRobot(IGroundRobot):
             if am_i_closest is not None:
                 target_field = am_i_closest
                 break
-        
+
         if target_field is not None:
+            log.debug("New target : {} selected.".format(target_field))
             self.target_field = target_field
             self.target_field.scanner = self.robot_id
             self.target_field.state = FieldState.SCANNING
             self.target_location = self.target_field.loc_limit.lower_limit
             self.send_message(MessageType.FIELD_UPDATE, self.target_field)
-      
 
     def is_closest_to_field(self, target: Field):
         target_field = None
@@ -166,39 +164,35 @@ class GroundRobot(IGroundRobot):
             other_robot_dist = loc.distance_to_other_loc(target_field.loc_limit.lower_limit)
             if other_robot_dist < my_distance:
                 return None
-        
-        return target_field
-            
 
-        
+        return target_field
 
     def select_area(self):
-        comparing_location = Location.from_coords(
-            0, 0, 0) if GroundRobot.map_start is None else GroundRobot.map_start
-
-        comparing_dict = dict(self.robot_locations)
-        comparing_dict[self.robot_id] = self.robot_location
-        robot_ids = sorted(comparing_dict.items(),
-                           key=lambda kv: comparing_location.compare(kv[1]))
+        log.info("Selecting area..")
         if GroundRobot.map_start is None:
+            log.info("Initialize map start..")
+            comparing_location = Location.from_coords(
+                0, 0, 0) if GroundRobot.map_start is None else GroundRobot.map_start
+
+            comparing_dict = dict(self.robot_locations)
+            comparing_dict[self.robot_id] = self.robot_location
+            robot_ids = sorted(comparing_dict.items(),
+                               key=lambda kv: comparing_location.compare(kv[1]))
             GroundRobot.map_start = robot_ids[0][1]
             self.field_service = FieldService(
-                middle_loc=GroundRobot.map_start, offset=Location.from_coords(x=2, z=2), log=logger)
-            logger.debug("MAP START : {}".format(GroundRobot.map_start))
+                middle_loc=GroundRobot.map_start, offset=Location.from_coords(x=2, z=2), log=log)
+            log.debug("MAP START : {}".format(GroundRobot.map_start))
 
         self.calculate_area_to_discover()
 
     def discover_and_run(self):
-        if self.first_test:
-            self.stop_engine()
-            return
         if self.target_field is None:
             self.select_area()
         elif not self.went_first_area:
             self.went_first_area = self.go_to(
                 self.target_field.loc_limit.lower_limit)
             if self.went_first_area:
-                logger.debug("Robot went to area. Now it can start to scan..")
+                log.debug("Robot went to area. Now it can start to scan..")
         else:
             self.go_coverage()
 
@@ -212,6 +206,7 @@ class GroundRobot(IGroundRobot):
             self.move_forward()
             if self.robot_location.is_close(location):
                 self._robot_state.complete()
+
                 return True
         return False
 

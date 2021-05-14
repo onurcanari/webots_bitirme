@@ -72,8 +72,11 @@ class FieldService:
         return self.fields[FieldService.MAP_LENGTH // 2][FieldService.MAP_LENGTH // 2]
 
     def change_field_state(self, field):
-        self.fields[field.x][field.y].state = field._state
-        self.fields[field.x][field.y].scanner = field.scanner
+        logger.debug("Updated field {}".format(field))
+        field_to_change = self.fields[field.x][field.y]
+        field_to_change.state = field._state
+        field_to_change.scanner = field.scanner
+        logger.debug(field_to_change)
         if not self.is_available_to_search():
             self.make_field_neighbors_available(FieldService.DELTA)
 
@@ -84,9 +87,10 @@ class FieldService:
         return self._available_fields
 
     def is_available_to_search(self) -> bool:
-        _available_fields = list(
+        self._available_fields = list(
             filter(lambda f: f.state == FieldState.CAN_BE_SCANNED, self._available_fields))
-        if not _available_fields:
+
+        if not self._available_fields:
             return False
         return True
 
