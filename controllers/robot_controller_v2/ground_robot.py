@@ -5,6 +5,7 @@ from models.message import Message, MessageType
 from models.state import RobotState
 from models.state import State
 from models.state import Status
+from models.state import RobotStatus
 from models.ground_robot_i import IGroundRobot
 import logging
 
@@ -20,6 +21,9 @@ class GroundRobot(IGroundRobot):
         super().__init__(robot_id)
         self._robot_state = RobotState(State.IDLE)
         self._robot_state.complete()
+        self.status = RobotStatus.IDLE
+        self.robot_status = {
+            0: RobotStatus.IDLE, 1: RobotStatus.IDLE, 2: RobotStatus.IDLE, 3: RobotStatus.IDLE}
         self.turn = False
         self.robot_locations = {}
         self.target_rotation = None
@@ -34,7 +38,7 @@ class GroundRobot(IGroundRobot):
         handler.setFormatter(myFormatter)
         log.addHandler(handler)
         log.setLevel(logging.DEBUG)
-        if robot_id != "0":
+        if robot_id != "2":
             log.disabled = True
 
         log.debug("Setup ground robot with id: {}".format(self.robot_id))
@@ -58,6 +62,9 @@ class GroundRobot(IGroundRobot):
     def save_robot_location(self, robot_id, location):
         self.robot_locations[robot_id] = location
 
+    def save_robot_status(self, robot_id, status):
+        self.robot_status[robot_id] = status
+
     def send_message(self, message_type, content):
         if content is None:
             return
@@ -68,7 +75,10 @@ class GroundRobot(IGroundRobot):
 
     def _process_message(self, message):
         if message.type == MessageType.FIELD_UPDATE:
-            self.field_service.change_field_state(message.content)
+            field = message.content
+            self.field_service.change_field_state(field)
+            self.save_robot_status(
+                field.scanner, RobotStatus.SCANNING if field._state == FieldState.SCANNING else RobotStatus.IDLE)
             pass
         elif message.type == MessageType.NEW_ROBOT_LOCATION:
             self.save_robot_location(
@@ -123,42 +133,46 @@ class GroundRobot(IGroundRobot):
     def calculate_area_to_discover(self):
         log.debug("Calculating area to discover...")
         available_fields = self.field_service.available_fields
-        log.debug("{} available field exist. Selecting one.".format(len(available_fields)))
+        log.debug("{} available field exist. Selecting one.".format(
+            len(available_fields)))
 
-        for item in available_fields:
-            log.info(item)
-        
+        # for item in available_fields:
+        #     log.info(item)
+
         if self.target_field is not None:
             log.debug("Already exist target field. Returning.")
             return
-        robot_states = {"-1":True,"0": False, "1": False, "2": False, "3": False}
         temp_target_field = None
         distance = None
         for field in available_fields:
             temp_distance = self.robot_location.distance_to_other_loc(
                 field.loc_limit.lower_limit)
-            if distance is None and field.state == FieldState.CAN_BE_SCANNED:
+            if distance is None:
                 temp_target_field = field
                 distance = temp_distance
             else:
-                if distance is not None and temp_distance < distance and  field.state == FieldState.CAN_BE_SCANNED:
+                if distance is not None and temp_distance < distance:
                     temp_target_field = field
                     distance = temp_distance
-            if field.scanner is not None:
-                robot_states[str(field.scanner)] = True
 
-        # logger.info(temp_target_field)
-        before_robot_id = str(int(self.robot_id)-1)
-        # logger.info(robot_states)
-        if not robot_states[before_robot_id]:
-            return
-        else:
-            log.debug("New target : {} selected.".format(temp_target_field))
-            self.target_field = temp_target_field
-            self.target_field.scanner = self.robot_id
-            self.target_field.state = FieldState.SCANNING
-            self.target_location = self.target_field.loc_limit.lower_limit
-            self.send_message(MessageType.FIELD_UPDATE, self.target_field)
+        for robot_id, status in self.robot_status.items():
+            if robot_id < self.robot_id and status == RobotStatus.IDLE:
+                log.debug("I am waiting...")
+                return
+
+        # if len(self.robot_status) >= self.robot_id:
+        #     for i in range(self.robot_status):
+        #         if not robot_states[i]:
+        #             log.debug("I am waiting...")
+        #             return
+
+        self.target_field = temp_target_field
+        self.target_field.scanner = self.robot_id
+        self.target_field.state = FieldState.SCANNING
+        self.target_location = self.target_field.loc_limit.lower_limit
+        log.debug("New target : {} selected.".format(self.target_field))
+        self.send_message(MessageType.FIELD_UPDATE, self.target_field)
+
         #  target_field = None
         # am_i_closest = None
         # sorted_stol_fields = []
@@ -199,7 +213,8 @@ class GroundRobot(IGroundRobot):
 
         return target_field
 
-
+ # TODO robotlar aynı alanı seçiyor. nedenini araştır çözüm üret.
+ # TODO 
     def select_area(self):
         log.info("Selecting area..")
         if GroundRobot.map_start is None:

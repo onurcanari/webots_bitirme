@@ -21,7 +21,7 @@ class Field:
         self.scanner = None
 
     def __str__(self):
-        return "state: {}, loc_limit: {}".format(self.state, self.loc_limit)
+        return "scanner: {}, state: {}, loc_limit: {}".format(self.scanner, self.state, self.loc_limit)
 
     @property
     def state(self):
@@ -76,7 +76,7 @@ class FieldService:
         field_to_change = self.fields[field.x][field.y]
         field_to_change.state = field._state
         field_to_change.scanner = field.scanner
-        logger.debug(field_to_change)
+        logger.debug("UPDATE FIELD : {}".format(field_to_change))
         if not self.is_available_to_search():
             self.make_field_neighbors_available(FieldService.DELTA)
 

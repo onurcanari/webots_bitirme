@@ -21,7 +21,7 @@ class Field:
         self.scanner = None
 
     def __str__(self):
-        return "state: {}, loc_limit: {}".format(self.state, self.loc_limit)
+        return "scanner: {}, state: {}, loc_limit: {}".format(self.scanner, self.state, self.loc_limit)
 
     @property
     def state(self):
@@ -114,7 +114,7 @@ class FieldService:
                         new_field.state = FieldState.CAN_BE_SCANNED
                         available_fields.append(new_field)
 
-        if available_fields:
-            for item in available_fields:
-                print(item)
+        # if available_fields:
+        #     for item in available_fields:
+        #         print(item)
         return available_fields

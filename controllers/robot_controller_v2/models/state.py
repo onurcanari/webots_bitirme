@@ -25,3 +25,7 @@ class RobotState:
 
     def continue_pls(self):
         self.status = Status.CONTINUING
+
+class RobotStatus(Enum):
+    IDLE = "IDLE",
+    SCANNING = "SCANNING"
