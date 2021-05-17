@@ -11,7 +11,7 @@ import logging
 
 TIME_STEP = 64
 
-log = logging.getLogger('something')
+log = logging.getLogger()
 
 
 class GroundRobot(IGroundRobot):
@@ -38,8 +38,6 @@ class GroundRobot(IGroundRobot):
         handler.setFormatter(myFormatter)
         log.addHandler(handler)
         log.setLevel(logging.DEBUG)
-        if robot_id != "2":
-            log.disabled = True
 
         log.debug("Setup ground robot with id: {}".format(self.robot_id))
 
@@ -47,8 +45,6 @@ class GroundRobot(IGroundRobot):
         log.debug("Start robot")
         while self.step(TIME_STEP) != -1:
             self.update_fields()
-            self.send_message(MessageType.NEW_ROBOT_LOCATION,
-                              self.robot_location)
             self._listen_message()
             if len(self.robot_locations) == 3:
                 self.discover_and_run()
@@ -67,14 +63,19 @@ class GroundRobot(IGroundRobot):
 
     def send_message(self, message_type, content):
         if content is None:
+            log.debug("Sending message is none. Returning...")
             return
-        self._send_message(Message(self.robot_id, content, message_type))
+        msg = Message(self.robot_id, content, message_type)
+        if message_type == MessageType.FIELD_UPDATE:
+            log.debug("Message is sending: {}".format(msg))
+        self._send_message(msg)
 
     def _listen_message(self):
         self.get_message(self._process_message)
 
     def _process_message(self, message):
         if message.type == MessageType.FIELD_UPDATE:
+            log.debug(message)
             field = message.content
             self.field_service.change_field_state(field)
             self.save_robot_status(
@@ -83,6 +84,8 @@ class GroundRobot(IGroundRobot):
         elif message.type == MessageType.NEW_ROBOT_LOCATION:
             self.save_robot_location(
                 message.robot_id, Location.from_coords(**vars(message.content)))
+        else:
+            log.debug("Message received with unknown type: {}", message)
 
     def go_coverage(self):
         if self._robot_state.status is Status.COMPLETED or self.go_to(self.target_location):
@@ -160,43 +163,12 @@ class GroundRobot(IGroundRobot):
                 log.debug("I am waiting...")
                 return
 
-        # if len(self.robot_status) >= self.robot_id:
-        #     for i in range(self.robot_status):
-        #         if not robot_states[i]:
-        #             log.debug("I am waiting...")
-        #             return
-
         self.target_field = temp_target_field
         self.target_field.scanner = self.robot_id
         self.target_field.state = FieldState.SCANNING
         self.target_location = self.target_field.loc_limit.lower_limit
         log.debug("New target : {} selected.".format(self.target_field))
         self.send_message(MessageType.FIELD_UPDATE, self.target_field)
-
-        #  target_field = None
-        # am_i_closest = None
-        # sorted_stol_fields = []
-
-        # for field in available_fields:
-        #     temp_field = self.robot_location.distance_to_other_loc(
-        #         field.loc_limit.lower_limit)
-        #     sorted_stol_fields.append([temp_field, [field]])
-
-        # sorted_stol_fields = sorted(
-        #     sorted_stol_fields, key=lambda sorted_stol_fields: sorted_stol_fields[0])
-
-        # for field in sorted_stol_fields:
-        #     am_i_closest = self.is_closest_to_field(field)
-        #     if am_i_closest is not None:
-        #         target_field = am_i_closest
-        #         break
-
-        # if target_field is not None:
-        #     self.target_field = target_field
-        #     self.target_field.scanner = self.robot_id
-        #     self.target_field.state = FieldState.SCANNING
-        #     self.target_location = self.target_field.loc_limit.lower_limit
-        #     self.send_message(MessageType.FIELD_UPDATE, self.target_field)
 
     def is_closest_to_field(self, target: Field):
         target_field = None
@@ -213,8 +185,8 @@ class GroundRobot(IGroundRobot):
 
         return target_field
 
- # TODO robotlar aynı alanı seçiyor. nedenini araştır çözüm üret.
- # TODO 
+    # TODO robotlar aynı alanı seçiyor. nedenini araştır çözüm üret.
+    # TODO
     def select_area(self):
         log.info("Selecting area..")
         if GroundRobot.map_start is None:
@@ -262,7 +234,6 @@ class GroundRobot(IGroundRobot):
         if self._robot_state.status is Status.COMPLETED:
             if self._robot_state.state is not new_state or force:
                 self._robot_state = RobotState(new_state)
-
 
 # TODO
 #   Her robot birbirine konumlarını iletir

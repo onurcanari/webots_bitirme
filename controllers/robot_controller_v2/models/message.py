@@ -11,3 +11,6 @@ class Message:
         self.robot_id = robot_id
         self.content = content
         self.type = message_type
+
+    def __str__(self):
+        return "RobotId: {}, Content: {}".format(self.robot_id, self.content)

@@ -1,5 +1,4 @@
 from enum import Enum
-from time import sleep
 
 from models.location import Location
 from models.location_limit import LocationLimit
