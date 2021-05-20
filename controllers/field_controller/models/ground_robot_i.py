@@ -15,19 +15,16 @@ class IGroundRobot(Supervisor):
         super().__init__()
         self.setup()
 
-    def setup(self):        
+    def setup(self):
         self.root_node = self.getFromDef("mine0")
         self.translation_field = self.root_node.getField("translation")
         self.rotation_field = self.root_node.getField("rotation")
-
-        print("Get and Set Emitter")
         self.emitter = self.getDevice("emitter")
         self.emitter.setChannel(-1)
         print("Get and set Receiver")
         self.receiver = self.getDevice("receiver")
         self.receiver.setChannel(-1)
         self.receiver.enable(TIME_STEP)
-
 
     def _send_message(self, message):
         json_data = json.dumps(message, default=lambda o: o.__dict__, indent=4)

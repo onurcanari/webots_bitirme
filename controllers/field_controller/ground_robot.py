@@ -1,7 +1,5 @@
-from models.field import FieldService, Field, FieldState
+from models.field import FieldService
 from models.location import Location
-from models.location_limit import LocationLimit
-import util
 from models.message import Message, MessageType
 
 from models.ground_robot_i import IGroundRobot
@@ -9,7 +7,7 @@ import logging
 
 TIME_STEP = 64
 
-logger = logging.getLogger('something')
+logger = logging.getLogger()
 
 
 class GroundRobot(IGroundRobot):
@@ -19,11 +17,11 @@ class GroundRobot(IGroundRobot):
         super().__init__()
         self.draw_fields = False
         self.robot_locations = {}
-
         self.field_service: FieldService = None
 
     def run(self):
         logger.debug("Start robot")
+        self.draw_mine()
         while self.step(TIME_STEP) != -1:
             self._listen_message()
             if len(self.robot_locations) == 4:
@@ -45,7 +43,7 @@ class GroundRobot(IGroundRobot):
         if message.type == MessageType.NEW_ROBOT_LOCATION:
             self.save_robot_location(
                 message.robot_id, Location.from_coords(**vars(message.content)))
- 
+
     def select_area(self):
         comparing_location = Location.from_coords(
             0, 0, 0) if GroundRobot.map_start is None else GroundRobot.map_start
@@ -75,7 +73,7 @@ class GroundRobot(IGroundRobot):
                 node = field.getMFNode(-1)
                 transField = node.getField("translation")
                 loc_lower = self.field_service.available_fields[x].loc_limit.lower_limit
-               
+
                 transField.setSFVec3f([loc_lower.x, 0, loc_lower.z])
 
 

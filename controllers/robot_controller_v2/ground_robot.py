@@ -9,6 +9,8 @@ from models.state import RobotStatus
 from models.ground_robot_i import IGroundRobot
 import logging
 
+import mine_search_service
+
 TIME_STEP = 64
 
 log = logging.getLogger()
@@ -31,9 +33,9 @@ class GroundRobot(IGroundRobot):
         self.went_first_area = False
         self.target_field: Field = None
         self.field_service: FieldService = None
+        self.mine_service = mine_search_service.MineService(self)
 
-        myFormatter = logging.Formatter(
-            'RobotId: {} - %(message)s'.format(str(robot_id)))
+        myFormatter = logging.Formatter('RobotId: {} - %(message)s'.format(str(robot_id)))
         handler = logging.StreamHandler()
         handler.setFormatter(myFormatter)
         log.addHandler(handler)
@@ -48,6 +50,8 @@ class GroundRobot(IGroundRobot):
             self._listen_message()
             if len(self.robot_locations) == 3:
                 self.discover_and_run()
+            self.mine_service.search_for_mine(self.robot_location,
+                                              lambda mine_info: self.send_message(MessageType.MINE_FOUND, mine_info))
 
     def clear_target(self):
         self.target_rotation = None
@@ -66,7 +70,7 @@ class GroundRobot(IGroundRobot):
             log.debug("Sending message is none. Returning...")
             return
         msg = Message(self.robot_id, content, message_type)
-        if message_type == MessageType.FIELD_UPDATE:
+        if message_type != MessageType.NEW_ROBOT_LOCATION:
             log.debug("Message is sending: {}".format(msg))
         self._send_message(msg)
 
