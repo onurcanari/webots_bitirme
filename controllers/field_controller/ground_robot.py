@@ -4,6 +4,7 @@ from models.message import Message, MessageType
 
 from models.ground_robot_i import IGroundRobot
 import logging
+from random import randrange, uniform
 
 TIME_STEP = 64
 
@@ -76,4 +77,14 @@ class GroundRobot(IGroundRobot):
 
                 transField.setSFVec3f([loc_lower.x, 0, loc_lower.z])
 
-
+    def draw_mine(self):
+        randomMineCount = 10
+        for x in range(randomMineCount):
+            field = self.root_node.getField("children")
+            field.importMFNodeFromString(-1,
+                                         "DEF mine%d Robot { children [ Shape { appearance PBRAppearance { baseColor 1 0 0 } geometry Cylinder { height 0.5 radius 0.05 } } ] }" % (
+                                                     x + 1))
+            node = field.getMFNode(-1)
+            transField = node.getField("translation")
+            random_loc = [uniform(-5, 6), 0, uniform(-5, 6)]
+            transField.setSFVec3f(random_loc)

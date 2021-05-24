@@ -33,7 +33,7 @@ class GroundRobot(IGroundRobot):
         self.went_first_area = False
         self.target_field: Field = None
         self.field_service: FieldService = None
-        self.mine_service = mine_search_service.MineService(self)
+        self.mine_service = mine_search_service.MineService(robot_id, self)
 
         myFormatter = logging.Formatter('RobotId: {} - %(message)s'.format(str(robot_id)))
         handler = logging.StreamHandler()
@@ -88,8 +88,11 @@ class GroundRobot(IGroundRobot):
         elif message.type == MessageType.NEW_ROBOT_LOCATION:
             self.save_robot_location(
                 message.robot_id, Location.from_coords(**vars(message.content)))
+        elif message.type == MessageType.MINE_FOUND:
+            log.debug("Robot:{}, found a new mine: {}".format(self.robot_id, message.content.mine_name))
+            self.mine_service.process_founded_mine(message)
         else:
-            log.debug("Message received with unknown type: {}", message)
+            log.debug("Message received with unknown type: {}".format(message))
 
     def go_coverage(self):
         if self._robot_state.status is Status.COMPLETED or self.go_to(self.target_location):
@@ -143,9 +146,6 @@ class GroundRobot(IGroundRobot):
         log.debug("{} available field exist. Selecting one.".format(
             len(available_fields)))
 
-        # for item in available_fields:
-        #     log.info(item)
-
         if self.target_field is not None:
             log.debug("Already exist target field. Returning.")
             return
@@ -189,8 +189,6 @@ class GroundRobot(IGroundRobot):
 
         return target_field
 
-    # TODO robotlar aynı alanı seçiyor. nedenini araştır çözüm üret.
-    # TODO
     def select_area(self):
         log.info("Selecting area..")
         if GroundRobot.map_start is None:
@@ -239,14 +237,3 @@ class GroundRobot(IGroundRobot):
             if self._robot_state.state is not new_state or force:
                 self._robot_state = RobotState(new_state)
 
-# TODO
-#   Her robot birbirine konumlarını iletir
-#   Her robot diğer robotların konumlarını bekler
-#   Tüm robotların konumları geldiğinde taranacak alan belirlenir her robot kendi belirler
-#   Fieldların state i tutulacak
-#   Robotların state bilgisini fieldların içinden alınacak
-#   Boşta olan robotlar belirlenecek ve bir sonraki alanı seçmek için karar verecekler
-#   Robotlar alan seçmeden önce boşta olan robotlar var ise sırasını bekleyecek yok ise seçip devam edecek
-#
-#
-#
