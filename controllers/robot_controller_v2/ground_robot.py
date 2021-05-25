@@ -70,8 +70,6 @@ class GroundRobot(IGroundRobot):
             log.debug("Sending message is none. Returning...")
             return
         msg = Message(self.robot_id, content, message_type)
-        if message_type != MessageType.NEW_ROBOT_LOCATION:
-            log.debug("Message is sending: {}".format(msg))
         self._send_message(msg)
 
     def _listen_message(self):
@@ -89,8 +87,7 @@ class GroundRobot(IGroundRobot):
             self.save_robot_location(
                 message.robot_id, Location.from_coords(**vars(message.content)))
         elif message.type == MessageType.MINE_FOUND:
-            log.debug("Robot:{}, found a new mine: {}".format(self.robot_id, message.content.mine_name))
-            self.mine_service.process_founded_mine(message)
+            self.mine_service.process_found_mine(message)
         else:
             log.debug("Message received with unknown type: {}".format(message))
 

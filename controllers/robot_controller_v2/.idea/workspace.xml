@@ -4,14 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8b236850-280f-4918-b8e6-bff0380d9d45" name="Default Changelist" comment="now its send location in every sec">
-      <change afterPath="$PROJECT_DIR$/../field_controller/.idea/field_controller.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../field_controller/ground_robot.py" beforeDir="false" afterPath="$PROJECT_DIR$/../field_controller/ground_robot.py" afterDir="false" />
+    <list default="true" id="8b236850-280f-4918-b8e6-bff0380d9d45" name="Default Changelist" comment="add process_founded_mine">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ground_robot.py" beforeDir="false" afterPath="$PROJECT_DIR$/ground_robot.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mine_search_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/mine_search_service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/robot_controller_v2.py" beforeDir="false" afterPath="$PROJECT_DIR$/robot_controller_v2.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../worlds/4_robots_searchs_mines.wbt" beforeDir="false" afterPath="$PROJECT_DIR$/../../worlds/4_robots_searchs_mines.wbt" afterDir="false" />
     </list>
     <list id="6cd924f4-c290-4c36-ab14-ac59f992de49" name="Changes by Me" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -99,7 +95,8 @@
       <workItem from="1620989696562" duration="4778000" />
       <workItem from="1621273813360" duration="6344000" />
       <workItem from="1621447610384" duration="591000" />
-      <workItem from="1621880732183" duration="5629000" />
+      <workItem from="1621880732183" duration="5739000" />
+      <workItem from="1621965369801" duration="1016000" />
     </task>
     <task id="LOCAL-00001" summary="add field">
       <created>1618258013953</created>
@@ -136,7 +133,14 @@
       <option name="project" value="LOCAL" />
       <updated>1621279229440</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="add process_founded_mine">
+      <created>1621886501810</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1621886501810</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -161,7 +165,8 @@
     <MESSAGE value="go to closest field" />
     <MESSAGE value="update field" />
     <MESSAGE value="now its send location in every sec" />
-    <option name="LAST_COMMIT_MESSAGE" value="now its send location in every sec" />
+    <MESSAGE value="add process_founded_mine" />
+    <option name="LAST_COMMIT_MESSAGE" value="add process_founded_mine" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/robot_controller_v2$ground_robot.coverage" NAME="ground_robot Coverage Results" MODIFIED="1621275933139" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
