@@ -16,8 +16,8 @@ class MineService:
 
     def fetch_mines(self):
         root_childrens = self.root_node.getField("children")
-        log.debug(root_childrens.getCount())
-        for i in range(100):
+        # log.debug("Mine Count: {}".format(root_childrens.getCount()))
+        for i in range(root_childrens.getCount()):
             node = root_childrens.getMFNode(i)
             if node is None:
                 return
@@ -34,7 +34,7 @@ class MineService:
             mine_loc = Location(mine_node.getPosition())
             if location.is_close(mine_loc):
                 founded_mine = Mine(mine_node.getDef(), mine_loc, self.robot_id)
-                if founded_mine.name in self.founded_mines:
+                if founded_mine.name in self.found_mines:
                     return
                 log.debug("Mine is close: {}".format(mine_loc))
                 found_callback(MineFoundMessage(founded_mine.name, mine_loc))

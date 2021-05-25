@@ -78,13 +78,13 @@ class GroundRobot(IGroundRobot):
                 transField.setSFVec3f([loc_lower.x, 0, loc_lower.z])
 
     def draw_mine(self):
-        randomMineCount = 10
+        randomMineCount = 30
         for x in range(randomMineCount):
             field = self.root_node.getField("children")
             field.importMFNodeFromString(-1,
-                                         "DEF mine%d Robot { children [ Shape { appearance PBRAppearance { baseColor 1 0 0 } geometry Cylinder { height 0.5 radius 0.05 } } ] }" % (
+                                         "DEF mine%d Robot { children [ Shape { appearance PBRAppearance { baseColor 1 0 0 roughness 1 metalness 0 } geometry Cylinder { height 0.08 radius 0.05 } } ] }" % (
                                                      x + 1))
             node = field.getMFNode(-1)
             transField = node.getField("translation")
-            random_loc = [uniform(-5, 6), 0, uniform(-5, 6)]
+            random_loc = [uniform(-3, 4), 0, uniform(-3, 4)]
             transField.setSFVec3f(random_loc)
