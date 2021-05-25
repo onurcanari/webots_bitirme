@@ -2,15 +2,15 @@ from enum import Enum
 
 
 class Status(Enum):
-    STARTED = 0,
-    CONTINUING = 1,
+    STARTED = 0
+    CONTINUING = 1
     COMPLETED = 2
 
 
 class State(Enum):
-    IDLE = 0,
-    GO_TO_LOCATION = 1,
-    CHANGE_ROTATION = 2,
+    IDLE = 0
+    GO_TO_LOCATION = 1
+    CHANGE_ROTATION = 2
     GO_COVERAGE = 3
 
 
@@ -27,5 +27,14 @@ class RobotState:
         self.status = Status.CONTINUING
 
 class RobotStatus(Enum):
-    IDLE = "IDLE",
+    IDLE = "IDLE"
     SCANNING = "SCANNING"
+
+
+
+class ObstacleState(Enum):
+    IDLE = 0
+    DETECTED = 1
+    AVOID_1 = 2
+    AVOID_2 = 3
+    SURVIVED = 4

@@ -31,9 +31,8 @@ class Field:
         if new_state is FieldState.CAN_BE_SCANNED:
             if self._state is not FieldState.NONE:
                 return
-        logger.debug("State with x: {}, y: {} old_state: {} => new_state: {}".format(
-            self.x, self.y, self._state, new_state))
-        logger.debug("\tloc_limit: {}".format(self.loc_limit))
+        logger.debug("Field State Update : {}\n(old_state: {} => new_state: {})".format(self.loc_limit,
+                                                                                        self._state, new_state))
         self._state = new_state
 
 
@@ -50,7 +49,7 @@ class FieldService:
             FieldService.MAP_LENGTH)]
         firstSideX = middle_loc.x - (FieldService.MAP_LENGTH // 2 * offset.x)
         firstSideZ = middle_loc.z - (FieldService.MAP_LENGTH // 2 * offset.z)
-        
+
         self._available_fields: [Field] = None
         self.delta = 0
         for i in range(FieldService.MAP_LENGTH):
@@ -71,11 +70,9 @@ class FieldService:
         return self.fields[FieldService.MAP_LENGTH // 2][FieldService.MAP_LENGTH // 2]
 
     def change_field_state(self, field):
-        logger.debug("Updated field {}".format(field))
         field_to_change = self.fields[field.x][field.y]
         field_to_change.state = field._state
         field_to_change.scanner = field.scanner
-        logger.debug("UPDATE FIELD : {}".format(field_to_change))
         if not self.is_available_to_search():
             self.make_field_neighbors_available(FieldService.DELTA)
 
@@ -99,8 +96,14 @@ class FieldService:
         new_fields = self._calculate_neighbors(self.delta)
         for field in old_fields:
             new_fields.remove(field)
-        self._available_fields = new_fields
-        self._available_fields.append(self.get_middle())
+        filter_fields = []
+
+        for field in new_fields:
+            if field.loc_limit.lower_limit.z < self.get_middle().loc_limit.lower_limit.z + 0.2:
+                filter_fields.append(field)
+            
+        self._available_fields = filter_fields
+        # self._available_fields.append(self.get_middle())
 
     def _calculate_neighbors(self, delta):
         available_fields = []

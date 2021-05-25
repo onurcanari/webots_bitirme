@@ -3,7 +3,8 @@ from enum import Enum
 
 class MessageType(str, Enum):
     NEW_ROBOT_LOCATION = "NEW_ROBOT_LOCATION",
-    FIELD_UPDATE = "FIELD_UPDATE"
+    FIELD_UPDATE = "FIELD_UPDATE",
+    NEW_AVAIBLE_FIELDS = "NEW_AVAIBLE_FIELDS"
 
 
 class Message:

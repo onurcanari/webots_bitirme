@@ -3,8 +3,8 @@ WorldInfo {
   coordinateSystem "NUE"
 }
 Viewpoint {
-  orientation 0.997579333514056 0.06117772668540602 0.03305690704311918 5.2903603831455195
-  position -0.13014995820379538 12.48465782486594 8.22805613917518
+  orientation 0.9996692117207936 0.02212002911622303 0.013121411868562893 5.212098615312285
+  position -1.8022949005274291 10.118422296023352 6.46821955416228
 }
 TexturedBackground {
 }
@@ -20,6 +20,25 @@ DEF robot0 Robot {
   translation -0.45701 0.0397215 0.51684
   rotation 1.3736399998669196e-05 0.9999999999031184 2.252719999781753e-06 0
   children [
+    DistanceSensor {
+      translation 0.05 0.02 -0.096
+      rotation 0 -1 0 0
+      children [
+        DEF sensor Shape {
+          appearance PBRAppearance {
+            baseColor 0 1 1
+            metalness 0
+          }
+          geometry Box {
+            size 0.01 0.01 0.01
+          }
+        }
+      ]
+      name "ds_back_left"
+      boundingObject USE sensor
+      physics Physics {
+      }
+    }
     Emitter {
       channel -1
     }
@@ -46,7 +65,7 @@ DEF robot0 Robot {
         }
       ]
       endPoint Solid {
-        translation 0.060000000000000026 -3.505559412828705e-18 0.04999999999999998
+        translation 0.060000000000000026 -3.4224966346282488e-18 0.04999999999999998
         rotation 0.7072380854001235 -0.7066751168860492 -0.02060508999389237 3.1828298187646387
         children [
           DEF Wheel Shape {
@@ -97,7 +116,7 @@ DEF robot0 Robot {
         }
       ]
       endPoint Solid {
-        translation 0.060000000000000026 3.501755723792311e-18 -0.04999999999999998
+        translation 0.060000000000000026 3.4179018074467513e-18 -0.04999999999999998
         rotation 0.7072366097480942 -0.7066736424086548 -0.02070606087372919 3.183031835071632
         children [
           USE Wheel
@@ -210,6 +229,24 @@ DEF robot0 Robot {
   ]
   supervisor TRUE
 }
+Solid {
+  translation -3.02472 0.269721 -0.717455
+  children [
+    Shape {
+      appearance PBRAppearance {
+      }
+      geometry Box {
+        size 0.5 0.5 0.5
+      }
+    }
+  ]
+  boundingObject Box {
+    size 0.5 0.5 0.5
+  }
+  physics Physics {
+    mass 1
+  }
+}
 DEF robot1 Robot {
   translation 0.930987 0.0397206 1.0194
   rotation 0 1 0 4.692820414042842e-06
@@ -240,7 +277,7 @@ DEF robot1 Robot {
         }
       ]
       endPoint Solid {
-        translation 0.060000000000000026 -2.691487182562803e-17 0.049999999999999996
+        translation 0.060000000000000026 -2.6914896009834985e-17 0.049999999999999996
         rotation 0.5392933390244743 -0.5388640561903215 0.6471384886018969 1.9921441284262607
         children [
           DEF Wheel Shape {
@@ -270,7 +307,7 @@ DEF robot1 Robot {
         }
       ]
       endPoint Solid {
-        translation -0.06 -1.0982609872840947e-17 0.050000000000000024
+        translation -0.06 -1.0268318877684428e-17 0.050000000000000024
         rotation -0.33034028161932044 0.33007732748644486 0.8842648111392165 1.692695681702468
         children [
           USE Wheel
@@ -291,7 +328,7 @@ DEF robot1 Robot {
         }
       ]
       endPoint Solid {
-        translation 0.060000000000000026 -2.2659335369060684e-17 -0.049999999999999996
+        translation 0.060000000000000026 -2.2659336233887985e-17 -0.049999999999999996
         rotation 0.6796436605486997 -0.6791026574698533 -0.27731584032172896 3.683038824998462
         children [
           USE Wheel
@@ -312,7 +349,7 @@ DEF robot1 Robot {
         }
       ]
       endPoint Solid {
-        translation -0.06 -9.561144807192676e-09 -0.049999991712205025
+        translation -0.06 -9.561144806715095e-09 -0.049999991712205025
         rotation -0.33020502110644745 0.3299421746422811 0.8843657645049434 1.6925823681196934
         children [
           USE Wheel
@@ -356,6 +393,25 @@ DEF robot1 Robot {
         }
       ]
       name "ds_right"
+      boundingObject USE sensor
+      physics Physics {
+      }
+    }
+    DistanceSensor {
+      translation 0.05 0.02 -0.096
+      rotation 0 -1 0 0
+      children [
+        DEF sensor Shape {
+          appearance PBRAppearance {
+            baseColor 0 1 1
+            metalness 0
+          }
+          geometry Box {
+            size 0.01 0.01 0.01
+          }
+        }
+      ]
+      name "ds_back_left"
       boundingObject USE sensor
       physics Physics {
       }
@@ -408,6 +464,25 @@ DEF robot2 Robot {
   translation -1.98612 0.0397206 0.898896
   rotation -1.0752699999127208e-05 0.9999999999188305 6.8350799994452005e-06 0
   children [
+    DistanceSensor {
+      translation 0.08 0.02 -0.096
+      rotation 0 -1 0 0
+      children [
+        DEF sensor Shape {
+          appearance PBRAppearance {
+            baseColor 0 1 1
+            metalness 0
+          }
+          geometry Box {
+            size 0.01 0.01 0.01
+          }
+        }
+      ]
+      name "ds_back_left"
+      boundingObject USE sensor
+      physics Physics {
+      }
+    }
     Emitter {
       channel -1
     }
@@ -599,9 +674,28 @@ DEF robot2 Robot {
   supervisor TRUE
 }
 DEF robot3 Robot {
-  translation -0.39621 0.0397206 1.23995
+  translation -0.39621 0.0397206 1.29995
   rotation 7.025569999801596e-06 0.9999999999717597 -2.668669999924636e-06 0
   children [
+    DistanceSensor {
+      translation 0.05 0.02 -0.096
+      rotation 0 -1 0 0
+      children [
+        DEF sensor Shape {
+          appearance PBRAppearance {
+            baseColor 0 1 1
+            metalness 0
+          }
+          geometry Box {
+            size 0.01 0.01 0.01
+          }
+        }
+      ]
+      name "ds_back_left"
+      boundingObject USE sensor
+      physics Physics {
+      }
+    }
     Emitter {
       channel -1
     }
@@ -628,7 +722,7 @@ DEF robot3 Robot {
         }
       ]
       endPoint Solid {
-        translation 0.060000000000000026 -1.0491328279960078e-17 0.04999999999999998
+        translation 0.060000000000000026 -1.0491328273523474e-17 0.04999999999999998
         rotation 0.6663695508776137 -0.6658391141214117 0.33557397957705426 2.493580583817602
         children [
           DEF Wheel Shape {
@@ -658,7 +752,7 @@ DEF robot3 Robot {
         }
       ]
       endPoint Solid {
-        translation -0.06 1.590269719151359e-17 0.050000000000000024
+        translation -0.06 1.590320854747017e-17 0.050000000000000024
         rotation 0.6282482371842046 -0.6277481453709124 -0.45960463276420443 4.003821890932696
         children [
           USE Wheel
@@ -679,7 +773,7 @@ DEF robot3 Robot {
         }
       ]
       endPoint Solid {
-        translation 0.060000000000000026 1.0487623315530177e-17 -0.04999999999999998
+        translation 0.060000000000000026 1.0487623308993143e-17 -0.04999999999999998
         rotation 0.6663960477424486 -0.6658655898944812 0.335468811885276 2.493769756750608
         children [
           USE Wheel
@@ -700,7 +794,7 @@ DEF robot3 Robot {
         }
       ]
       endPoint Solid {
-        translation -0.06 -1.0067787224165204e-08 -0.05000000766437837
+        translation -0.06 -1.0067787224165519e-08 -0.05000000766437837
         rotation -0.30467668251046753 0.30443415685642244 -0.9024920848813772 4.61076531870655
         children [
           USE Wheel
@@ -812,79 +906,4 @@ DEF mine0 Robot {
   name "mine0_name"
   controller "field_controller"
   supervisor TRUE
-}
-DEF mine1 Robot {
-  translation 1.61 0 0.91
-  children [
-    Shape {
-      appearance PBRAppearance {
-        baseColor 1 0 0
-      }
-      geometry Cylinder {
-        height 0.5
-        radius 0.05
-      }
-    }
-  ]
-  name "mine1_name"
-}
-DEF mine2 Robot {
-  translation 2.43 0 -1.3
-  children [
-    Shape {
-      appearance PBRAppearance {
-        baseColor 1 0 0
-      }
-      geometry Cylinder {
-        height 0.5
-        radius 0.05
-      }
-    }
-  ]
-  name "mine2_name"
-}
-DEF mine3 Robot {
-  translation 0 0 -1
-  children [
-    Shape {
-      appearance PBRAppearance {
-        baseColor 1 0 0
-      }
-      geometry Cylinder {
-        height 0.5
-        radius 0.05
-      }
-    }
-  ]
-  name "mine3_name"
-}
-DEF mine4 Robot {
-  translation 0 0 -7.29
-  children [
-    Shape {
-      appearance PBRAppearance {
-        baseColor 1 0 0
-      }
-      geometry Cylinder {
-        height 0.5
-        radius 0.05
-      }
-    }
-  ]
-  name "mine4_name"
-}
-DEF mine5 Robot {
-  translation -0.0844319 0 0.997765
-  children [
-    Shape {
-      appearance PBRAppearance {
-        baseColor 1 0 0
-      }
-      geometry Cylinder {
-        height 0.5
-        radius 0.05
-      }
-    }
-  ]
-  name "mine5_name"
 }
