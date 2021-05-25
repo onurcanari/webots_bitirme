@@ -10,6 +10,8 @@ from models.state import ObstacleState
 from models.ground_robot_i import IGroundRobot
 import logging
 
+import mine_search_service
+
 TIME_STEP = 64
 
 log = logging.getLogger()
@@ -40,6 +42,9 @@ class GroundRobot(IGroundRobot):
         self.obstacle_target = None
         myFormatter = logging.Formatter(
             'RobotId: {} - %(message)s'.format(str(robot_id)))
+        self.mine_service = mine_search_service.MineService(robot_id, self)
+
+        myFormatter = logging.Formatter('RobotId: {} - %(message)s'.format(str(robot_id)))
         handler = logging.StreamHandler()
         handler.setFormatter(myFormatter)
         log.addHandler(handler)
@@ -54,6 +59,8 @@ class GroundRobot(IGroundRobot):
             self._listen_message()
             if len(self.robot_locations) == 3:
                 self.discover_and_run()
+            self.mine_service.search_for_mine(self.robot_location,
+                                              lambda mine_info: self.send_message(MessageType.MINE_FOUND, mine_info))
 
     def clear_target(self):
         self.target_rotation = None
@@ -72,8 +79,6 @@ class GroundRobot(IGroundRobot):
             log.debug("Sending message is none. Returning...")
             return
         msg = Message(self.robot_id, content, message_type)
-        # if message_type == MessageType.FIELD_UPDATE:
-        #     log.debug("Message is sending: {}".format(msg))
         self._send_message(msg)
 
     def _listen_message(self):
@@ -89,8 +94,11 @@ class GroundRobot(IGroundRobot):
         elif message.type == MessageType.NEW_ROBOT_LOCATION:
             self.save_robot_location(
                 message.robot_id, Location.from_coords(**vars(message.content)))
-        # else:
-        #     log.debug("Message received with unknown type: {}", message)
+        elif message.type == MessageType.MINE_FOUND:
+            log.debug("Robot:{}, found a new mine: {}".format(self.robot_id, message.content.mine_name))
+            self.mine_service.process_founded_mine(message)
+        else:
+            log.debug("Message received with unknown type: {}".format(message))
 
     def go_coverage(self):
         if self._robot_state.status is Status.COMPLETED or self.go_to(self.target_location):
@@ -147,9 +155,6 @@ class GroundRobot(IGroundRobot):
         # log.debug("{} available field exist. Selecting one.".format(
         #     len(available_fields)))
 
-        # for item in available_fields:
-        #     log.info(item)
-
         if self.target_field is not None:
             log.debug("Already exist target field. Returning.")
             return
@@ -194,8 +199,6 @@ class GroundRobot(IGroundRobot):
 
         return target_field
 
-    # TODO robotlar aynı alanı seçiyor. nedenini araştır çözüm üret.
-    # TODO
     def select_area(self):
         log.info("Selecting area..")
         if GroundRobot.map_start is None:
@@ -241,8 +244,6 @@ class GroundRobot(IGroundRobot):
             self.move_right()
 
         angle = abs(self.robot_rotation.angle - self.temp_angle)
-        print("self.robot_rotation.angle",self.robot_rotation.angle)
-        print("self.temp_angle",self.temp_angle)
 
         degree = abs(degree)
         if angle >= degree-1 and angle <= degree+1:
@@ -318,14 +319,3 @@ class GroundRobot(IGroundRobot):
             if self._robot_state.state is not new_state or force:
                 self._robot_state = RobotState(new_state)
 
-# TODO
-#   Her robot birbirine konumlarını iletir
-#   Her robot diğer robotların konumlarını bekler
-#   Tüm robotların konumları geldiğinde taranacak alan belirlenir her robot kendi belirler
-#   Fieldların state i tutulacak
-#   Robotların state bilgisini fieldların içinden alınacak
-#   Boşta olan robotlar belirlenecek ve bir sonraki alanı seçmek için karar verecekler
-#   Robotlar alan seçmeden önce boşta olan robotlar var ise sırasını bekleyecek yok ise seçip devam edecek
-#
-#
-#

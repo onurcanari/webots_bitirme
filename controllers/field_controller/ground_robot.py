@@ -1,16 +1,15 @@
-from models.field import FieldService, Field, FieldState
+from models.field import FieldService
 from models.location import Location
-from models.location_limit import LocationLimit
-import util
 from models.message import Message, MessageType
 
 from models.ground_robot_i import IGroundRobot
 from random import randrange
 import logging
+from random import randrange, uniform
 
 TIME_STEP = 64
 
-logger = logging.getLogger('something')
+logger = logging.getLogger()
 
 
 class GroundRobot(IGroundRobot):
@@ -25,6 +24,7 @@ class GroundRobot(IGroundRobot):
 
     def run(self):
         logger.debug("Start robot")
+        self.draw_mine()
         while self.step(TIME_STEP) != -1:
             self._listen_message()
  
@@ -64,15 +64,15 @@ class GroundRobot(IGroundRobot):
         node = field.getMFNode(-1)
         transField = node.getField("translation")
         transField.setSFVec3f([x, 0, z])
-
+            
     def draw_mine(self):
-        randomMineCount = randrange(5,10)
+        randomMineCount = 30
         for x in range(randomMineCount):
             field = self.root_node.getField("children")
             field.importMFNodeFromString(-1,
-                                            "DEF mine%d Robot { children [ Shape { appearance PBRAppearance { baseColor 1 0 0 } geometry Cylinder { height 0.5 radius 0.05 } } ] }" %(x+1)  )
-
+                                         "DEF mine%d Robot { children [ Shape { appearance PBRAppearance { baseColor 1 0 0 roughness 1 metalness 0 } geometry Cylinder { height 0.08 radius 0.05 } } ] }" % (
+                                                     x + 1))
             node = field.getMFNode(-1)
             transField = node.getField("translation")
-            random_loc = [randrange(-5,6), 0, randrange(-5,6)]
+            random_loc = [uniform(-3, 4), 0, uniform(-3, 4)]
             transField.setSFVec3f(random_loc)
