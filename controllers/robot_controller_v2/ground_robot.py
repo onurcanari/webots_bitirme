@@ -198,8 +198,8 @@ class GroundRobot(IGroundRobot):
             robot_ids = sorted(comparing_dict.items(),
                                key=lambda kv: comparing_location.compare(kv[1]))
             GroundRobot.map_start = robot_ids[0][1]
-            self.field_service = FieldService(
-                middle_loc=GroundRobot.map_start, offset=Location.from_coords(x=2, z=2), log=log)
+            self.field_service = FieldService(middle_loc=GroundRobot.map_start, offset=Location.from_coords(x=2, z=2),
+                                              robot_locations=self.robot_locations)
             log.debug("MAP START : {}".format(GroundRobot.map_start))
 
         self.calculate_area_to_discover()
@@ -233,4 +233,3 @@ class GroundRobot(IGroundRobot):
         if self._robot_state.status is Status.COMPLETED:
             if self._robot_state.state is not new_state or force:
                 self._robot_state = RobotState(new_state)
-

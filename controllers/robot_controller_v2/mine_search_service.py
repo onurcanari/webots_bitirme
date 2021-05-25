@@ -16,7 +16,6 @@ class MineService:
 
     def fetch_mines(self):
         root_childrens = self.root_node.getField("children")
-        # log.debug("Mine Count: {}".format(root_childrens.getCount()))
         for i in range(root_childrens.getCount()):
             node = root_childrens.getMFNode(i)
             if node is None:

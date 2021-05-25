@@ -1,7 +1,10 @@
+import logging
 from enum import Enum
 
 from models.location import Location
 from models.location_limit import LocationLimit
+
+logger = logging.getLogger()
 
 
 class FieldState(str, Enum):
@@ -41,16 +44,15 @@ class FieldService:
     MAP_LENGTH = 21
     DELTA = 1
 
-    def __init__(self, middle_loc: Location, offset: Location, log=None):
-        global logger
-        logger = log
+    def __init__(self, middle_loc: Location, offset: Location, robot_locations):
+        self.robot_locations = robot_locations
         self.fields: [Field] = [[0 for i in range(
             FieldService.MAP_LENGTH)] for j in range(FieldService.MAP_LENGTH)]
         middle_coords = [[0 for i in range(FieldService.MAP_LENGTH)] for j in range(
             FieldService.MAP_LENGTH)]
         firstSideX = middle_loc.x - (FieldService.MAP_LENGTH // 2 * offset.x)
         firstSideZ = middle_loc.z - (FieldService.MAP_LENGTH // 2 * offset.z)
-        
+
         self._available_fields: [Field] = None
         self.delta = 0
         for i in range(FieldService.MAP_LENGTH):
@@ -87,7 +89,8 @@ class FieldService:
 
     def is_available_to_search(self) -> bool:
         self._available_fields = list(
-            filter(lambda f: f.state == FieldState.CAN_BE_SCANNED, self._available_fields))
+            filter(lambda f: f.state == FieldState.CAN_BE_SCANNED and self.is_field_in_coverage_area(f),
+                   self._available_fields))
 
         if not self._available_fields:
             return False
@@ -118,3 +121,13 @@ class FieldService:
                         available_fields.append(new_field)
 
         return available_fields
+
+    def is_field_in_coverage_area(self, field):
+        logger.debug(self.robot_locations.keys())
+        for robot_id, loc in self.robot_locations.items():
+            logging.debug("Field loc: {}, distance from robot{}: {}".format(field.loc_limit.lower_limit, robot_id,
+                                                                            str(loc.distance_to_other_loc(
+                                                                                field.loc_limit.lower_limit))))
+            if loc.distance_to_other_loc(field.loc_limit.lower_limit) < 10:
+                return True
+        return False
