@@ -24,7 +24,6 @@ class GroundRobot(IGroundRobot):
 
     def run(self):
         logger.debug("Start robot")
-        self.draw_mine()
         while self.step(TIME_STEP) != -1:
             self._listen_message()
  
@@ -66,7 +65,7 @@ class GroundRobot(IGroundRobot):
         transField.setSFVec3f([x, 0, z])
             
     def draw_mine(self):
-        randomMineCount = 30
+        randomMineCount = 5
         for x in range(randomMineCount):
             field = self.root_node.getField("children")
             field.importMFNodeFromString(-1,
