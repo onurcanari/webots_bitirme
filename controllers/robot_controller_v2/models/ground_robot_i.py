@@ -5,6 +5,7 @@ from controller import Supervisor
 from models.location import Location
 from models.rotation import Rotation
 from models.message import Message, MessageType
+from models.state import ObstacleState
 
 import json
 from types import SimpleNamespace
@@ -27,8 +28,8 @@ class IGroundRobot(Supervisor):
         self.translation_field = self.root_node.getField("translation")
         self.rotation_field = self.root_node.getField("rotation")
         print("Getting distance sensors and enable them...")
-        ds_names = ["ds_right", "ds_left"]
-
+        ds_names = ["ds_right", "ds_left", "ds_back_left"]
+        self.obstacle_state = ObstacleState.IDLE
         for name in ds_names:
             distance_sensor = self.getDevice(name)
             distance_sensor.enable(TIME_STEP)
@@ -77,6 +78,14 @@ class IGroundRobot(Supervisor):
         if self.getTime() - self.location_last_updated_time_in_sec > 1:
             self.send_message(MessageType.NEW_ROBOT_LOCATION, self.robot_location)
             self.location_last_updated_time_in_sec = self.getTime()
+        self.control_obstacle()
+
+    def control_obstacle(self):
+        for i in range(2):
+            sensor = self.distance_sensors[i]
+            distance = sensor.getValue()
+            if distance < 900:
+                self.obstacle_state = ObstacleState.DETECTED
 
     @property
     def robot_location(self):
@@ -90,12 +99,11 @@ class IGroundRobot(Supervisor):
         try:
             json_data = json.dumps(message, default=lambda o: o.__dict__, indent=4)
             my_str_as_bytes = str.encode(json_data)
-            if message.type == MessageType.FIELD_UPDATE:
-                logging.debug("Inside of send message: ".format(my_str_as_bytes))
+            # if message.type == MessageType.FIELD_UPDATE:
+            #     logging.debug("Inside of send message: ".format(my_str_as_bytes))
             self.emitter.send(my_str_as_bytes)
         except Exception as e:
-            if message.type == MessageType.FIELD_UPDATE:
-                logging.debug("Exception occurred.", e)
+            logging.debug("Exception occurred.", e)
 
     def get_message(self, callback):
         if self.receiver.getQueueLength() > 0:

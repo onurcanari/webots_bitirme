@@ -27,9 +27,14 @@ class IGroundRobot(Supervisor):
         self.receiver.enable(TIME_STEP)
 
     def _send_message(self, message):
-        json_data = json.dumps(message, default=lambda o: o.__dict__, indent=4)
-        my_str_as_bytes = str.encode(json_data)
-        self.emitter.send(my_str_as_bytes)
+        try:
+            json_data = json.dumps(message, default=lambda o: o.__dict__, indent=4)
+            my_str_as_bytes = str.encode(json_data)
+            # if message.type == MessageType.FIELD_UPDATE:
+            #     logging.debug("Inside of send message: ".format(my_str_as_bytes))
+            self.emitter.send(my_str_as_bytes)
+        except Exception as e:
+            print("Exception occurred.", e)
 
     def get_message(self, callback):
         if self.receiver.getQueueLength() > 0:

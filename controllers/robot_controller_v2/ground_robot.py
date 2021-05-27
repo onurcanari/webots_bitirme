@@ -6,6 +6,7 @@ from models.state import RobotState
 from models.state import State
 from models.state import Status
 from models.state import RobotStatus
+from models.state import ObstacleState
 from models.ground_robot_i import IGroundRobot
 import logging
 
@@ -33,6 +34,14 @@ class GroundRobot(IGroundRobot):
         self.went_first_area = False
         self.target_field: Field = None
         self.field_service: FieldService = None
+        # silebiliriz
+        self.force_move = False
+        self.select_degree = False
+        self.temp_angle = None
+
+        self.obstacle_target = None
+        myFormatter = logging.Formatter(
+            'RobotId: {} - %(message)s'.format(str(robot_id)))
         self.mine_service = mine_search_service.MineService(robot_id, self)
 
         myFormatter = logging.Formatter('RobotId: {} - %(message)s'.format(str(robot_id)))
@@ -77,7 +86,6 @@ class GroundRobot(IGroundRobot):
 
     def _process_message(self, message):
         if message.type == MessageType.FIELD_UPDATE:
-            log.debug(message)
             field = message.content
             self.field_service.change_field_state(field)
             self.save_robot_status(
@@ -112,6 +120,7 @@ class GroundRobot(IGroundRobot):
         if self._robot_state.state is not State.CHANGE_ROTATION:
             return
         if not self.target_rotation:
+            print("return with deggree {}".format(degree))
             self.target_rotation = degree
         else:
             if util.is_close(self.robot_rotation.angle, self.target_rotation, delta):
@@ -138,10 +147,12 @@ class GroundRobot(IGroundRobot):
                         self.move_right()
 
     def calculate_area_to_discover(self):
-        log.debug("Calculating area to discover...")
+        # log.debug("Calculating area to discover...")
         available_fields = self.field_service.available_fields
-        log.debug("{} available field exist. Selecting one.".format(
-            len(available_fields)))
+        print("Avaible fields length : {}".format(len(available_fields)))
+
+        # log.debug("{} available field exist. Selecting one.".format(
+        #     len(available_fields)))
 
         if self.target_field is not None:
             log.debug("Already exist target field. Returning.")
@@ -170,6 +181,7 @@ class GroundRobot(IGroundRobot):
         self.target_location = self.target_field.loc_limit.lower_limit
         log.debug("New target : {} selected.".format(self.target_field))
         self.send_message(MessageType.FIELD_UPDATE, self.target_field)
+        self.send_message(MessageType.NEW_AVAIBLE_FIELDS, available_fields)
 
     def is_closest_to_field(self, target: Field):
         target_field = None
@@ -204,7 +216,80 @@ class GroundRobot(IGroundRobot):
 
         self.calculate_area_to_discover()
 
+    def next_obstacle_state(self):
+        index = self.obstacle_state.value
+        print(index)
+        if index is 4:
+            index = 0
+        else:
+            index = index + 1
+        self.obstacle_state = ObstacleState(index)
+
+    def clear_rotation(self):
+        self.target_rotation = None
+        self._robot_state.complete()
+
+    
+    def myround(self,x, base=5):
+        return base * round(x/base)
+
+    #TODO Robot ters durumdan engel ile karşılaştığında derece yanlış oluyor
+    def turn_degree(self, degree):
+        if self.temp_angle is None:
+            self.temp_angle = self.robot_rotation.angle
+        if degree < 0:
+            self.move_left()
+        else:
+            self.move_right()
+
+        angle = abs(self.robot_rotation.angle - self.temp_angle)
+
+        degree = abs(degree)
+        if angle >= degree-1 and angle <= degree+1:
+            self.temp_angle = None
+            return True
+        return False
+
+    def avoid_obstacle(self):
+        if not self.select_degree:
+            self.clear_rotation()
+            self.select_degree = True
+        # SAĞ --> SOL --> SOL
+        if self.obstacle_state is ObstacleState.DETECTED:
+            
+            if self.turn_degree(90):
+                self.select_degree = False
+                self.next_obstacle_state()
+
+            pass
+        elif self.obstacle_state is ObstacleState.AVOID_1 or self.obstacle_state is ObstacleState.AVOID_2:
+            sensor = self.distance_sensors[2]
+            distance = sensor.getValue()
+            if distance >= 1000 and self.force_move:
+                
+                if self.turn_degree(-90):
+                    self.select_degree = False
+                    self.force_move = False
+                    self.next_obstacle_state()
+            else:
+                if distance < 1000:
+                    self.force_move = True
+                self.move_forward()
+        else:
+            if util.is_close(self.target_location.x, self.robot_location.x, 0.2):
+                if self.go_to(self.target_location):
+                    self.select_degree = False
+                    self.force_move = False
+                    self.next_obstacle_state()
+                print("AVOİD OBSTACLE  ---------------")
+            else:
+                self.move_forward()
+                    
+
     def discover_and_run(self):
+        if self.obstacle_state is not ObstacleState.IDLE:
+            self.avoid_obstacle()
+            return
         if self.target_field is None:
             self.select_area()
         elif not self.went_first_area:
@@ -225,7 +310,6 @@ class GroundRobot(IGroundRobot):
             self.move_forward()
             if self.robot_location.is_close(location):
                 self._robot_state.complete()
-
                 return True
         return False
 

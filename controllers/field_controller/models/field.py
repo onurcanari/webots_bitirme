@@ -97,7 +97,13 @@ class FieldService:
         new_fields = self._calculate_neighbors(self.delta)
         for field in old_fields:
             new_fields.remove(field)
-        self._available_fields = new_fields
+        filter_fields = []
+
+        for field in new_fields:
+            if field.loc_limit.lower_limit.z < self.get_middle().loc_limit.lower_limit.z + 0.2:
+                filter_fields.append(field)
+            
+        self._available_fields = filter_fields
 
     def _calculate_neighbors(self, delta):
         available_fields = []
