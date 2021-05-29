@@ -4,7 +4,7 @@ from enum import Enum
 from models.location import Location
 from models.location_limit import LocationLimit
 
-logger = logging.getLogger()
+log = logging.getLogger()
 
 
 class FieldState(str, Enum):
@@ -34,8 +34,7 @@ class Field:
         if new_state is FieldState.CAN_BE_SCANNED:
             if self._state is not FieldState.NONE:
                 return
-        logger.debug("Field State Update : {}\n(old_state: {} => new_state: {})".format(self.loc_limit,
-                                                                                        self._state, new_state))
+        # logger.debug("Field State Update : {}\n(old_state: {} => new_state: {})".format(self.loc_limit, self._state, new_state))
         self._state = new_state
 
 
@@ -126,11 +125,7 @@ class FieldService:
         return available_fields
 
     def is_field_in_coverage_area(self, field):
-        logger.debug(self.robot_locations.keys())
         for robot_id, loc in self.robot_locations.items():
-            logging.debug("Field loc: {}, distance from robot{}: {}".format(field.loc_limit.lower_limit, robot_id,
-                                                                            str(loc.distance_to_other_loc(
-                                                                                field.loc_limit.lower_limit))))
             if loc.distance_to_other_loc(field.loc_limit.lower_limit) < 10:
                 return True
         return False

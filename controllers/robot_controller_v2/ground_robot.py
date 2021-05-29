@@ -10,12 +10,14 @@ from models.state import ObstacleState
 from models.ground_robot_i import IGroundRobot
 import logging
 
+from models.enums import SearchAlgorithms
 from services import mine_search_service
-from services.searchers import SearchWithStepService, SearchWithPointsService
+from services.searchers import SearchService
 
 TIME_STEP = 64
 
 log = logging.getLogger()
+
 
 # import sys
 # logging.disable(sys.maxsize)
@@ -46,7 +48,7 @@ class GroundRobot(IGroundRobot):
         myFormatter = logging.Formatter(
             'RobotId: {} - %(message)s'.format(str(robot_id)))
         self.mine_service = mine_search_service.MineService(robot_id, self)
-        self.search_service = SearchWithStepService()
+        self.search_service = SearchService(SearchAlgorithms.SEARCH_WITH_RAND_POINTS)
         myFormatter = logging.Formatter('RobotId: {} - %(message)s'.format(str(robot_id)))
         handler = logging.StreamHandler()
         handler.setFormatter(myFormatter)
@@ -100,7 +102,8 @@ class GroundRobot(IGroundRobot):
         elif message.type == MessageType.MINE_FOUND:
             self.mine_service.process_found_mine(message)
         else:
-            log.debug("Message received with unknown type: {}".format(message))
+            if message.type is not MessageType.NEW_AVAIBLE_FIELDS:
+                log.debug("Message received with unknown type: {}".format(message))
 
     def go_coverage(self):
         if self._robot_state.status is Status.COMPLETED or self.go_to(self.target_location):
@@ -122,7 +125,6 @@ class GroundRobot(IGroundRobot):
         if self._robot_state.state is not State.CHANGE_ROTATION:
             return
         if not self.target_rotation:
-            print("return with deggree {}".format(degree))
             self.target_rotation = degree
         else:
             if util.is_close(self.robot_rotation.angle, self.target_rotation, delta):
@@ -149,12 +151,7 @@ class GroundRobot(IGroundRobot):
                         self.move_right()
 
     def calculate_area_to_discover(self):
-        # log.debug("Calculating area to discover...")
         available_fields = self.field_service.available_fields
-        print("Avaible fields length : {}".format(len(available_fields)))
-
-        # log.debug("{} available field exist. Selecting one.".format(
-        #     len(available_fields)))
 
         if self.target_field is not None:
             log.debug("Already exist target field. Returning.")
@@ -174,7 +171,6 @@ class GroundRobot(IGroundRobot):
 
         for robot_id, status in self.robot_status.items():
             if robot_id < self.robot_id and status == RobotStatus.IDLE:
-                log.debug("I am waiting...")
                 return
 
         self.target_field = temp_target_field

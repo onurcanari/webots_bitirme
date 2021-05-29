@@ -25,11 +25,13 @@ class SearchService:
 
     def set_next_target(self, robot_loc: Location):
         if len(self.target_points) - 1 == self.target_point_index:
+            log.debug("Last target point")
             return None
 
         if self.target_point.location.is_close(robot_loc, delta=0.1):
             self.target_point.visited = True
             self.target_point_index += 1
+            log.debug("Next target : {} selected.".format(self.target_point))
             return True
 
         return False
@@ -42,41 +44,6 @@ class SearchService:
         filter(lambda p: p.visited is False, self.target_points)
 
         return self.target_point.location
-
-
-class SearchWithPointsService(SearchService):
-
-    def __init__(self):
-        super().__init__(SearchAlgorithms.SEARCH_WITH_RAND_POINTS)
-
-    def create_subdivisions(self, loc_limit):
-        field_size = loc_limit.lower_limit.z - loc_limit.upper_limit.z
-        start_point = [loc_limit.lower_limit.x, loc_limit.lower_limit.z - field_size]
-        points_between_distance = abs(start_point[0] - start_point[1]) / (self.DIVIDE_COUNT - 1)
-        new_map = [[[0, 0] for i in range(self.DIVIDE_COUNT)] for j in range(self.DIVIDE_COUNT)]
-
-        shuffle_field = []
-
-        for y in range(self.DIVIDE_COUNT):
-            for x in range(self.DIVIDE_COUNT):
-                loc = Location([start_point[0] + round((points_between_distance * x), 2), 0,
-                                start_point[1] + round((y * points_between_distance), 2)])
-                new_map[y][x] = TargetPoint(loc)
-                shuffle_field.append(new_map[y][x])
-
-        upper_limit = shuffle_field[self.DIVIDE_COUNT - 1]
-        del shuffle_field[self.DIVIDE_COUNT - 1]
-        random.shuffle(shuffle_field)
-        shuffle_field.append(upper_limit)
-
-        self.target_points = shuffle_field
-        self.target_point_index = 0
-
-
-class SearchWithStepService(SearchService):
-
-    def __init__(self):
-        super().__init__(SearchAlgorithms.SEARCH_WITH_STEP)
 
     def create_subdivisions(self, loc_limit: LocationLimit):
         first_column_z = numpy.flip(numpy.linspace(loc_limit.upper_limit.z, loc_limit.lower_limit.z, self.DIVIDE_COUNT))
@@ -91,9 +58,16 @@ class SearchWithStepService(SearchService):
                 loc_points.append(Location.from_coords(x, 0, z))
             index += 1
         self.target_points = list(map(lambda loc: TargetPoint(loc), loc_points))
+        self.target_point_index = 0
+
+        if self.method == SearchAlgorithms.SEARCH_WITH_RAND_POINTS:
+            random.shuffle(self.target_points)
 
 
 class TargetPoint:
     def __init__(self, loc):
         self.visited = False
         self.location = loc
+
+    def __str__(self):
+        return "loc: {}".format(self.location)

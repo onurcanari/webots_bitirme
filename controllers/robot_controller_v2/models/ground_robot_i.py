@@ -99,8 +99,6 @@ class IGroundRobot(Supervisor):
         try:
             json_data = json.dumps(message, default=lambda o: o.__dict__, indent=4)
             my_str_as_bytes = str.encode(json_data)
-            # if message.type == MessageType.FIELD_UPDATE:
-            #     logging.debug("Inside of send message: ".format(my_str_as_bytes))
             self.emitter.send(my_str_as_bytes)
         except Exception as e:
             logging.debug("Exception occurred.", e)
