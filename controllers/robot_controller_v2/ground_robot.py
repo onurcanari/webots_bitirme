@@ -10,12 +10,15 @@ from models.state import ObstacleState
 from models.ground_robot_i import IGroundRobot
 import logging
 
-import mine_search_service
+from services import mine_search_service
+from services.searchers import SearchWithStepService, SearchWithPointsService
 
 TIME_STEP = 64
 
 log = logging.getLogger()
 
+# import sys
+# logging.disable(sys.maxsize)
 
 class GroundRobot(IGroundRobot):
     map_start = None
@@ -43,7 +46,7 @@ class GroundRobot(IGroundRobot):
         myFormatter = logging.Formatter(
             'RobotId: {} - %(message)s'.format(str(robot_id)))
         self.mine_service = mine_search_service.MineService(robot_id, self)
-
+        self.search_service = SearchWithStepService()
         myFormatter = logging.Formatter('RobotId: {} - %(message)s'.format(str(robot_id)))
         handler = logging.StreamHandler()
         handler.setFormatter(myFormatter)
@@ -101,12 +104,11 @@ class GroundRobot(IGroundRobot):
 
     def go_coverage(self):
         if self._robot_state.status is Status.COMPLETED or self.go_to(self.target_location):
-            target = self.robot_location.calculate_target_location(
-                self.target_field.loc_limit, self.turn)
-            if target is not None:
+            target_loc = self.search_service.calculate_target_location(self.robot_location)
+            if target_loc is not None:
                 self.turn = not self.turn
-                self.target_location = target
-                self.go_to(target)
+                self.target_location = target_loc
+                self.go_to(target_loc)
             else:
                 self.target_field.state = FieldState.SCANNED
                 self.send_message(MessageType.FIELD_UPDATE, self.target_field)
@@ -182,6 +184,7 @@ class GroundRobot(IGroundRobot):
         log.debug("New target : {} selected.".format(self.target_field))
         self.send_message(MessageType.FIELD_UPDATE, self.target_field)
         self.send_message(MessageType.NEW_AVAIBLE_FIELDS, available_fields)
+        self.search_service.create_subdivisions(self.target_field.loc_limit)
 
     def is_closest_to_field(self, target: Field):
         target_field = None
@@ -229,11 +232,10 @@ class GroundRobot(IGroundRobot):
         self.target_rotation = None
         self._robot_state.complete()
 
-    
-    def myround(self,x, base=5):
-        return base * round(x/base)
+    def myround(self, x, base=5):
+        return base * round(x / base)
 
-    #TODO Robot ters durumdan engel ile karşılaştığında derece yanlış oluyor
+    # TODO Robot ters durumdan engel ile karşılaştığında derece yanlış oluyor
     def turn_degree(self, degree):
         if self.temp_angle is None:
             self.temp_angle = self.robot_rotation.angle
@@ -245,36 +247,22 @@ class GroundRobot(IGroundRobot):
         angle = abs(self.robot_rotation.angle - self.temp_angle)
 
         degree = abs(degree)
-        if angle >= degree-1 and angle <= degree+1:
+        if angle >= degree - 1 and angle <= degree + 1:
             self.temp_angle = None
             return True
         return False
 
     def avoid_obstacle(self):
+        return
         if not self.select_degree:
             self.clear_rotation()
-            self.select_degree = True
         # SAĞ --> SOL --> SOL
         if self.obstacle_state is ObstacleState.DETECTED:
-            
             if self.turn_degree(90):
-                self.select_degree = False
                 self.next_obstacle_state()
-
             pass
         elif self.obstacle_state is ObstacleState.AVOID_1 or self.obstacle_state is ObstacleState.AVOID_2:
-            sensor = self.distance_sensors[2]
-            distance = sensor.getValue()
-            if distance >= 1000 and self.force_move:
-                
-                if self.turn_degree(-90):
-                    self.select_degree = False
-                    self.force_move = False
-                    self.next_obstacle_state()
-            else:
-                if distance < 1000:
-                    self.force_move = True
-                self.move_forward()
+            pass
         else:
             if util.is_close(self.target_location.x, self.robot_location.x, 0.2):
                 if self.go_to(self.target_location):
@@ -284,7 +272,6 @@ class GroundRobot(IGroundRobot):
                 print("AVOİD OBSTACLE  ---------------")
             else:
                 self.move_forward()
-                    
 
     def discover_and_run(self):
         if self.obstacle_state is not ObstacleState.IDLE:
