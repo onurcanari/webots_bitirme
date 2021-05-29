@@ -25,6 +25,7 @@ class GroundRobot(IGroundRobot):
 
     def run(self):
         logger.debug("Start robot")
+        self.draw_mine()
         while self.step(TIME_STEP) != -1:
             self._listen_message()
 

@@ -44,8 +44,7 @@ class GroundRobot(IGroundRobot):
             'RobotId: {} - %(message)s'.format(str(robot_id)))
         self.mine_service = mine_search_service.MineService(robot_id, self)
 
-        myFormatter = logging.Formatter(
-            'RobotId: {} - %(message)s'.format(str(robot_id)))
+        myFormatter = logging.Formatter('RobotId: {} - %(message)s'.format(str(robot_id)))
         handler = logging.StreamHandler()
         handler.setFormatter(myFormatter)
         log.addHandler(handler)
@@ -96,9 +95,7 @@ class GroundRobot(IGroundRobot):
             self.save_robot_location(
                 message.robot_id, Location.from_coords(**vars(message.content)))
         elif message.type == MessageType.MINE_FOUND:
-            log.debug("Robot:{}, found a new mine: {}".format(
-                self.robot_id, message.content.mine_name))
-            self.mine_service.process_founded_mine(message)
+            self.mine_service.process_found_mine(message)
         else:
             log.debug("Message received with unknown type: {}".format(message))
 
@@ -123,6 +120,7 @@ class GroundRobot(IGroundRobot):
         if self._robot_state.state is not State.CHANGE_ROTATION:
             return
         if not self.target_rotation:
+            print("return with deggree {}".format(degree))
             self.target_rotation = degree
         else:
             if util.is_close(self.robot_rotation.angle, self.target_rotation, delta):
@@ -212,8 +210,8 @@ class GroundRobot(IGroundRobot):
             robot_ids = sorted(comparing_dict.items(),
                                key=lambda kv: comparing_location.compare(kv[1]))
             GroundRobot.map_start = robot_ids[0][1]
-            self.field_service = FieldService(
-                middle_loc=GroundRobot.map_start, offset=Location.from_coords(x=2, z=2), log=log)
+            self.field_service = FieldService(middle_loc=GroundRobot.map_start, offset=Location.from_coords(x=2, z=2),
+                                              robot_locations=self.robot_locations)
             log.debug("MAP START : {}".format(GroundRobot.map_start))
 
         self.calculate_area_to_discover()
@@ -231,10 +229,11 @@ class GroundRobot(IGroundRobot):
         self.target_rotation = None
         self._robot_state.complete()
 
-    def myround(self, x, base=5):
+    
+    def myround(self,x, base=5):
         return base * round(x/base)
 
-    # TODO Robot ters durumdan engel ile karşılaştığında derece yanlış oluyor
+    #TODO Robot ters durumdan engel ile karşılaştığında derece yanlış oluyor
     def turn_degree(self, degree):
         if self.temp_angle is None:
             self.temp_angle = self.robot_rotation.angle
@@ -257,7 +256,7 @@ class GroundRobot(IGroundRobot):
             self.select_degree = True
         # SAĞ --> SOL --> SOL
         if self.obstacle_state is ObstacleState.DETECTED:
-
+            
             if self.turn_degree(90):
                 self.select_degree = False
                 self.next_obstacle_state()
@@ -267,7 +266,7 @@ class GroundRobot(IGroundRobot):
             sensor = self.distance_sensors[2]
             distance = sensor.getValue()
             if distance >= 1000 and self.force_move:
-
+                
                 if self.turn_degree(-90):
                     self.select_degree = False
                     self.force_move = False
@@ -285,6 +284,7 @@ class GroundRobot(IGroundRobot):
                 print("AVOİD OBSTACLE  ---------------")
             else:
                 self.move_forward()
+                    
 
     def discover_and_run(self):
         if self.obstacle_state is not ObstacleState.IDLE:
