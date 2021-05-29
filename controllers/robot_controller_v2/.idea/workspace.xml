@@ -5,9 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8b236850-280f-4918-b8e6-bff0380d9d45" name="Default Changelist" comment="add process_founded_mine">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../field_controller/ground_robot.py" beforeDir="false" afterPath="$PROJECT_DIR$/../field_controller/ground_robot.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ground_robot.py" beforeDir="false" afterPath="$PROJECT_DIR$/ground_robot.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mine_search_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/mine_search_service.py" afterDir="false" />
     </list>
     <list id="6cd924f4-c290-4c36-ab14-ac59f992de49" name="Changes by Me" comment="" />
     <option name="SHOW_DIALOG" value="false" />
