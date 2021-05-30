@@ -48,7 +48,7 @@ class GroundRobot(IGroundRobot):
         myFormatter = logging.Formatter(
             'RobotId: {} - %(message)s'.format(str(robot_id)))
         self.mine_service = mine_search_service.MineService(robot_id, self)
-        self.search_service = SearchService(SearchAlgorithms.SEARCH_WITH_RAND_POINTS)
+        self.search_service = SearchService(SearchAlgorithms.SEARCH_WITH_STEP)
         myFormatter = logging.Formatter('RobotId: {} - %(message)s'.format(str(robot_id)))
         handler = logging.StreamHandler()
         handler.setFormatter(myFormatter)
@@ -101,9 +101,6 @@ class GroundRobot(IGroundRobot):
                 message.robot_id, Location.from_coords(**vars(message.content)))
         elif message.type == MessageType.MINE_FOUND:
             self.mine_service.process_found_mine(message)
-        else:
-            if message.type is not MessageType.NEW_AVAIBLE_FIELDS:
-                log.debug("Message received with unknown type: {}".format(message))
 
     def go_coverage(self):
         if self._robot_state.status is Status.COMPLETED or self.go_to(self.target_location):
@@ -177,7 +174,7 @@ class GroundRobot(IGroundRobot):
         self.target_field.scanner = self.robot_id
         self.target_field.state = FieldState.SCANNING
         self.target_location = self.target_field.loc_limit.lower_limit
-        log.debug("New target : {} selected.".format(self.target_field))
+        # log.debug("New target : {} selected.".format(self.target_field))
         self.send_message(MessageType.FIELD_UPDATE, self.target_field)
         self.send_message(MessageType.NEW_AVAIBLE_FIELDS, available_fields)
         self.search_service.create_subdivisions(self.target_field.loc_limit)
@@ -223,6 +220,7 @@ class GroundRobot(IGroundRobot):
         else:
             index = index + 1
         self.obstacle_state = ObstacleState(index)
+        print("Next obstacle State : {}".format(self.obstacle_state))
 
     def clear_rotation(self):
         self.target_rotation = None
@@ -243,31 +241,23 @@ class GroundRobot(IGroundRobot):
         angle = abs(self.robot_rotation.angle - self.temp_angle)
 
         degree = abs(degree)
-        if angle >= degree - 1 and angle <= degree + 1:
+        if degree - 1 <= angle <= degree + 1:
             self.temp_angle = None
             return True
         return False
 
     def avoid_obstacle(self):
-        return
-        if not self.select_degree:
-            self.clear_rotation()
-        # SAĞ --> SOL --> SOL
+        print("Obstacle state : {}".format(self.obstacle_state))
         if self.obstacle_state is ObstacleState.DETECTED:
-            if self.turn_degree(90):
+            if not self.control_obstacle():
                 self.next_obstacle_state()
-            pass
-        elif self.obstacle_state is ObstacleState.AVOID_1 or self.obstacle_state is ObstacleState.AVOID_2:
-            pass
-        else:
-            if util.is_close(self.target_location.x, self.robot_location.x, 0.2):
-                if self.go_to(self.target_location):
-                    self.select_degree = False
-                    self.force_move = False
-                    self.next_obstacle_state()
-                print("AVOİD OBSTACLE  ---------------")
             else:
-                self.move_forward()
+                print("I am running right")
+                self.move_right()
+        elif self.obstacle_state is ObstacleState.AVOID_1 or self.obstacle_state is ObstacleState.AVOID_2:
+            self.move_forward()
+
+
 
     def discover_and_run(self):
         if self.obstacle_state is not ObstacleState.IDLE:

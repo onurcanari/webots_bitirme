@@ -81,11 +81,21 @@ class IGroundRobot(Supervisor):
         self.control_obstacle()
 
     def control_obstacle(self):
+        sensors = [False, False]
         for i in range(2):
             sensor = self.distance_sensors[i]
             distance = sensor.getValue()
-            if distance < 900:
+            if distance < 1000:
+                sensors[i] = True
                 self.obstacle_state = ObstacleState.DETECTED
+        return sensors[0] and sensors[1]
+
+    def control_back_left_sensor(self):
+        sensor = self.distance_sensors[2]
+        distance = sensor.getValue()
+        if distance < 999:
+            return True
+        return False
 
     @property
     def robot_location(self):

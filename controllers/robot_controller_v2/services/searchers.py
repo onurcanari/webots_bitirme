@@ -21,27 +21,35 @@ class SearchService:
 
     @property
     def target_point(self):
+        if len(self.target_points) - 1 == self.target_point_index:
+            return None
         return self.target_points[self.target_point_index]
 
     def set_next_target(self, robot_loc: Location):
-        if len(self.target_points) - 1 == self.target_point_index:
-            log.debug("Last target point")
+        if self.target_point is None:
             return None
 
         if self.target_point.location.is_close(robot_loc, delta=0.1):
             self.target_point.visited = True
-            self.target_point_index += 1
-            log.debug("Next target : {} selected.".format(self.target_point))
+            while self.target_point.visited is True:
+                self.target_point_index += 1
+                if self.target_point is None:
+                    return None
+            # log.debug("Next target : {} selected.".format(self.target_point))
             return True
 
         return False
 
-    def calculate_target_location(self, robot_loc):
+    def calculate_target_location(self, robot_loc: Location):
         next_target_set = self.set_next_target(robot_loc)
         if next_target_set is None:
             return None
 
-        filter(lambda p: p.visited is False, self.target_points)
+        not_visited_target_points = filter(lambda p: p.visited is False, self.target_points)
+
+        for target_point in not_visited_target_points:
+            if target_point.location.is_close(robot_loc, delta=0.3):
+                target_point.visited = True
 
         return self.target_point.location
 
@@ -67,7 +75,7 @@ class SearchService:
 class TargetPoint:
     def __init__(self, loc):
         self.visited = False
-        self.location = loc
+        self.location: Location = loc
 
     def __str__(self):
         return "loc: {}".format(self.location)
