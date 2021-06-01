@@ -1,3 +1,6 @@
+from models.obstacle import ObstacleSide
+from models.obstacle import Obstacle
+
 from models.field import FieldService, Field, FieldState
 from models.location import Location
 import util
@@ -16,6 +19,28 @@ from services.searchers import SearchService
 
 TIME_STEP = 64
 
+LEFT = 0
+RIGHT = 1
+
+PS_RIGHT_00 = 0
+PS_RIGHT_45 = 1
+PS_RIGHT_90 = 2
+PS_RIGHT_REAR = 3
+PS_LEFT_REAR = 4
+PS_LEFT_90 = 5
+PS_LEFT_45 = 6
+PS_LEFT_00 = 7
+
+OAM_OBST_THRESHOLD = 100
+
+OAM_FORWARD_SPEED = 150
+OAM_K_PS_90 = 0.2
+OAM_K_PS_45 = 0.9
+OAM_K_PS_00 = 1.2
+OAM_K_MAX_DELTAS = 600
+
+
+OFM_DELTA_SPEED = 150
 log = logging.getLogger()
 
 
@@ -39,17 +64,15 @@ class GroundRobot(IGroundRobot):
         self.went_first_area = False
         self.target_field: Field = None
         self.field_service: FieldService = None
-        # silebiliriz
-        self.force_move = False
-        self.select_degree = False
-        self.temp_angle = None
 
-        self.obstacle_target = None
+        self.obstacle_module = Obstacle()
+
         myFormatter = logging.Formatter(
             'RobotId: {} - %(message)s'.format(str(robot_id)))
         self.mine_service = mine_search_service.MineService(robot_id, self)
         self.search_service = SearchService(SearchAlgorithms.SEARCH_WITH_STEP)
-        myFormatter = logging.Formatter('RobotId: {} - %(message)s'.format(str(robot_id)))
+        myFormatter = logging.Formatter(
+            'RobotId: {} - %(message)s'.format(str(robot_id)))
         handler = logging.StreamHandler()
         handler.setFormatter(myFormatter)
         log.addHandler(handler)
@@ -104,7 +127,8 @@ class GroundRobot(IGroundRobot):
 
     def go_coverage(self):
         if self._robot_state.status is Status.COMPLETED or self.go_to(self.target_location):
-            target_loc = self.search_service.calculate_target_location(self.robot_location)
+            target_loc = self.search_service.calculate_target_location(
+                self.robot_location)
             if target_loc is not None:
                 self.turn = not self.turn
                 self.target_location = target_loc
@@ -212,16 +236,6 @@ class GroundRobot(IGroundRobot):
 
         self.calculate_area_to_discover()
 
-    def next_obstacle_state(self):
-        index = self.obstacle_state.value
-        print(index)
-        if index is 4:
-            index = 0
-        else:
-            index = index + 1
-        self.obstacle_state = ObstacleState(index)
-        print("Next obstacle State : {}".format(self.obstacle_state))
-
     def clear_rotation(self):
         self.target_rotation = None
         self._robot_state.complete()
@@ -229,7 +243,6 @@ class GroundRobot(IGroundRobot):
     def myround(self, x, base=5):
         return base * round(x / base)
 
-    # TODO Robot ters durumdan engel ile karşılaştığında derece yanlış oluyor
     def turn_degree(self, degree):
         if self.temp_angle is None:
             self.temp_angle = self.robot_rotation.angle
@@ -247,17 +260,22 @@ class GroundRobot(IGroundRobot):
         return False
 
     def avoid_obstacle(self):
-        print("Obstacle state : {}".format(self.obstacle_state))
-        if self.obstacle_state is ObstacleState.DETECTED:
-            if not self.control_obstacle():
-                self.next_obstacle_state()
-            else:
-                print("I am running right")
-                self.move_right()
-        elif self.obstacle_state is ObstacleState.AVOID_1 or self.obstacle_state is ObstacleState.AVOID_2:
-            self.move_forward()
+        FL = BL = FR = BR = 0
+        # sensors = self.get_sensors()
+        self.stop_engine()
+        self.ObstacleAvoidanceModule()
+        self.ObstacleFollowingModule(self.obstacle_module.oam_side)
+        oam_ofm_speed = [0, 0]
+        oam_ofm_speed[LEFT] = self.obstacle_module.oam_speed[LEFT] + \
+            self.obstacle_module.ofm_speed[LEFT]
+        oam_ofm_speed[RIGHT] = self.obstacle_module.oam_speed[RIGHT] + \
+            self.obstacle_module.ofm_speed[RIGHT]
 
+        if self.obstacle_module.oam_active or self.obstacle_module.ofm_active:
+            FL = BL = oam_ofm_speed[LEFT]
+            FR = BR = oam_ofm_speed[RIGHT]
 
+        self.set_speeds(FL, FR, BL, BR)
 
     def discover_and_run(self):
         if self.obstacle_state is not ObstacleState.IDLE:
@@ -290,3 +308,69 @@ class GroundRobot(IGroundRobot):
         if self._robot_state.status is Status.COMPLETED:
             if self._robot_state.state is not new_state or force:
                 self._robot_state = RobotState(new_state)
+
+    def ObstacleAvoidanceModule(self):
+        Activation = [0, 0]
+
+        if self.obstacle_module.oam_reset:
+            self.obstacle_module.oam_active = False
+            self.obstacle_module.oam_side = ObstacleSide.NO_SIDE
+
+        self.obstacle_module.oam_reset = 0
+
+        max_ds_value = 0
+        for i in range(PS_RIGHT_00, PS_RIGHT_45):
+            if max_ds_value < self.ps_value[i]:
+                max_ds_value = self.ps_value[i]
+            Activation[RIGHT] += self.ps_value[i]
+
+        for i in range(PS_LEFT_45, PS_LEFT_00):
+            if max_ds_value < self.ps_value[i]:
+                max_ds_value = self.ps_value[i]
+            Activation[LEFT] += self.ps_value[i]
+
+        if max_ds_value > OAM_OBST_THRESHOLD:
+            self.obstacle_module.oam_active = True
+
+        if self.obstacle_module.oam_active and self.obstacle_module.oam_side is ObstacleSide.NO_SIDE:
+            if Activation[RIGHT] > Activation[LEFT]:
+                self.obstacle_module.oam_side = ObstacleSide.RIGHT
+            else:
+                self.obstacle_module.oam_side = ObstacleSide.LEFT
+
+        self.obstacle_module.oam_speed[LEFT] = OAM_FORWARD_SPEED
+        self.obstacle_module.oam_speed[RIGHT] = OAM_FORWARD_SPEED
+
+        if self.obstacle_module.oam_active:
+            DeltaS = 0
+            if self.obstacle_module.oam_side is ObstacleSide.LEFT:
+                DeltaS -= int((OAM_K_PS_90 * self.ps_value[PS_LEFT_90]))
+                DeltaS -= int((OAM_K_PS_45 * self.ps_value[PS_LEFT_45]))
+                DeltaS -= int((OAM_K_PS_00 * self.ps_value[PS_LEFT_00]))
+            else:
+                DeltaS += int((OAM_K_PS_90 * self.ps_value[PS_RIGHT_90]))
+                DeltaS += int((OAM_K_PS_45 * self.ps_value[PS_RIGHT_45]))
+                DeltaS += int((OAM_K_PS_00 * self.ps_value[PS_RIGHT_00]))
+
+            if DeltaS > OAM_K_MAX_DELTAS:
+                DeltaS = OAM_K_MAX_DELTAS
+            if DeltaS < -OAM_K_MAX_DELTAS:
+                DeltaS = -OAM_K_MAX_DELTAS
+
+            self.obstacle_module.oam_speed[LEFT] -= DeltaS
+            self.obstacle_module.oam_speed[RIGHT] += DeltaS
+
+    def ObstacleFollowingModule(self, side):
+        if side is not ObstacleSide.NO_SIDE:
+            self.obstacle_module.ofm_active = True
+            if side is ObstacleSide.LEFT:
+                self.obstacle_module.ofm_speed[LEFT] = -OFM_DELTA_SPEED
+                self.obstacle_module.ofm_speed[RIGHT] = OFM_DELTA_SPEED
+            else:
+                self.obstacle_module.ofm_speed[LEFT] = OFM_DELTA_SPEED
+                self.obstacle_module.ofm_speed[RIGHT] = -OFM_DELTA_SPEED
+
+        else:
+            self.obstacle_module.ofm_active = False
+            self.obstacle_module.ofm_speed[LEFT] = 0
+            self.obstacle_module.ofm_speed[RIGHT] = 0
