@@ -29,12 +29,3 @@ class RobotState:
 class RobotStatus(Enum):
     IDLE = "IDLE"
     SCANNING = "SCANNING"
-
-
-
-class ObstacleState(Enum):
-    IDLE = 0
-    DETECTED = 1
-    AVOID_1 = 2
-    AVOID_2 = 3
-    SURVIVED = 4

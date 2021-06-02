@@ -28,6 +28,10 @@ class MineService:
         if location is None:
             log.debug("Robot location is null. Returning.")
             return
+
+        if len(self.mines) == len(self.found_mines):
+            return
+
         for mine_node in self.mines.values():
             mine_loc = Location(mine_node.getPosition())
             if location.is_close(mine_loc):

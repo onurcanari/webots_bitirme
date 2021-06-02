@@ -1,5 +1,10 @@
+import math
 from math import atan2, degrees, sqrt, pow
 import util
+
+import logging
+
+log = logging.getLogger()
 
 
 class Location:
@@ -23,6 +28,10 @@ class Location:
         if util.is_close(self.x, other.x, delta) and util.is_close(self.z, other.z, delta):
             return True
         return False
+
+    def calculate_end_of_circle(self, angle, length):
+        angle *= math.pi / 180
+        return Location.from_coords(length * math.sin(angle) + self.x, 0, length * math.cos(angle) + self.z)
 
     def subtract(self, location):
         return self._arithmetic_operator(location, lambda x, y: x - y)
@@ -66,4 +75,3 @@ class Location:
     @staticmethod
     def from_coords(x=None, y=None, z=None):
         return Location([x, y, z])
-

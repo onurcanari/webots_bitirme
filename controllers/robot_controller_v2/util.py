@@ -1,8 +1,9 @@
+import math
 from math import floor
 
 
 def is_close(value, target, delta=0.2):
-    return target-delta < value < target + delta
+    return target - delta < value < target + delta
 
 
 def normalize_degree(degree):

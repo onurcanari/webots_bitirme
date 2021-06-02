@@ -7,6 +7,10 @@ from models.enums import SearchAlgorithms
 from models.location import Location
 from models.location_limit import LocationLimit
 
+from models.obstacle import Obstacle
+
+import util
+
 log = logging.getLogger()
 
 
@@ -17,6 +21,7 @@ class SearchService:
         self.target_points: [TargetPoint] = None
         self.target_point_index = 0
         self.method = search_method
+        self.target_point_accessibility = [False, False]
         log.debug("Searching with : {}".format(str(self.method.name)))
 
     @property
@@ -38,7 +43,15 @@ class SearchService:
             # log.debug("Next target : {} selected.".format(self.target_point))
             return True
 
+        if self.target_point.blocked is True:
+
+            while self.target_point.blocked is True:
+                self.target_point_index += 1
+                if self.target_point is None:
+                    return None
+            return True
         return False
+
 
     def calculate_target_location(self, robot_loc: Location):
         next_target_set = self.set_next_target(robot_loc)
@@ -76,6 +89,7 @@ class TargetPoint:
     def __init__(self, loc):
         self.visited = False
         self.location: Location = loc
+        self.blocked = False
 
     def __str__(self):
         return "loc: {}".format(self.location)

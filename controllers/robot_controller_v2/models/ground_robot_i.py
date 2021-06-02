@@ -5,12 +5,11 @@ from controller import Supervisor
 from models.location import Location
 from models.rotation import Rotation
 from models.message import Message, MessageType
-from models.state import ObstacleState
+from models.obstacle import Obstacle, ObstacleState
 
 import numpy as np
 import json
 from types import SimpleNamespace
-
 
 NB_DIST_SENS = 8
 
@@ -32,19 +31,19 @@ class IGroundRobot(Supervisor):
         self.translation_field = self.root_node.getField("translation")
         self.rotation_field = self.root_node.getField("rotation")
         print("Getting distance sensors and enable them...")
-# define PS_RIGHT_00 0
-# define PS_RIGHT_45 1
-# define PS_RIGHT_90 2
-# define PS_RIGHT_REAR 3
-# define PS_LEFT_REAR 4
-# define PS_LEFT_90 5
-# define PS_LEFT_45 6
-# define PS_LEFT_00 7
+        # define PS_RIGHT_00 0 -----
+        # define PS_RIGHT_45 1  ---
+        # define PS_RIGHT_90 2
+        # define PS_RIGHT_REAR 3
+        # define PS_LEFT_REAR 4
+        # define PS_LEFT_90 5
+        # define PS_LEFT_45 6  ----
+        # define PS_LEFT_00 7  ----
         ds_names = ["PS_RIGHT_00", "PS_RIGHT_45", "PS_RIGHT_90",
                     "PS_RIGHT_REAR", "PS_LEFT_REAR", "PS_LEFT_90", "PS_LEFT_45", "PS_LEFT_00"]
         self.ps_value = [0, 0, 0, 0, 0, 0, 0, 0]
         self.ps_offset = [300, 300, 300, 300, 300, 300, 300, 300]
-        self.obstacle_state = ObstacleState.IDLE
+        self.obstacle_module = Obstacle()
         for name in ds_names:
             distance_sensor = self.getDevice(name)
             if distance_sensor:
@@ -78,6 +77,8 @@ class IGroundRobot(Supervisor):
 
     def set_speeds(self, FL=None, FR=None, BL=None, BR=None):
         # print("FL : {}, FR : {}, BL : {}, BR : {}".format(FL, FR, BL, BR))
+        if FL == FR == BL == BR == 0:
+            return
         self.wheels[0].setVelocity(FL * 0.00628)
         self.wheels[1].setVelocity(FR * 0.00628)
         self.wheels[2].setVelocity(BL * 0.00628)
@@ -116,8 +117,8 @@ class IGroundRobot(Supervisor):
                     self.ps_value[i] = 0
                 else:
                     self.ps_value[i] = distance
-                if self.ps_value[i] > 0:
-                    self.obstacle_state = ObstacleState.DETECTED
+                if i in [0, 7] and self.ps_value[i] > 0:
+                    self.obstacle_module.state = ObstacleState.DETECTED
 
     def get_sensors(self):
         sensors = [False, False, False, False, False, False]
