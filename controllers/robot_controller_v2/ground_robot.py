@@ -54,7 +54,6 @@ class GroundRobot(IGroundRobot):
         self.status = RobotStatus.IDLE
         self.robot_status = {
             0: RobotStatus.IDLE, 1: RobotStatus.IDLE, 2: RobotStatus.IDLE, 3: RobotStatus.IDLE}
-        self.turn = False
         self.robot_locations = {}
         self.target_rotation = None
         self.target_location = None
@@ -121,11 +120,10 @@ class GroundRobot(IGroundRobot):
             self.mine_service.process_found_mine(message)
 
     def go_coverage(self):
-        if self._robot_state.status is Status.COMPLETED or self.go_to(self.target_location):
+        if self._robot_state and self._robot_state.status is Status.COMPLETED or self.go_to(self.target_location):
             target_loc = self.search_service.calculate_target_location(
                 self.robot_location)
             if target_loc is not None:
-                self.turn = not self.turn
                 self.target_location = target_loc
                 self.go_to(target_loc)
             else:
@@ -259,7 +257,7 @@ class GroundRobot(IGroundRobot):
 
         if self.obstacle_module.detected_location is None:
             self.obstacle_module.detected_location = self.robot_location
-            end_loc = self.robot_location.calculate_end_of_circle(self.robot_rotation.angle, 0.5)
+            end_loc = self.robot_location.calculate_end_of_circle(self.robot_rotation.angle, 0.4)
             self.obstacle_module.end_location = end_loc
             print("Obstacle detected : \n detected loc : {} \n end_loc : {}".format(
                 self.obstacle_module.detected_location, self.obstacle_module.end_location))
@@ -283,8 +281,13 @@ class GroundRobot(IGroundRobot):
 
         if self.obstacle_module.is_avoid(self.robot_location):
             print("SUCCESSFULY AVOİD OBSTACLE")
-            self._robot_state.complete()
-            self.search_service.set_next_target(self.robot_location)
+            self._robot_state = None
+            self.target_rotation = None
+            # self.search_service.set_next_target(self.robot_location)
+            target_loc = self.search_service.calculate_target_location(
+                self.robot_location)
+            self.target_location = target_loc
+            print(self.search_service.target_point)
             self.obstacle_module.reset()
             self.stop_engine()
 
@@ -316,6 +319,9 @@ class GroundRobot(IGroundRobot):
         return False
 
     def change_state(self, new_state, force=False):
+        if self._robot_state is None:
+            self._robot_state = RobotState(new_state)
+            return
         if self._robot_state.status is Status.COMPLETED:
             if self._robot_state.state is not new_state or force:
                 self._robot_state = RobotState(new_state)

@@ -58,7 +58,7 @@ class SearchService:
         if next_target_set is None:
             return None
 
-        not_visited_target_points = filter(lambda p: p.visited is False, self.target_points)
+        not_visited_target_points = filter(lambda p: p.visited is False and p.blocked is False, self.target_points)
 
         for target_point in not_visited_target_points:
             if target_point.location.is_close(robot_loc, delta=0.3):

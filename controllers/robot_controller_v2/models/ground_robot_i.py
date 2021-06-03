@@ -78,7 +78,8 @@ class IGroundRobot(Supervisor):
     def set_speeds(self, FL=None, FR=None, BL=None, BR=None):
         # print("FL : {}, FR : {}, BL : {}, BR : {}".format(FL, FR, BL, BR))
         if FL == FR == BL == BR == 0:
-            return
+            FL = FR = BL = BR = 1
+            
         self.wheels[0].setVelocity(FL * 0.00628)
         self.wheels[1].setVelocity(FR * 0.00628)
         self.wheels[2].setVelocity(BL * 0.00628)
@@ -106,19 +107,18 @@ class IGroundRobot(Supervisor):
         self.control_obstacle()
 
     def control_obstacle(self):
-        if self.robot_id == 3:
-            for i in range(NB_DIST_SENS):
-                sensor = self.distance_sensors[i]
-                distance = sensor.getValue()
-                if np.isnan(distance):
-                    return
-                distance = int(distance)
-                if distance > 700:
-                    self.ps_value[i] = 0
-                else:
-                    self.ps_value[i] = distance
-                if i in [0, 7] and self.ps_value[i] > 0:
-                    self.obstacle_module.state = ObstacleState.DETECTED
+        for i in range(NB_DIST_SENS):
+            sensor = self.distance_sensors[i]
+            distance = sensor.getValue()
+            if np.isnan(distance):
+                return
+            distance = int(distance)
+            if distance > 700:
+                self.ps_value[i] = 0
+            else:
+                self.ps_value[i] = distance
+            if i in [0, 7] and self.ps_value[i] > 0:
+                self.obstacle_module.state = ObstacleState.DETECTED
 
     def get_sensors(self):
         sensors = [False, False, False, False, False, False]
