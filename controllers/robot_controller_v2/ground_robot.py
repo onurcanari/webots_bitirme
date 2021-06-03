@@ -197,21 +197,6 @@ class GroundRobot(IGroundRobot):
         self.send_message(MessageType.NEW_AVAIBLE_FIELDS, available_fields)
         self.search_service.create_subdivisions(self.target_field.loc_limit)
 
-    # def is_closest_to_field(self, target: Field):
-    #     target_field = None
-    #
-    #     my_distance = target[0]
-    #     for item in target[1]:
-    #         target_field = item
-    #
-    #     for robot_id, loc in self.robot_locations.items():
-    #         other_robot_dist = loc.distance_to_other_loc(
-    #             target_field.loc_limit.lower_limit)
-    #         if other_robot_dist < my_distance:
-    #             return None
-    #
-    #     return target_field
-
     def select_area(self):
         log.info("Selecting area..")
         if GroundRobot.map_start is None:
@@ -230,34 +215,12 @@ class GroundRobot(IGroundRobot):
 
         self.calculate_area_to_discover()
 
-    # def clear_rotation(self):
-    #     self.target_rotation = None
-    #     self._robot_state.complete()
-
-    # def myround(self, x, base=5):
-    #     return base * round(x / base)
-
-    # def turn_degree(self, degree):
-    #     if self.temp_angle is None:
-    #         self.temp_angle = self.robot_rotation.angle
-    #     if degree < 0:
-    #         self.move_left()
-    #     else:
-    #         self.move_right()
-    #
-    #     angle = abs(self.robot_rotation.angle - self.temp_angle)
-    #
-    #     degree = abs(degree)
-    #     if degree - 1 <= angle <= degree + 1:
-    #         self.temp_angle = None
-    #         return True
-    #     return False
-
     def avoid_obstacle(self):
 
         if self.obstacle_module.detected_location is None:
             self.obstacle_module.detected_location = self.robot_location
-            end_loc = self.robot_location.calculate_end_of_circle(self.robot_rotation.angle, 0.4)
+            end_loc = self.robot_location.calculate_end_of_circle(
+                self.robot_rotation.angle, 0.4)
             self.obstacle_module.end_location = end_loc
             print("Obstacle detected : \n detected loc : {} \n end_loc : {}".format(
                 self.obstacle_module.detected_location, self.obstacle_module.end_location))
@@ -269,9 +232,9 @@ class GroundRobot(IGroundRobot):
         self.ObstacleFollowingModule(self.obstacle_module.oam_side)
         oam_ofm_speed = [0, 0]
         oam_ofm_speed[LEFT] = self.obstacle_module.oam_speed[LEFT] + \
-                              self.obstacle_module.ofm_speed[LEFT]
+            self.obstacle_module.ofm_speed[LEFT]
         oam_ofm_speed[RIGHT] = self.obstacle_module.oam_speed[RIGHT] + \
-                               self.obstacle_module.ofm_speed[RIGHT]
+            self.obstacle_module.ofm_speed[RIGHT]
 
         if self.obstacle_module.oam_active or self.obstacle_module.ofm_active:
             FL = BL = oam_ofm_speed[LEFT]

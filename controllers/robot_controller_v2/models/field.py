@@ -100,6 +100,7 @@ class FieldService:
             new_fields.remove(field)
         filter_fields = []
 
+        #linear field block
         for field in new_fields:
             if field.loc_limit.lower_limit.z < self.get_middle().loc_limit.lower_limit.z + 0.2:
                 filter_fields.append(field)

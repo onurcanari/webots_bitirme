@@ -56,7 +56,6 @@ class GroundRobot(IGroundRobot):
                                 loc_limit.lower_limit.z)
                 self.drawLimits(loc_limit.lower_limit.x+2,
                                 loc_limit.lower_limit.z)
-            
 
     def set_limit(self, value):
         if self.limit_z is None:
@@ -65,7 +64,6 @@ class GroundRobot(IGroundRobot):
             if self.limit_z > value:
                 self.limit_z = value
 
-    # TODO Alanlar mine0 a göre oluşuyor mine0 ı en alttaki robotun konumu yapmamız gerekiyor
     def drawLimits(self, x, z):
         field = self.root_node.getField("children")
         field.importMFNodeFromString(-1,
