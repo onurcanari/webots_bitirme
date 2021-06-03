@@ -1,6 +1,7 @@
 import logging
 
 from models.location import Location
+import time
 
 log = logging.getLogger()
 
@@ -12,6 +13,8 @@ class MineService:
         self.root_node = supervisor.getFromDef("mine0")
         self.found_mines = {}
         self.mines = {}
+        self.start_time = time.time()
+        self.mines_found = False
         self.fetch_mines()
 
     def fetch_mines(self):
@@ -29,7 +32,14 @@ class MineService:
             log.debug("Robot location is null. Returning.")
             return
 
+        if self.mines_found:
+            return
+
         if len(self.mines) == len(self.found_mines):
+            with open("miness_found.txt", "a") as file:
+                file.write(str(time.time() - self.start_time)+"\n")
+                self.supervisor.simulationReset()
+            self.mines_found = True
             return
 
         for mine_node in self.mines.values():

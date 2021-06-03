@@ -75,7 +75,7 @@ class GroundRobot(IGroundRobot):
     def draw_mine(self):
         if self.drawed_mine:
             return
-        randomMineCount = 5
+        randomMineCount = 10
         for x in range(randomMineCount):
             field = self.root_node.getField("children")
             field.importMFNodeFromString(-1,
@@ -84,6 +84,6 @@ class GroundRobot(IGroundRobot):
             node = field.getMFNode(-1)
             transField = node.getField("translation")
             random_loc = [
-                uniform(-3, 4), 0, uniform(-2, 4)]
+                uniform(-7, 3), 0, uniform(-8, 1)]
             transField.setSFVec3f(random_loc)
         self.drawed_mine = True
