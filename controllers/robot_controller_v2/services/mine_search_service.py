@@ -38,8 +38,8 @@ class MineService:
         if len(self.mines) == len(self.found_mines):
             with open("miness_found.txt", "a") as file:
                 file.write(str(time.time() - self.start_time)+"\n")
-                self.supervisor.simulationReset()
             self.mines_found = True
+
             return
 
         for mine_node in self.mines.values():
