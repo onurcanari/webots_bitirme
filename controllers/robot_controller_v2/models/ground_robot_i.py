@@ -78,7 +78,9 @@ class IGroundRobot(Supervisor):
     def set_speeds(self, FL=None, FR=None, BL=None, BR=None):
         # print("FL : {}, FR : {}, BL : {}, BR : {}".format(FL, FR, BL, BR))
         if FL == FR == BL == BR == 0:
-            FL = FR = BL = BR = 1
+            # Normal mode 1
+            # Random mode 100 
+            FL = FR = BL = BR = 100
             
         self.wheels[0].setVelocity(FL * 0.00628)
         self.wheels[1].setVelocity(FR * 0.00628)
