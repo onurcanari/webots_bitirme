@@ -7,7 +7,7 @@ ROBOT_SPEED = 5.0
 TIME_STEP = 64
 
 
-class IFieldController(Supervisor):
+class IFieldService(Supervisor):
     def __init__(self):
         super().__init__()
         self.setup()
