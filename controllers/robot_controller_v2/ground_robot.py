@@ -1,19 +1,16 @@
 from models.obstacle import ObstacleSide, ObstacleState
 
-from models.field import FieldService, Field, FieldState
 from models.location import Location
 import util
 from models.message import Message, MessageType
-from models.state import RobotState
-from models.state import State
-from models.state import Status
-from models.state import RobotStatus
+from models.state import RobotState, State, Status, RobotStatus
 from models.ground_robot_i import IGroundRobot
 import logging
 
 from models.enums import SearchAlgorithms
 from services import mine_search_service
-from services.searchers import SearchService
+from services.field_service import FieldService, Field, FieldState
+from services.search_service import SearchService
 
 TIME_STEP = 64
 
@@ -38,9 +35,10 @@ OAM_K_PS_00 = 1.2
 OAM_K_MAX_DELTAS = 600
 
 OFM_DELTA_SPEED = 150
+
 log = logging.getLogger()
 
-
+# Logu devre dışı bırakmak için yorumu kaldır.
 # import sys
 # logging.disable(sys.maxsize)
 
@@ -64,7 +62,10 @@ class GroundRobot(IGroundRobot):
         myFormatter = logging.Formatter(
             'RobotId: {} - %(message)s'.format(str(robot_id)))
         self.mine_service = mine_search_service.MineService(robot_id, self)
-        self.search_service = SearchService(SearchAlgorithms.SEARCH_WITH_STEP)
+        # SEARCH_WITH_STEP
+        # SEARCH_WITH_RAND_POINTS
+        self.search_service = SearchService(
+            SearchAlgorithms.SEARCH_WITH_RAND_POINTS)
         myFormatter = logging.Formatter(
             'RobotId: {} - %(message)s'.format(str(robot_id)))
         handler = logging.StreamHandler()
@@ -75,6 +76,7 @@ class GroundRobot(IGroundRobot):
         log.debug("Setup ground robot with id: {}".format(self.robot_id))
 
     def run(self):
+        """Robotun ana döngüsüdür."""
         log.debug("Start robot")
         while self.step(TIME_STEP) != -1:
             self.update_fields()
@@ -85,18 +87,22 @@ class GroundRobot(IGroundRobot):
                                               lambda mine_info: self.send_message(MessageType.MINE_FOUND, mine_info))
 
     def clear_target(self):
+        """ Robotun gideceği hedef alan bilgisini sıfırlar """
         self.target_rotation = None
         self.target_location = None
         self.went_first_area = False
         self.target_field = None
 
     def save_robot_location(self, robot_id, location):
+        """  Diğer robotlardan gelen konum bilgilerini kaydeder """
         self.robot_locations[robot_id] = location
 
     def save_robot_status(self, robot_id, status):
+        """  Diğer robotlardan gelen robotun durum bilgisini kaydeder """
         self.robot_status[robot_id] = status
 
     def send_message(self, message_type, content):
+        """  Robotlar arası veri transferini sağlar """
         if content is None:
             log.debug("Sending message is none. Returning...")
             return
@@ -104,9 +110,11 @@ class GroundRobot(IGroundRobot):
         self._send_message(msg)
 
     def _listen_message(self):
+        """  Robotlardan gelen verileri dinler """
         self.get_message(self._process_message)
 
     def _process_message(self, message):
+        """  Robotlardan gelen verileri veri tipine göre işleme sokar """
         if message.type == MessageType.FIELD_UPDATE:
             field = message.content
             self.field_service.change_field_state(field)
@@ -120,6 +128,7 @@ class GroundRobot(IGroundRobot):
             self.mine_service.process_found_mine(message)
 
     def go_coverage(self):
+        """ Belirlenen hedef alanı tarar """
         if self._robot_state and self._robot_state.status is Status.COMPLETED or self.go_to(self.target_location):
             target_loc = self.search_service.calculate_target_location(
                 self.robot_location)
@@ -136,6 +145,7 @@ class GroundRobot(IGroundRobot):
             self.go_to(self.target_location)
 
     def turn_with_degree(self, degree, delta=1):
+        """ Robot belirlenen hedefe döner. """
         self.change_state(State.CHANGE_ROTATION)
         if self._robot_state.state is not State.CHANGE_ROTATION:
             return
@@ -166,6 +176,7 @@ class GroundRobot(IGroundRobot):
                         self.move_right()
 
     def calculate_area_to_discover(self):
+        """ Robot alan taramak için uygun alanlar arasından seçim yapar ve bu seçimi öncelik sırasına göre yapar. """
         available_fields = self.field_service.available_fields
 
         if self.target_field is not None:
@@ -198,6 +209,7 @@ class GroundRobot(IGroundRobot):
         self.search_service.create_subdivisions(self.target_field.loc_limit)
 
     def select_area(self):
+        """ Robotlar haritanın başlangıç konumunu Y ekseninde en düşük değere sahip olan robota göre belirler. """
         log.info("Selecting area..")
         if GroundRobot.map_start is None:
             log.info("Initialize map start..")
@@ -216,7 +228,7 @@ class GroundRobot(IGroundRobot):
         self.calculate_area_to_discover()
 
     def avoid_obstacle(self):
-
+        """ Robot bir engel ile karşılaştığında hedef noktanın durumunu blocked olarak günceller ve engelden kaçma işlemini başlatır. """
         if self.obstacle_module.detected_location is None:
             self.obstacle_module.detected_location = self.robot_location
             end_loc = self.robot_location.calculate_end_of_circle(
@@ -269,6 +281,7 @@ class GroundRobot(IGroundRobot):
             self.go_coverage()
 
     def go_to(self, location):
+        """ Robotlar belirtilen alana gider. """
         turning_degree = self.robot_location.calculate_degree_between(
             location) % 360
         self.turn_with_degree(turning_degree)
@@ -282,6 +295,7 @@ class GroundRobot(IGroundRobot):
         return False
 
     def change_state(self, new_state, force=False):
+        """ Robotlar yaptıkları işe göre durum bilgisini günceller """
         if self._robot_state is None:
             self._robot_state = RobotState(new_state)
             return
@@ -290,6 +304,7 @@ class GroundRobot(IGroundRobot):
                 self._robot_state = RobotState(new_state)
 
     def ObstacleAvoidanceModule(self):
+        """ Robot gelen sensör verilerine göre karşılaşılan engelin sağından veya solundan geçmeye karar verir. """
         Activation = [0, 0]
 
         if self.obstacle_module.oam_reset:
@@ -341,6 +356,7 @@ class GroundRobot(IGroundRobot):
             self.obstacle_module.oam_speed[RIGHT] += DeltaS
 
     def ObstacleFollowingModule(self, side):
+        """ Robot engel ile arasındaki mesafeyi kaybetmeden engelin yanından geçerek engelden kurtulur. """
         if side is not ObstacleSide.NO_SIDE:
             self.obstacle_module.ofm_active = True
             if side is ObstacleSide.LEFT:

@@ -16,8 +16,10 @@ NB_DIST_SENS = 8
 ROBOT_SPEED = 5.0
 TIME_STEP = 64
 
+log = logging.getLogger()
 
 class IGroundRobot(Supervisor):
+    """Bu sınıf robotun en temel hareketlerini tanımlar. Örneğin ileri git, mesaj gönder vb..."""
     def __init__(self, robot_id):
         super().__init__()
         self.robot_id = int(robot_id)
@@ -27,18 +29,11 @@ class IGroundRobot(Supervisor):
         self.setup()
 
     def setup(self):
+        """Robotun ilk değerlerini ve sensörlerini kurar."""
         self.root_node = self.getFromDef("robot" + str(self.robot_id))
         self.translation_field = self.root_node.getField("translation")
         self.rotation_field = self.root_node.getField("rotation")
-        print("Getting distance sensors and enable them...")
-        # define PS_RIGHT_00 0 -----
-        # define PS_RIGHT_45 1  ---
-        # define PS_RIGHT_90 2
-        # define PS_RIGHT_REAR 3
-        # define PS_LEFT_REAR 4
-        # define PS_LEFT_90 5
-        # define PS_LEFT_45 6  ----
-        # define PS_LEFT_00 7  ----
+        log.debug("Getting distance sensors and enable them...")
         ds_names = ["PS_RIGHT_00", "PS_RIGHT_45", "PS_RIGHT_90",
                     "PS_RIGHT_REAR", "PS_LEFT_REAR", "PS_LEFT_90", "PS_LEFT_45", "PS_LEFT_00"]
         self.ps_value = [0, 0, 0, 0, 0, 0, 0, 0]
@@ -50,7 +45,7 @@ class IGroundRobot(Supervisor):
                 distance_sensor.enable(TIME_STEP)
                 self.distance_sensors.append(distance_sensor)
 
-        print("Get and reposition motors..")
+        log.debug("Get and reposition motors..")
         wheels_names = ["wheel1", "wheel2", "wheel3", "wheel4"]
 
         for wheels_name in wheels_names:
@@ -59,17 +54,17 @@ class IGroundRobot(Supervisor):
             wheel.setVelocity(0.0)
             self.wheels.append(wheel)
 
-        print("Get and Set Emitter")
+        log.debug("Get and Set Emitter")
         self.emitter = self.getDevice("emitter")
         self.emitter.setChannel(-1)
-        print("Get and set Receiver")
+        log.debug("Get and set Receiver")
         self.receiver = self.getDevice("receiver")
         self.receiver.setChannel(-1)
         self.receiver.enable(TIME_STEP)
         self.update_fields()
-        print("Setup Completed")
+        log.debug("Setup Completed")
 
-    def set_motor_speeds(self, FL=None, FR=None, BL=None, BR=None):
+    def set_motor_speeds(self, FL=None, FR=None, BL=None, BR=None, multiplier=1):
         self.wheels[0].setVelocity(ROBOT_SPEED * FL)
         self.wheels[1].setVelocity(ROBOT_SPEED * FR)
         self.wheels[2].setVelocity(ROBOT_SPEED * BL)
@@ -79,13 +74,9 @@ class IGroundRobot(Supervisor):
         # print("FL : {}, FR : {}, BL : {}, BR : {}".format(FL, FR, BL, BR))
         if FL == FR == BL == BR == 0:
             # Normal mode 1
-            # Random mode 100 
+            # Random mode 100
             FL = FR = BL = BR = 100
-            
-        self.wheels[0].setVelocity(FL * 0.00628)
-        self.wheels[1].setVelocity(FR * 0.00628)
-        self.wheels[2].setVelocity(BL * 0.00628)
-        self.wheels[3].setVelocity(BR * 0.00628)
+        self.set_motor_speeds(FL, FR, BL, BR, 0.00628)
 
     def move_forward(self):
         self.set_motor_speeds(1.0, 1.0, 1.0, 1.0)
@@ -99,7 +90,9 @@ class IGroundRobot(Supervisor):
     def move_left(self):
         self.set_motor_speeds(-0.2, 0.2, -0.2, 0.2)
 
+
     def update_fields(self):
+        """Robotun konumunu, lokasyonunu günceller. Her 1sn'de bir diğer robotlara konumunu gönderir."""
         self._robot_location = Location(self.translation_field.getSFVec3f())
         self._robot_rotation = Rotation(self.rotation_field.getSFRotation())
         if self.getTime() - self.location_last_updated_time_in_sec > 1:
@@ -109,6 +102,7 @@ class IGroundRobot(Supervisor):
         self.control_obstacle()
 
     def control_obstacle(self):
+        """Sensörlerden gelen verileri kontrol eder. Eğer bir engelle karşılaşırsa durumunu günceller."""
         for i in range(NB_DIST_SENS):
             sensor = self.distance_sensors[i]
             distance = sensor.getValue()
@@ -141,6 +135,7 @@ class IGroundRobot(Supervisor):
         return self._robot_rotation
 
     def _send_message(self, message):
+        """Diğer robotlara mesaj göndermek için oluşturulmuş utility metodu."""
         try:
             json_data = json.dumps(
                 message, default=lambda o: o.__dict__, indent=4)
@@ -150,6 +145,7 @@ class IGroundRobot(Supervisor):
             logging.debug("Exception occurred.", e)
 
     def get_message(self, callback):
+        """Diğer robotlardan gelen mesajı işlemek için kullanılır. Gelen paket üzerinde callback çalıştırılır."""
         if self.receiver.getQueueLength() > 0:
             message = self.receiver.getData()
             my_decoded_str = message.decode()

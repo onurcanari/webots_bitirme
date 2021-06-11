@@ -16,8 +16,9 @@ class MineService:
         self.start_time = time.time()
         self.mines_found = False
         self.fetch_mines()
-
+    
     def fetch_mines(self):
+        """ Rastgele oluşmuş mayınları getirir. """
         root_childrens = self.root_node.getField("children")
         for i in range(root_childrens.getCount()):
             node = root_childrens.getMFNode(i)
@@ -28,6 +29,7 @@ class MineService:
 
     # Mayın ile ilgili olasılık gibi şeyler yaparsak buraya koyarız.
     def search_for_mine(self, location: Location, found_callback):
+        """ Robotun konumunuyla mayınların konumumnu karşılaştırır. Mayınların bulunma sürelerini kaydeder. Her bulunan mayın için found_callback çalıştırılır. """
         if location is None:
             log.debug("Robot location is null. Returning.")
             return
@@ -36,7 +38,7 @@ class MineService:
             return
 
         if len(self.mines) == len(self.found_mines):
-            with open("miness_found.txt", "a") as file:
+            with open("mines_found.txt", "a") as file:
                 file.write(str(time.time() - self.start_time)+"\n")
             self.mines_found = True
 
@@ -53,6 +55,7 @@ class MineService:
                 self.add_to_found_mines(found_mine)
 
     def process_found_mine(self, message):
+        """ Mayını bulunan mayınlara kaydeder. """
         mine_loc = Location.from_coords(**vars(message.content.mine_loc))
         mine = Mine(message.content.mine_name, mine_loc, message.robot_id)
         self.add_to_found_mines(mine)

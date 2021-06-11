@@ -31,6 +31,7 @@ class SearchService:
         return self.target_points[self.target_point_index]
 
     def set_next_target(self, robot_loc: Location):
+        """ Eğer hedefe ulaşdıysa bir sonraki ziyaret edilmeyen ve bloklanmamış hedefi seçer. """
         if self.target_point is None:
             return None
 
@@ -54,6 +55,7 @@ class SearchService:
 
 
     def calculate_target_location(self, robot_loc: Location):
+        """ Hedeflere giderken diğer noktaların kontrolünü yapar. Hedefin konumunu döndürür. Eğer None dönerse bu bütün noktalara gidildi anlamına gelir. """
         next_target_set = self.set_next_target(robot_loc)
         if next_target_set is None:
             return None
@@ -67,6 +69,7 @@ class SearchService:
         return self.target_point.location
 
     def create_subdivisions(self, loc_limit: LocationLimit):
+        """ Alan üzerindeki noktaları oluşturur. """
         first_column_z = numpy.flip(numpy.linspace(loc_limit.upper_limit.z, loc_limit.lower_limit.z, self.DIVIDE_COUNT))
         first_row_x = numpy.linspace(loc_limit.lower_limit.x, loc_limit.upper_limit.x, self.DIVIDE_COUNT)
         loc_points = []

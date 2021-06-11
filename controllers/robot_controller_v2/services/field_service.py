@@ -1,8 +1,10 @@
+import logging
 from enum import Enum
-from time import sleep
 
 from models.location import Location
 from models.location_limit import LocationLimit
+
+log = logging.getLogger()
 
 
 class FieldState(str, Enum):
@@ -32,8 +34,7 @@ class Field:
         if new_state is FieldState.CAN_BE_SCANNED:
             if self._state is not FieldState.NONE:
                 return
-        logger.debug("State with x: {}, y: {} old_state: {} => new_state: {}".format(
-            self.x, self.y, self._state, new_state))
+        # logger.debug("Field State Update : {}\n(old_state: {} => new_state: {})".format(self.loc_limit, self._state, new_state))
         self._state = new_state
 
 
@@ -41,20 +42,17 @@ class FieldService:
     MAP_LENGTH = 21
     DELTA = 1
 
-    def __init__(self, middle_loc: Location, offset: Location, log=None):
-        global logger
-        logger = log
+    def __init__(self, middle_loc: Location, offset: Location, robot_locations):
+        self.robot_locations = robot_locations
         self.fields: [Field] = [[0 for i in range(
             FieldService.MAP_LENGTH)] for j in range(FieldService.MAP_LENGTH)]
         middle_coords = [[0 for i in range(FieldService.MAP_LENGTH)] for j in range(
             FieldService.MAP_LENGTH)]
         firstSideX = middle_loc.x - (FieldService.MAP_LENGTH // 2 * offset.x)
         firstSideZ = middle_loc.z - (FieldService.MAP_LENGTH // 2 * offset.z)
-        
 
         self._available_fields: [Field] = None
         self.delta = 0
-        # TODO LOC LİMİTLER YANLIŞ YERDE OLUŞTURULUYOR KONTROL ET
         for i in range(FieldService.MAP_LENGTH):
             for j in range(FieldService.MAP_LENGTH):
                 middle_coords[i][j] = Location.from_coords(
@@ -73,8 +71,9 @@ class FieldService:
         return self.fields[FieldService.MAP_LENGTH // 2][FieldService.MAP_LENGTH // 2]
 
     def change_field_state(self, field):
-        self.fields[field.x][field.y].state = field._state
-        self.fields[field.x][field.y].scanner = field.scanner
+        field_to_change = self.fields[field.x][field.y]
+        field_to_change.state = field._state
+        field_to_change.scanner = field.scanner
         if not self.is_available_to_search():
             self.make_field_neighbors_available(FieldService.DELTA)
 
@@ -85,9 +84,11 @@ class FieldService:
         return self._available_fields
 
     def is_available_to_search(self) -> bool:
-        _available_fields = list(
-            filter(lambda f: f.state == FieldState.CAN_BE_SCANNED, self._available_fields))
-        if not _available_fields:
+        self._available_fields = list(
+            filter(lambda f: f.state == FieldState.CAN_BE_SCANNED and self.is_field_in_coverage_area(f),
+                   self._available_fields))
+
+        if not self._available_fields:
             return False
         return True
 
@@ -120,7 +121,10 @@ class FieldService:
                         new_field.state = FieldState.CAN_BE_SCANNED
                         available_fields.append(new_field)
 
-        # if available_fields:
-        #     for item in available_fields:
-        #         print(item)
         return available_fields
+
+    def is_field_in_coverage_area(self, field):
+        for robot_id, loc in self.robot_locations.items():
+            if loc.distance_to_other_loc(field.loc_limit.lower_limit) < 10:
+                return True
+        return False
